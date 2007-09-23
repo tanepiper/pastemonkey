@@ -1,0 +1,84 @@
+body,
+html {
+	margin:0;
+	padding:0;
+	background:#fff;
+	color:#000;
+}
+body {
+	min-width:750px;
+}
+
+h1, h2, h3, h4 {
+font-family:'Lucida Grande','Trebuchet MS',Arial,Helvetica,sans-serif;
+}
+#wrap {
+	background:#fff;
+	margin:0 auto;
+	width:980px;
+}
+#header {
+	background:#000;
+}
+#header h1 {
+   	padding:5px;
+    margin:0;
+   }
+#header h1 a {
+	color: #FFCC44;
+	text-decoration:none;
+}
+#nav {
+	background:#fff;
+	padding:5px;
+}
+#nav ul{
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+#nav li{
+	display:inline;
+	margin:0;
+	padding:0;
+}
+#nav li a {
+	color: #000;
+}
+#main {
+	background:#fff;
+	float:left;
+	width:800px;
+}
+#main h2, #main h3, #main p {
+	padding:0 10px;
+}
+
+#main .paste-area ol {
+	background: #fff;
+	color: #0f0;
+}
+
+#main .paste-area ol li {
+	color:#000;
+}
+
+#sidebar {
+	background:#fff;
+	float:right;
+	width:170px;
+}
+#sidebar ul {
+	margin-bottom:0;
+}
+#sidebar h3, #sidebar p {
+	padding:0 10px 0 0;
+}
+#footer {
+	background:#fff;
+	clear:both;
+}
+#footer p {
+	padding:5px;
+	margin:0;
+}
