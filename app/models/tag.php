@@ -17,7 +17,7 @@ class Tag extends AppModel {
 						'order' => '',
 						'limit' => '',
 						'offset' => '',
-						'unique' => '',
+						'unique' => true,
 						'finderQuery' => '',
 						'deleteQuery' => '',
 						'insertQuery' => ''),

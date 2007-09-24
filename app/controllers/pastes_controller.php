@@ -92,6 +92,7 @@ class PastesController extends AppController {
 	function latest($num = 10) {
 		$latest = $this->Paste->findAll(null,array('Paste.id','Paste.author','Paste.created'),array('Paste.created'=>'DESC'),10);
 		$this->set('latest',$latest);
+		return $latest;
 	}
 
 }

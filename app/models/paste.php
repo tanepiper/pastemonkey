@@ -40,6 +40,5 @@ class Paste extends AppModel {
 						'deleteQuery' => '',
 						'insertQuery' => ''),
 	);
-
 }
 ?>

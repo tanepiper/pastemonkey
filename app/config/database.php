@@ -5,8 +5,8 @@ class DATABASE_CONFIG {
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => 'root',
-		'password' => '',
+		'login' => 'pastemonkey',
+		'password' => 'pastemonkey',
 		'database' => 'pastemonkey', 
 		'prefix' => '' 
 	);

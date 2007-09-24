@@ -10,18 +10,28 @@
 	?>
 
 	<div<?php echo $class;?>>
-		<h4><?php __('Language');?> : <?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id'])); ?></h4>
-		<div><?php __('Pasted By');?>  on <?php echo $paste['Paste']['created']?></div>
-		
+		<div class="infoarea">
+			<table>
+				<tr>
+					<td><?php __('Author');?>:</td>
+					<td><?php e($paste['Paste']['author']);?></td>
+					<td><?php __('Language');?>:</td>
+					<td><?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id'])); ?></td>
+				</tr>
+				<tr>
+					<td><?php __('Date Posted');?>:</td>
+					<td><?php echo $paste['Paste']['created']?></td>
+					<td><?php __('Note');?>:</td>
+					<td><?php echo $paste['Paste']['note']?></td>
+				</tr>
+			</table>
+		</div>
 		<div class="paste-area">
 			<?php echo $paste['Paste']['paste_formatted']?>
 		</div>
 		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id'])); ?>
 		<hr />
 		<?php e($form->input('plain_paste',array('type'=>'textarea','value'=>$paste['Paste']['paste'])));?>
-		<hr />
-		<?php echo $paste['Paste']['note']?>
-		<hr />
 		<?php echo $paste['Paste']['tags']?>
 		<hr />
 		<h4><?php __('Expires');?> :<?php echo $paste['Paste']['expiry']?></h4>

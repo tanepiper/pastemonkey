@@ -1,5 +1,3 @@
-var $pastemonkey = jQuery.noConflict();
-
 $pastemonkey(document).ready(function() {
 	$pastemonkey('.new-paste').bind('click', function(){
 			$pastemonkey('<div></div>').addClass('ajax-new-paste').css({display: 'none'}).insertBefore('.pastes');
@@ -9,5 +7,15 @@ $pastemonkey(document).ready(function() {
 			return false;
 	});
 	
-	$pastemonkey('ol').shadow();
+	$pastemonkey('.cancel-paste').livequery(function(){
+		$pastemonkey(this).bind('click', function(){
+			$pastemonkey('.ajax-new-paste').animate({height:'hide', opacity:'hide'}).remove();
+			return false;
+		});
+	});
+	
+	$pastemonkey('#PasteExpiry').livequery(function(){
+		$pastemonkey(this).calendar();
+	});
+	
 });
