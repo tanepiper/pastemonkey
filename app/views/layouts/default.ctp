@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
-		<title>\_/ Paste Monkey \_/</title>
+		<title><?php e($pm_sitename);?></title>
 		<?php e($html->charset());?>
 		
 		<?php echo $html->css('pastemonkey');?>
@@ -16,7 +16,7 @@
 	</head>
 	<body>
 		<div id="wrap">
-			<div id="header"><h1><a href="/"><?php __('Paste Monkey'); ?></a></h1></div>
+			<div id="header"><h1><a href="/"><?php e($pm_sitename);?></a></h1></div>
 			<div id="nav">
 				<?php e($this->renderElement('navigation'));?>
 			</div>
