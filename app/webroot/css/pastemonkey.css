@@ -13,6 +13,16 @@ body {
 h1, h2, h3, h4 {
 
 }
+
+ul {
+	list-style:none;
+	line-height:1.4em;
+}
+
+ul li {
+	margin-bottom: 5px;
+}
+
 #wrap {
 	background:#fff;
 	margin:0 auto;

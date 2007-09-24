@@ -12,8 +12,8 @@
 				<tr>
 					<td><?php __('Date Posted');?>:</td>
 					<td><?php echo $paste['Paste']['created']?></td>
-					<td><?php __('Note');?>:</td>
-					<td><?php echo $paste['Paste']['note']?></td>
+					<td><?php __('Expires');?>:</td>
+					<td><?php echo $paste['Paste']['expiry']?></td>
 				</tr>
 				<tr>
 					<td><?php __('Tags');?>:</td>
@@ -23,19 +23,19 @@
 					<td><?php __('Permalink');?>:</td>
 					<td colspan="3"><?php e(SITE_URL . '/pastes/view/' . $paste['Paste']['id']);?></td>
 				</tr>
+				<tr>
+					<td><?php __('Note');?>:</td>
+					<td colspan="3"><?php echo $paste['Paste']['note']?></td>
+				</tr>
 			</table>
 		</div>
 		<div>
 			<?php echo $paste['Paste']['paste_formatted']?>
 		</div>
-		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id']), array('class'=>'viewPaste')); ?>
 		<hr />
 		<?php e($form->input('plain_paste',array('type'=>'textarea','value'=>$paste['Paste']['paste'], 'id'=>'PasteCopy' . $paste['Paste']['id'], 'class'=>'PasteCopy')));?>
 		<?php e($html->link(__('Select All Text', true), '#', array('id'=>'PasteCopyButton' . $paste['Paste']['id'])));?>
 		<?php e($javascript->codeBlock('$pastemonkey("#PasteCopyButton' . $paste['Paste']['id'] . '").bind("click", function(){$pastemonkey("#PasteCopy' . $paste['Paste']['id'] . '").focus();$pastemonkey("#PasteCopy' . $paste['Paste']['id'] . '").select();return false;});'));?>
-
-		<hr />
-		<h4><?php __('Expires');?> :<?php echo $paste['Paste']['expiry']?></h4>
 	</div>
 	</div>
 </div>
