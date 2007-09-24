@@ -10,6 +10,7 @@
 		<?php e($javascript->codeBlock('var $pastemonkey = jQuery.noConflict();'));?>
 		<?php e($javascript->link('jquery.dimensions.min'));?>
 		<?php e($javascript->link('jquery.livequery'));?>
+		<?php e($javascript->link('jquery.color'));?>
 		<?php e($javascript->link('ui.calendar'));?>
 		<?php e($javascript->link('pastemonkey'));?>
 	</head>

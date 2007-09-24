@@ -31,10 +31,11 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	$pastemonkey('#main').ajaxStart(function(){
-		$pastemonkey('.loading').fadeIn();
+		$pastemonkey('.loading').animate({opacity:'show', backgroundColor: '#0f0'}, 'slow', 'linear')
+		.animate({backgroundColor: '#fff'});
 	});
 	$pastemonkey('#main').ajaxStop(function(){
-		$pastemonkey('.loading').fadeOut();
+		$pastemonkey('.loading').animate({opacity: 'hide'});
 	});
 	
 	$pastemonkey('.viewPaste').livequery(function(){
