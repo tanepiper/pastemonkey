@@ -18,4 +18,25 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).calendar();
 	});
 	
+	$pastemonkey('a', '.paging').livequery(function(){
+		$pastemonkey(this).bind('click', function(){
+			$pastemonkey('#main').load($pastemonkey(this).attr('href'));
+			return false;
+		});
+	});
+	
+	$pastemonkey('#main').ajaxStart(function(){
+		$pastemonkey('.loading').fadeIn();
+	});
+	$pastemonkey('#main').ajaxStop(function(){
+		$pastemonkey('.loading').fadeOut();
+	});
+	
+	$pastemonkey('.viewPaste').livequery(function(){
+		$pastemonkey(this).bind('click', function(){
+			$pastemonkey('#main').load($pastemonkey(this).attr('href'));
+			return false;
+		});
+	});
+	
 });

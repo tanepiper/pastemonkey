@@ -19,6 +19,7 @@
 			<div id="nav">
 				<?php e($this->renderElement('navigation'));?>
 			</div>
+			<div class="loading" style="display:none">Loading</div>
 			<div id="main">
 				<?php
 					if ($session->check('Message.flash')):

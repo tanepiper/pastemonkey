@@ -56,8 +56,10 @@ h1, h2, h3, h4 {
 }
 
 #main .paste-area ol {
-	background: #fff;
+	background: #eee;
 	color: #0f0;
+	height: 150px;
+	overflow: hidden;
 }
 
 #main .paste-area ol li {
