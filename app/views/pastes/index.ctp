@@ -34,6 +34,10 @@
 					<td><?php __('Tags');?>:</td>
 					<td colspan="3"><?php echo $paste['Paste']['tags']?></td>
 				</tr>
+				<tr>
+					<td><?php __('Permalink');?>:</td>
+					<td colspan="3"><?php e(SITE_URL . '/pastes/view/' . $paste['Paste']['id']);?></td>
+				</tr>
 			</table>
 		</div>
 		<div class="paste-area">

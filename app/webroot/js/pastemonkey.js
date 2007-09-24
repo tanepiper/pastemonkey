@@ -7,6 +7,11 @@ $pastemonkey(document).ready(function() {
 			return false;
 	});
 	
+	$pastemonkey('.home').bind('click', function(){
+		$pastemonkey('#main').load('/');
+		return false;
+	});
+	
 	$pastemonkey('.cancel-paste').livequery(function(){
 		$pastemonkey(this).bind('click', function(){
 			$pastemonkey('.ajax-new-paste').animate({height:'hide', opacity:'hide'}).remove();
