@@ -14,6 +14,10 @@ h1, h2, h3, h4 {
 
 }
 
+a {
+	color: #539FCF;
+}
+
 ul {
 	list-style:none;
 	line-height:1.4em;

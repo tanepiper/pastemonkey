@@ -13,10 +13,12 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	$pastemonkey('.cancel-paste').livequery(function(){
-		$pastemonkey(this).bind('click', function(){
+		$pastemonkey(this).bind('click.cancelPaste', function(){
 			$pastemonkey('.ajax-new-paste').animate({height:'hide', opacity:'hide'}).remove();
 			return false;
 		});
+	}, function(){
+		$pastemonkey(this).unbind('click.cancelPaste');
 	});
 	
 	$pastemonkey('#PasteExpiry').livequery(function(){
@@ -24,10 +26,12 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	$pastemonkey('a', '.paging').livequery(function(){
-		$pastemonkey(this).bind('click', function(){
+		$pastemonkey(this).bind('click.paging', function(){
 			$pastemonkey('#main').load($pastemonkey(this).attr('href'));
 			return false;
 		});
+	}, function(){
+		$pastemonkey(this).unbind('click.paging');
 	});
 	
 	$pastemonkey('#main').ajaxStart(function(){
@@ -39,10 +43,12 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	$pastemonkey('.viewPaste').livequery(function(){
-		$pastemonkey(this).bind('click', function(){
+		$pastemonkey(this).bind('click.viewPaste', function(){
 			$pastemonkey('#main').load($pastemonkey(this).attr('href'));
 			return false;
 		});
+	}, function(){
+		$pastemonkey(this).unbind('click.viewPaste');
 	});
 	
 });
