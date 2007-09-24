@@ -94,6 +94,47 @@ class PastesController extends AppController {
 		$this->set('latest',$latest);
 		return $latest;
 	}
+	
+	function download($id = null) {
+		$ok = false;		
+		$this->layout = 'download';
+		$paste = $this->Paste->read(null, $id);
+		$lang = $this->Paste->Language->find(array('id' => $paste['Paste']['language_id']));			
+		$lang = strtolower($lang['Language']['language']);
+		$ext="txt";
+			switch($lang)
+			{
+				case 'bash':
+					$ext='sh';
+					break;
+				case 'actionscript':
+					$ext='html';
+					break;
+				case 'html4strict':
+					$ext='html';
+					break;
+				case 'javascript':
+					$ext='js';
+					break;
+				case 'perl':
+					$ext='pl';
+					break;
+				case 'php':
+				case 'c':
+				case 'cpp':
+				case 'css':
+				case 'xml':
+					$ext=$lang;
+					break;
+			}
+			
+			$this->set('paste', $paste);
+			$this->set('ext',$ext);
+			header('Content-type: text/plain');
+			header('Content-Disposition: attachment; filename="paste-'.$paste['Paste']['id'].'.'.$ext.'"');
+			$ok=true;
+			return $ok;
+	}
 
 }
 ?>

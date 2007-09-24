@@ -30,6 +30,7 @@
 			</table>
 		</div>
 		<div>
+			<div><?php e($html->link(__('Download Code',true), array('controller'=> 'pastes', 'action'=>'download', $paste['Paste']['id']), array('class'=>'download')));?></div>
 			<?php echo $paste['Paste']['paste_formatted']?>
 		</div>
 		<hr />
