@@ -14,6 +14,7 @@
 		echo $form->input('parent_id', array('type'=>'hidden'));
 		echo $form->input('language_id');
 		echo $form->input('author');
+		e($form->input('remember_me', array('type'=>'checkbox', 'disabled'=>'disabled')));
 		echo $form->input('expiry');
 	?>
 	</fieldset>
