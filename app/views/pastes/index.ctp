@@ -17,28 +17,8 @@
 
 	<div<?php echo $class;?>>
 		<div class="infoarea">
-			<table>
-				<tr>
-					<td><?php __('Author');?>:</td>
-					<td><?php e($paste['Paste']['author']);?></td>
-					<td><?php __('Language');?>:</td>
-					<td><?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id'])); ?></td>
-				</tr>
-				<tr>
-					<td><?php __('Date Posted');?>:</td>
-					<td><?php echo $paste['Paste']['created']?></td>
-					<td><?php __('Expires');?>:</td>
-					<td><?php echo $paste['Paste']['expiry']?></td>
-				</tr>
-				<tr>
-					<td><?php __('Permalink');?>:</td>
-					<td colspan="3"><?php e(SITE_URL . '/pastes/view/' . $paste['Paste']['id']);?></td>
-				</tr>
-				<tr>
-					<td><?php __('Note');?>:</td>
-					<td colspan="3"><?php echo $paste['Paste']['note']?></td>
-				</tr>
-			</table>
+			<div><?php __('Paste By');?> <?php e($paste['Paste']['author']);?></div>
+			<div><?php __('Language');?> <?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id'])); ?></div>
 		</div>
 		<div class="paste-area">
 			<?php echo $paste['Paste']['paste_formatted']?>
