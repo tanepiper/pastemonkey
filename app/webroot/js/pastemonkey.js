@@ -1,5 +1,8 @@
 $pastemonkey(document).ready(function() {
-	$pastemonkey('.new-paste').bind('click', function(){
+	
+	/* Basic Bind Functions */
+	
+	$pastemonkey('.new-paste').bind('click.newPaste', function(){
 			$pastemonkey('<div></div>').addClass('ajax-new-paste').css({display: 'none'}).insertBefore('.pastes');
 			$pastemonkey('.ajax-new-paste').load('/pastes/add', function(){
 				$pastemonkey(this).animate({height: 'show', opacity: 'show'});
@@ -7,10 +10,12 @@ $pastemonkey(document).ready(function() {
 			return false;
 	});
 	
-	$pastemonkey('.home').bind('click', function(){
-		$pastemonkey('#main').load('/');
+	$pastemonkey('.home').bind('click.home', function(){
+		$pastemonkey('.paste').load($pastemonkey(this).attr('href'));
 		return false;
 	});
+	
+	/* Live Query Functions*/
 	
 	$pastemonkey('.cancel-paste').livequery(function(){
 		$pastemonkey(this).bind('click.cancelPaste', function(){
@@ -30,14 +35,6 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).unbind('click.paging');
 	});
 	
-	$pastemonkey('#main').ajaxStart(function(){
-		$pastemonkey('.loading').animate({opacity:'show', backgroundColor: '#0f0'}, 'slow', 'linear')
-		.animate({backgroundColor: '#fff'});
-	});
-	$pastemonkey('#main').ajaxStop(function(){
-		$pastemonkey('.loading').animate({opacity: 'hide'});
-	});
-	
 	$pastemonkey('.viewPaste').livequery(function(){
 		$pastemonkey(this).bind('click.viewPaste', function(){
 			$pastemonkey('#main').load($pastemonkey(this).attr('href'));
@@ -47,17 +44,15 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).unbind('click.viewPaste');
 	});
 	
-	//FIXME: Submits form twice
-	/*$pastemonkey('#PasteAddForm').livequery(function(){
-		$pastemonkey(this).submit(function(){
-			$pastemonkey(this).ajaxSubmit(function(){
-			$pastemonkey('.ajax-new-paste').animate({opacity: 'hide', height: 'hide'}).remove();
-			$pastemonkey('#main').load('/');
-			$pastemonkey('.latest-pastes').load('/pastes/latest');
-				
-		});
-		return false;
-		});
-	});*/
+	/* AJAX Start/Stop Functions*/
 	
+	$pastemonkey('#main').ajaxStart(function(){
+		$pastemonkey('.loading').animate({opacity:'show', backgroundColor: '#0f0'}, 'slow', 'linear')
+		.animate({backgroundColor: '#fff'});
+	});
+	$pastemonkey('#main').ajaxStop(function(){
+		$pastemonkey('.loading').animate({opacity: 'hide'});
+	});
+	
+		
 });

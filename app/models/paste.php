@@ -7,7 +7,7 @@ class Paste extends AppModel {
 		'language_id' => VALID_NOT_EMPTY,
 	);
 	
-	var $actsAs = array('Geshi', 'Tag'=>array('table_label'=>'tags', 'tags_label'=>'tag', 'separator'=>',')); 
+	var $actsAs = array('Geshi', 'Tag'); 
 	
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 	var $belongsTo = array(
@@ -30,15 +30,9 @@ class Paste extends AppModel {
 						'joinTable' => 'pastes_tags',
 						'foreignKey' => 'paste_id',
 						'associationForeignKey' => 'tag_id',
-						'conditions' => '',
-						'fields' => '',
-						'order' => '',
-						'limit' => '',
-						'offset' => '',
-						'unique' => true,
-						'finderQuery' => '',
-						'deleteQuery' => '',
-						'insertQuery' => ''),
+						'fields' => array('Tag.id', 'Tag.tag'),
+						'order' => 'Tag.tag ASC',
+						'unique' => true),
 	);
 	
 	/*function beforeSave($result) {
