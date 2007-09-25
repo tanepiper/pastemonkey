@@ -7,7 +7,7 @@ class Paste extends AppModel {
 		'language_id' => VALID_NOT_EMPTY,
 	);
 	
-	var $actAs = array('Tag'=>array('table_label'=>'tags', 'tags_label'=>'tag', 'separator'=>',')); 
+	var $actsAs = array('Geshi', 'Tag'=>array('table_label'=>'tags', 'tags_label'=>'tag', 'separator'=>',')); 
 	
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 	var $belongsTo = array(
@@ -40,5 +40,15 @@ class Paste extends AppModel {
 						'deleteQuery' => '',
 						'insertQuery' => ''),
 	);
+	
+	/*function beforeSave($result) {
+		pr($result);
+		foreach ($result as $key => $val) {
+			if(!isset($val['Paste']['author'])) {
+				$result[$key]['Paste']['author'] == 'Anonymous';
+			}
+		}
+		return $result;
+	}*/
 }
 ?>

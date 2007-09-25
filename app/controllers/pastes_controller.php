@@ -8,16 +8,7 @@ class PastesController extends AppController {
 
 	function index() {
 		$this->Paste->recursive = 0;
-		
-		$pastes = $this->paginate();
-		$i = 0;
-		foreach ($pastes as $paste) {
-			$lang = $this->Paste->Language->find(array('id' => $paste['Paste']['language_id']));			
-			$lang = strtolower($lang['Language']['language']);
-			$pastes[$i]['Paste']['paste_formatted'] = $this->Geshi->generate($paste['Paste']['paste'],$lang);
-			$i++;
-		}
-		$this->set('pastes', $pastes);
+		$this->set('pastes', $this->paginate());
 	}
 
 	function view($id = null) {
@@ -25,25 +16,13 @@ class PastesController extends AppController {
 			$this->Session->setFlash('Invalid Paste.');
 			$this->redirect(array('action'=>'index'), null, true);
 		}
-		
-		$paste = $this->Paste->read(null, $id);
-
-		$lang = $this->Paste->Language->find(array('id' => $paste['Paste']['language_id']));			
-		$lang = strtolower($lang['Language']['language']);
-		$paste['Paste']['paste_formatted'] = $this->Geshi->generate($paste['Paste']['paste'],$lang);
-		
-		$this->set('paste', $paste);
+		$this->set('paste', $this->Paste->read(null, $id));
 	}
 
 	function add() {
 		if (!empty($this->data)) {
 			$this->cleanUpFields();
-			$this->Paste->create();		
-			
-			if ($this->data['Paste']['author'] == '') {
-				$this->data['Paste']['author'] = 'Anonymous';
-			}
-						
+			$this->Paste->create();
 			if ($this->Paste->save($this->data)) {
 				$this->Session->setFlash('The Paste has been saved');
 				$this->redirect(array('action'=>'index'), null, true);

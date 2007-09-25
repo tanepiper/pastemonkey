@@ -21,10 +21,6 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).unbind('click.cancelPaste');
 	});
 	
-	$pastemonkey('#PasteExpiry').livequery(function(){
-		$pastemonkey(this).calendar();
-	});
-	
 	$pastemonkey('a', '.paging').livequery(function(){
 		$pastemonkey(this).bind('click.paging', function(){
 			$pastemonkey('#main').load($pastemonkey(this).attr('href'));
@@ -50,5 +46,18 @@ $pastemonkey(document).ready(function() {
 	}, function(){
 		$pastemonkey(this).unbind('click.viewPaste');
 	});
+	
+	//FIXME: Submits form twice
+	/*$pastemonkey('#PasteAddForm').livequery(function(){
+		$pastemonkey(this).submit(function(){
+			$pastemonkey(this).ajaxSubmit(function(){
+			$pastemonkey('.ajax-new-paste').animate({opacity: 'hide', height: 'hide'}).remove();
+			$pastemonkey('#main').load('/');
+			$pastemonkey('.latest-pastes').load('/pastes/latest');
+				
+		});
+		return false;
+		});
+	});*/
 	
 });
