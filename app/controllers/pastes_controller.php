@@ -4,7 +4,7 @@ class PastesController extends AppController {
 	var $name = 'Pastes';
 	var $helpers = array('Html', 'Form' );
 
-	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' ,'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language'),'limit'=>2, 'order'=>array('Paste.created'=>'DESC'));
+	var $paginate = array(/*'fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' ,'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language'),*/'limit'=>2, 'order'=>array('Paste.created'=>'DESC'));
 
 	function index() {
 		$this->Paste->recursive = 0;
