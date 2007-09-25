@@ -17,7 +17,11 @@
 				</tr>
 				<tr>
 					<td><?php __('Tags');?>:</td>
-					<td colspan="3"><?php echo $paste['Paste']['tags']?></td>
+					<td colspan="3">
+						<?php foreach($paste['Tag'] as $tag) {
+							e($html->link($tag['tag'], array('controller'=>'tags', 'action'=>'view', $tag['id'])) . ' ');
+						} ?>
+					</td>
 				</tr>
 				<tr>
 					<td><?php __('Permalink');?>:</td>

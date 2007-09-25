@@ -11,7 +11,7 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	$pastemonkey('.home').bind('click.home', function(){
-		$pastemonkey('.paste').load($pastemonkey(this).attr('href'));
+		$pastemonkey('.#main').load($pastemonkey(this).attr('href'));
 		return false;
 	});
 	

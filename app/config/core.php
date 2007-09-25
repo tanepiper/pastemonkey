@@ -56,7 +56,7 @@ define ('SITE_URL', 'http://cakephp.digitalspaghetti.me.uk');
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	define('DEBUG', 3);
+	define('DEBUG', 0);
 /**
  * Turn off or enable cache checking application-wide.
  *

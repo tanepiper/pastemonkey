@@ -19,9 +19,12 @@ class GeshiBehavior extends ModelBehavior {
 		foreach ($results as $key => $val) {
 			if(isset($val['Paste']['paste'])) {
 				$results[$key]['Paste']['paste_formatted'] = $this->_generate($val['Paste']['paste'], strtolower($val['Language']['language']), $model);
+			} else if (isset($val['Paste'][0]['paste'])){
+				foreach ($val['Paste'] as $key2 => $val2) {
+					$results[$key]['Paste'][$key2]['paste_formatted'] = $this->_generate($val2['paste'], strtolower($val['Language']['language']), $model);
+				}
 			}
 		}
-		
 		return $results;
 	}
 	

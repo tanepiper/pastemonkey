@@ -35,7 +35,14 @@ class Paste extends AppModel {
 						'unique' => true),
 	);
 	
-	/*function beforeSave($result) {
+	/*function afterFind($results) {
+		foreach ($results as $key => $val) {
+			$tags = $this->Tag->findAll(array('PasteTag.paste_id'=>$val['Paste']['id']));
+			pr($tags);
+		}
+	}
+	
+	function beforeSave($result) {
 		pr($result);
 		foreach ($result as $key => $val) {
 			if(!isset($val['Paste']['author'])) {
