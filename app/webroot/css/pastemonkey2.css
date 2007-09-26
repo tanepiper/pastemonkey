@@ -1,0 +1,89 @@
+html,body{margin:0;padding:0}
+body{font: 76% arial,sans-serif}
+p{margin:0 10px 10px}
+
+a {
+	display:block;
+	color: #539FCF;
+	text-decoration:none;
+}
+
+ul {
+	list-style:none;
+	line-height:1.4em;
+}
+
+ul li {
+	margin-bottom: 5px;
+}
+
+
+div#header h1{height:80px;line-height:80px;margin:0;
+  padding-left:10px;background: #000;color: #539FCF}
+div#content p{line-height:1.4}
+div#navigation{background:#000; color:#fff;}
+div#extra{background:#FF8539}
+div#footer{background: #333;color: #FFF}
+div#footer p{margin:0;padding:5px 10px}
+
+div#content .paste-area ol {
+	background: #eee;
+	color: #0f0;
+	height: 150px;
+	overflow: hidden;
+}
+
+div#content .paste-area ol li {
+	color:#000;
+}
+
+div#wrapper{float:left;width:100%}
+div#content{margin-left:200px; padding:20px;}
+div#navigation{float:left;width:200px;margin-left:-100%}
+div#extra{clear:left;width:100%}
+
+label {
+	display:block;
+}
+
+textarea {
+	width:99%;
+	border-top:2px solid #444;
+	border-left: 2px solid #444;
+	border-bottom: 2px solid #ccc;
+	border-right: 2px solid #ccc;
+}
+
+table {
+	width:99%;
+}
+
+td {
+	width: 25%;
+}
+
+div#content .ajax-new-paste {
+	background: #444;
+}
+
+div#content .paging div {
+ float: left;
+}
+
+div#content .paging a {
+ float: left;
+}
+
+#latest-pastes {
+	font-size:50%;
+}
+
+#latest-pastes ul {
+	margin:0;
+	padding:0;
+}
+
+#latest-pastes ul li{
+	margin:5px 0;
+	padding:0;
+}

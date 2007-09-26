@@ -6,6 +6,7 @@ class AppController extends Controller {
 	
 	function beforeFilter()
 	{
+		$this->layout = "default2";
   		$this->Conf->startup(&$this);
 		$this->set('pm_sitename', $this->Conf->get('app.basics','Paste Monkey', true, true)); 
 	} 

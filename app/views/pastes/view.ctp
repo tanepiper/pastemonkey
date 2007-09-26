@@ -46,6 +46,7 @@
 					<?php e($html->link(__('Run Code in Firebug',true), '#', array('class'=>'eval-' . $paste['Paste']['id'])));?>
 					<?php e($javascript->codeBlock('$pastemonkey(".eval-' . $paste['Paste']['id'] . '").bind("click", function(){var runeval = confirm("' . __('Warning<br />Running unknown scripts in your browser can be dangerous.  Please note that this site takes NO responibility for damage or loss of data that occurs through you running a bad script.', true) . '"); if (runeval == true) { console.log(eval($pastemonkey("#PasteCopy' . $paste['Paste']['id'] . '").text())); } return false;});'));?>
 				<?php } ?>
+				<?php e($html->link(__('Edit Code',true), array('controller'=> 'pastes', 'action'=>'edit', $paste['Paste']['id']), array('class'=>'editPaste')));?>
 			</div>
 			<?php echo $paste['Paste']['paste_formatted']?>
 		</div>
