@@ -3,12 +3,40 @@
 -- http://www.phpmyadmin.net
 -- 
 -- Host: localhost
--- Generation Time: Sep 24, 2007 at 01:15 PM
+-- Generation Time: Sep 26, 2007 at 05:06 PM
 -- Server version: 5.0.38
 -- PHP Version: 5.2.1
 -- 
 -- Database: `pastemonkey`
 -- 
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `attachments`
+-- 
+
+DROP TABLE IF EXISTS `attachments`;
+CREATE TABLE `attachments` (
+  `id` char(36) collate utf8_unicode_ci NOT NULL,
+  `model` varchar(25) collate utf8_unicode_ci NOT NULL,
+  `model_id` char(36) collate utf8_unicode_ci NOT NULL,
+  `group` varchar(20) collate utf8_unicode_ci NOT NULL,
+  `mime_type` varchar(50) collate utf8_unicode_ci default NULL,
+  `user_id` char(36) collate utf8_unicode_ci NOT NULL,
+  `order` int(11) NOT NULL,
+  `title` varchar(100) collate utf8_unicode_ci default NULL,
+  `body` text collate utf8_unicode_ci NOT NULL,
+  `description` text collate utf8_unicode_ci,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- 
+-- Dumping data for table `attachments`
+-- 
+
 
 -- --------------------------------------------------------
 
@@ -151,10 +179,14 @@ CREATE TABLE `pastes` (
   `tags` text collate utf8_unicode_ci,
   `parent_id` int(11) unsigned default NULL,
   `language_id` int(11) NOT NULL,
+  `filename` varchar(255) collate utf8_unicode_ci default NULL,
+  `dir` varchar(255) collate utf8_unicode_ci default NULL,
+  `mimetype` varchar(255) collate utf8_unicode_ci default NULL,
+  `filesize` int(15) default NULL,
   `created` datetime default NULL,
   `expiry` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- 
 -- Dumping data for table `pastes`
@@ -176,7 +208,6 @@ CREATE TABLE `pastes_tags` (
 -- Dumping data for table `pastes_tags`
 -- 
 
-
 -- --------------------------------------------------------
 
 -- 
@@ -190,10 +221,8 @@ CREATE TABLE `tags` (
   `created` datetime default NULL,
   `modified` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- 
 -- Dumping data for table `tags`
 -- 
-
-
