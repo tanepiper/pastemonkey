@@ -12,6 +12,7 @@
 		<?php e($javascript->link('jquery.livequery'));?>
 		<?php e($javascript->link('jquery.color'));?>
 		<?php e($javascript->link('pastemonkey'));?>
+		<?php echo $scripts_for_layout;?>
 	</head>
 	<body>
 		<div id="wrap">

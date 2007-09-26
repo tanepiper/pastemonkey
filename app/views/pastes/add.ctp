@@ -24,3 +24,19 @@
 	</fieldset>
 	<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
 </div>
+<div class='attach_this'>
+<fieldset>
+		<legend><?php __('Attachment');?></legend>
+		
+			<?php 
+				$html->css('swf_upload', null, null, false);
+				$javascript->link('swfobject', false);
+				$javascript->link('swf_upload', false); 
+				$javascript->link('swf_upload_functions', false); 
+		
+				echo $this->renderElement('attachment_form', array('model'=>'Project','model_id'=>$this->data['Project']['id'],'group'=>'image', 'title'=>'Upload image'));
+		
+				echo $this->renderElement('attachment_list', array('model'=>'Project','model_id'=>$this->data['Project']['id'],'group'=>'image'));
+		?>	
+</fieldset>
+</div>
