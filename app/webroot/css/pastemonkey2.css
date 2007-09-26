@@ -4,7 +4,7 @@ p{margin:0 10px 10px}
 
 a {
 	display:block;
-	color: #539FCF;
+	color: #FFCC44;
 	text-decoration:none;
 }
 
@@ -19,8 +19,9 @@ ul li {
 
 
 div#header h1{height:80px;line-height:80px;margin:0;
-  padding-left:10px;background: #000;color: #539FCF}
+  padding-left:10px;background: #000;color: #FFCC44}
 div#content p{line-height:1.4}
+div#content a {color:#539FCF}
 div#navigation{background:#000; color:#fff;}
 div#extra{background:#FF8539}
 div#footer{background: #333;color: #FFF}
