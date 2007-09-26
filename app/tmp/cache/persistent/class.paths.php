@@ -15,5 +15,4 @@ $config['Helpers']['Core']['SessionHelper'] = array('path' => '/home/digitalspag
 $config['Helpers']['Core']['JavascriptHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/javascript.php', );
 $config['Helpers']['Core']['TimeHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/time.php', );
 $config['Helpers']['Core']['TextHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/text.php', );
-$config['Helpers']['Core']['PaginatorHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/paginator.php', );
-$config['Helpers']['Core']['AjaxHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/ajax.php', );
+$config['Helpers']['DiffHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/app/views/helpers/diff.php', );

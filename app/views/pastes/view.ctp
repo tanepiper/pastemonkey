@@ -25,8 +25,14 @@
 				</tr>
 				<tr>
 					<td><?php __('Permalink');?>:</td>
-					<td colspan="3"><?php e(SITE_URL . '/pastes/view/' . $paste['Paste']['id']);?></td>
+					<td colspan="3"><?php e($html->link(SITE_URL . '/pastes/view/' . $paste['Paste']['id'],SITE_URL . '/pastes/view/' . $paste['Paste']['id']));?></td>
 				</tr>
+				<?php if (isset($paste['Paste']['parent_id'])) { ?>
+				<tr>
+					<td><?php e($html->link(__('View Parent', true),SITE_URL . '/pastes/view/' . $paste['Paste']['parent_id']));?></td>
+					<td colspan="3"><?php e($html->link(__('Download Diff File', true),SITE_URL . '/pastes/diff/' . $paste['Paste']['id'] . '&' . $paste['Paste']['parent_id']));?></td>
+				</tr>
+				<?php } ?>
 				<tr>
 					<td><?php __('Note');?>:</td>
 					<td colspan="3"><?php echo $paste['Paste']['note']?></td>
@@ -34,7 +40,13 @@
 			</table>
 		</div>
 		<div>
-			<div><?php e($html->link(__('Download Code',true), array('controller'=> 'pastes', 'action'=>'download', $paste['Paste']['id']), array('class'=>'download')));?></div>
+			<div>
+				<?php e($html->link(__('Download Code',true), array('controller'=> 'pastes', 'action'=>'download', $paste['Paste']['id']), array('class'=>'download')));?>
+				<?php if ($paste['Language']['id'] == 33) {?>
+					<?php e($html->link(__('Run Code in Firebug',true), '#', array('class'=>'eval-' . $paste['Paste']['id'])));?>
+					<?php e($javascript->codeBlock('$pastemonkey(".eval-' . $paste['Paste']['id'] . '").bind("click", function(){var runeval = confirm("' . __('Warning<br />Running unknown scripts in your browser can be dangerous.  Please note that this site takes NO responibility for damage or loss of data that occurs through you running a bad script.', true) . '"); if (runeval == true) { console.log(eval($pastemonkey("#PasteCopy' . $paste['Paste']['id'] . '").text())); } return false;});'));?>
+				<?php } ?>
+			</div>
 			<?php echo $paste['Paste']['paste_formatted']?>
 		</div>
 		<hr />

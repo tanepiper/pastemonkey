@@ -15,9 +15,12 @@
 		echo $form->input('language_id');
 		echo $form->input('author');
 		e($form->input('remember_me', array('type'=>'checkbox', 'disabled'=>'disabled')));
-		echo $form->input('expiry');
+		//echo $form->input('expiry');
 	?>
 	</fieldset>
-<?php e($html->link(__('Cancel Paste',true), array('controller'=> 'pastes', 'action'=>'index'), array('class'=>'cancel-paste')));?>
-<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
+	<fieldset>
+		<legend><?php __('Expiry');?></legend>
+		<?php e($form->input('expire_type', array('type'=>'radio', 'options'=>$expiry_types)));?>
+	</fieldset>
+	<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
 </div>

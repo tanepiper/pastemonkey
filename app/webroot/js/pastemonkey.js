@@ -3,7 +3,8 @@ $pastemonkey(document).ready(function() {
 	/* Basic Bind Functions */
 	
 	$pastemonkey('.new-paste').bind('click.newPaste', function(){
-			$pastemonkey('<div></div>').addClass('ajax-new-paste').css({display: 'none'}).insertBefore('.pastes');
+			$pastemonkey('.pastes').replaceWith($pastemonkey('<div></div>').addClass('ajax-new-paste').css({display: 'none'}));
+			$pastemonkey('.paging').remove();
 			$pastemonkey('.ajax-new-paste').load('/pastes/add', function(){
 				$pastemonkey(this).animate({height: 'show', opacity: 'show'});
 			});	
@@ -16,15 +17,6 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	/* Live Query Functions*/
-	
-	$pastemonkey('.cancel-paste').livequery(function(){
-		$pastemonkey(this).bind('click.cancelPaste', function(){
-			$pastemonkey('.ajax-new-paste').animate({height:'hide', opacity:'hide'}).remove();
-			return false;
-		});
-	}, function(){
-		$pastemonkey(this).unbind('click.cancelPaste');
-	});
 	
 	$pastemonkey('a', '.paging').livequery(function(){
 		$pastemonkey(this).bind('click.paging', function(){

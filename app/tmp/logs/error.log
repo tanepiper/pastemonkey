@@ -1,8 +1,1 @@
-2007-09-23 13:51:25 Warning: Warning (2): Cannot modify header information - headers already sent by (output started at /home/digitalspaghetti/workspace/pastemonkey/cake/basics.php:933) in [CORE/cake/libs/controller/controller.php, line 511]
-2007-09-23 14:49:39 Warning: Warning (2): Invalid argument supplied for foreach() in [CORE/app/controllers/pastes_controller.php, line 12]
-2007-09-23 14:50:49 Warning: Warning (2): Invalid argument supplied for foreach() in [CORE/app/controllers/pastes_controller.php, line 12]
-2007-09-23 21:25:32 Warning: Warning (512): <span style = "color:Red;text-align:left"><b>SQL Error:</b> 1054: Unknown column 'Tag.tag' in 'field list'</span> in [CORE/cake/libs/model/datasources/dbo_source.php, line 463]
-2007-09-23 21:25:32 Warning: Warning (2): Invalid argument supplied for foreach() in [CORE/app/controllers/pastes_controller.php, line 14]
-2007-09-23 21:25:32 Warning: Warning (2): Invalid argument supplied for foreach() in [CORE/app/views/pastes/index.ctp, line 5]
-2007-09-23 22:00:30 Warning: Warning (2): Cannot modify header information - headers already sent by (output started at /home/digitalspaghetti/workspace/pastemonkey/cake/basics.php:747) in [CORE/cake/libs/controller/controller.php, line 511]
-2007-09-23 22:01:17 Warning: Warning (2): Cannot modify header information - headers already sent by (output started at /home/digitalspaghetti/workspace/pastemonkey/cake/basics.php:747) in [CORE/cake/libs/controller/controller.php, line 511]
+

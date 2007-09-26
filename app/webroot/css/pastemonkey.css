@@ -127,3 +127,17 @@ td {
 #main .paging div {
 
 }
+
+#latest-pastes {
+	font-size:50%;
+}
+
+#latest-pastes ul {
+	margin:0;
+	padding:0;
+}
+
+#latest-pastes ul li{
+	margin:5px 0;
+	padding:0;
+}

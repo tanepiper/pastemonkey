@@ -1,7 +1,7 @@
 <?php
 
 class AppController extends Controller {
-	var $helpers = array('Html', 'Form', 'Javascript', 'Time', 'Text');
+	var $helpers = array('Html', 'Form', 'Javascript', 'Time', 'Text', 'Diff');
 	var $components = array('Session','RequestHandler','Conf');
 	
 	function beforeFilter()

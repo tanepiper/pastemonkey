@@ -30,9 +30,11 @@ class PastesController extends AppController {
 				$this->Session->setFlash('The Paste could not be saved. Please, try again.');
 			}
 		}
+		$expiry_types = array('day'=>'Day','week'=>'Week','month'=>'Month','never'=>'Never');
 		$parents = $this->Paste->Parent->generateList();
 		$languages = $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language');
 		$this->set(compact('parents', 'languages'));
+		$this->set('expiry_types',$expiry_types);
 	}
 
 	function edit($id = null) {
@@ -41,7 +43,10 @@ class PastesController extends AppController {
 			$this->redirect(array('action'=>'index'), null, true);
 		}
 		if (!empty($this->data)) {
+			$this->data['Paste']['parent_id'] = $id;
+			$this->data['Paste']['id'] = null;
 			$this->cleanUpFields();
+			$this->Paste->create();			
 			if ($this->Paste->save($this->data)) {
 				$this->Session->setFlash('The Paste saved');
 				$this->redirect(array('action'=>'index'), null, true);
@@ -113,6 +118,15 @@ class PastesController extends AppController {
 			header('Content-Disposition: attachment; filename="paste-'.$paste['Paste']['id'].'.'.$ext.'"');
 			$ok=true;
 			return $ok;
+	}
+	
+	function diff($ids) {
+		$diffIds = explode('&', $ids,3);
+		pr($diffIds);
+		$code1 = $this->Paste->read(null, $diffIds[0]);
+		$code2 = $this->Paste->read(null, $diffIds[1]);
+		pr($code1);
+		pr($code2);
 	}
 
 }
