@@ -53,10 +53,10 @@ function uploadQueueComplete(fileObj) {
 		var model_id = this.settings.post_params.model_id;
 		var group = this.settings.post_params.group;
 		
-		if($pastemonkey('#admin_attachments_'+model+'_'+model_id+'_'+group).is('ul')){
-			$pastemonkey.get('/admin/attachments/get_index/'+model+'/'+model_id+'/'+group+'/', 
+		if($pastemonkey('#attachments_'+model+'_'+model_id+'_'+group).is('ul')){
+			$pastemonkey.get('/attachments/get_index/'+model+'/'+model_id+'/'+group+'/', 
 				function(data){
-					$pastemonkey('#admin_attachments_'+model+'_'+model_id+'_'+group).html(data);
+					$pastemonkey('#attachments_'+model+'_'+model_id+'_'+group).html(data);
 				}
 			);
 		}else{

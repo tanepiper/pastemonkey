@@ -31,13 +31,13 @@
  */
 
 if(!isset($list) AND (isset($model) AND isset($model_id) AND isset($group))){
-	$list = $this->requestAction("/admin/attachments/get_index/$model/$model_id/$group");
+	$list = $this->requestAction("/attachments/get_index/$model/$model_id/$group");
 }
 
 if(!empty($list)){
 ?>
 
-<ul id="admin_attachments_<?php echo $list[0]['Attachment']['model'] .'_'. $list[0]['Attachment']['model_id'] . '_' .$list[0]['Attachment']['group']; ?>">
+<ul id="attachments_<?php echo $list[0]['Attachment']['model'] .'_'. $list[0]['Attachment']['model_id'] . '_' .$list[0]['Attachment']['group']; ?>">
 <?php 
 $count = 0;
 foreach($list as $key=>$file){
