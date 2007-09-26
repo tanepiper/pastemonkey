@@ -19,7 +19,7 @@ class PastesController extends AppController {
 		$this->set('paste', $this->Paste->read(null, $id));
 	}
 
-	function add() {
+	function add($name = null) {
 		if (!empty($this->data)) {
 			$this->cleanUpFields();
 			$this->Paste->create();
@@ -30,6 +30,13 @@ class PastesController extends AppController {
 				$this->Session->setFlash('The Paste could not be saved. Please, try again.');
 			}
 		}
+		
+		if (isset($name)) {
+			$this->set('name', $name);
+		} else {
+			$this->set('name', 'Anonymous');
+		}
+		
 		$expiry_types = array('day'=>'Day','week'=>'Week','month'=>'Month','never'=>'Never');
 		$parents = $this->Paste->Parent->generateList();
 		$languages = $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language');

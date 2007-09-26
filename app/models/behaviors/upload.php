@@ -69,7 +69,7 @@ class UploadBehavior extends ModelBehavior {
 		if(!isset($model->data[$model->name][$field])) {
 		 	return true;      
 		}
-
+		pr($model->data[$model->name]);
 		// Check it's a file submission
 		if (!is_array($model->data[$model->name][$field])) {
 			pr ('not an array');

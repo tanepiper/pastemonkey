@@ -13,10 +13,10 @@
 		echo $form->input('tags', array('type'=>'text'));
 		echo $form->input('parent_id', array('type'=>'hidden'));
 		echo $form->input('language_id');
-		echo $form->input('author');
+		echo $form->input('author', array('value'=>$name));
 		e($form->input('remember_me', array('type'=>'checkbox', 'disabled'=>'disabled')));
 		//echo $form->input('expiry');
-		e($form->input('attachment, array('array'=>'file')));
+		//e($form->input('filename', array('type'=>'file','id'=>'filename')));
 	?>
 	</fieldset>
 	<fieldset>
