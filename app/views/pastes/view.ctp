@@ -55,20 +55,4 @@
 		<?php e($javascript->codeBlock('$pastemonkey("#PasteCopyButton' . $paste['Paste']['id'] . '").bind("click", function(){$pastemonkey("#PasteCopy' . $paste['Paste']['id'] . '").focus();$pastemonkey("#PasteCopy' . $paste['Paste']['id'] . '").select();return false;});'));?>
 	</div>
 	</div>
-	<div class='attach_this'>
-	<fieldset>
-		<legend><?php __('Attachment');?></legend>
-		
-			<?php 
-				$html->css('swf_upload', null, null, false);
-				$javascript->link('swfobject', false);
-				$javascript->link('swf_upload', false); 
-				$javascript->link('swf_upload_functions', false); 
-		
-				echo $this->renderElement('attachment_form', array('model'=>'Paste','model_id'=>$paste['Paste']['id'],'group'=>'image', 'title'=>'Upload image'));
-		
-				echo $this->renderElement('attachment_list', array('model'=>'Paste','model_id'=>$paste['Paste']['id'],'group'=>'image'));
-		?>	
-	</fieldset>
-	</div>
 </div>

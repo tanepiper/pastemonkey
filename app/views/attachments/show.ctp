@@ -1,1 +1,0 @@
-<?php header('Location: /'. substr($attachment['Attachment']['body'], strlen(WWW_ROOT))); ?>
