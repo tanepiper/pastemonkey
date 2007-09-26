@@ -1,9 +1,8 @@
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0; background:#000;}
 body{font: 76% arial,sans-serif}
 p{margin:0 10px 10px}
 
 a {
-	display:block;
 	color: #FFCC44;
 	text-decoration:none;
 }
@@ -18,8 +17,20 @@ ul li {
 }
 
 
-div#header h1{height:80px;line-height:80px;margin:0;
+div#header{height:60px;line-height:80px;margin:0;
   padding-left:10px;background: #000;color: #FFCC44}
+div#header h1 {
+	display:block;
+	float:left;
+}
+div#header .loading {
+	width: 300px;
+	height:80px;
+	float:right;
+	margin-right:50px;
+	margin-top:0;
+}
+div#content {background:#fff;}
 div#content p{line-height:1.4}
 div#content a {color:#539FCF}
 div#navigation{background:#000; color:#fff;}
@@ -41,18 +52,29 @@ div#content .paste-area ol li {
 div#wrapper{float:left;width:100%}
 div#content{margin-left:200px; padding:20px;}
 div#navigation{float:left;width:200px;margin-left:-100%}
-div#extra{clear:left;width:100%}
+div#navigation .nav-link {
+	background: #fc4;
+	border: 2px solid #fff;
+	margin-bottom:3px;
+	color:#000;
+	display:block;
+}
 
+div#extra{clear:left;width:100%}
+div#extra .buttons {
+	background: #000;
+}
+div#extra .buttons p {
+	float:left;
+	margin-right:10px;
+}
 label {
 	display:block;
 }
 
 textarea {
 	width:99%;
-	border-top:2px solid #444;
-	border-left: 2px solid #444;
-	border-bottom: 2px solid #ccc;
-	border-right: 2px solid #ccc;
+	background: #cce5ff;
 }
 
 table {

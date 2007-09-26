@@ -16,3 +16,6 @@ $config['Helpers']['Core']['JavascriptHelper'] = array('path' => '/home/digitals
 $config['Helpers']['Core']['TimeHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/time.php', );
 $config['Helpers']['Core']['TextHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/text.php', );
 $config['Helpers']['DiffHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/app/views/helpers/diff.php', );
+$config['Helpers']['Core']['PaginatorHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/paginator.php', );
+$config['Helpers']['Core']['AjaxHelper'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/cake/libs/view/helpers/ajax.php', );
+$config['Controllers']['LanguagesController'] = array('path' => '/home/digitalspaghetti/workspace/pastemonkey/app/controllers/languages_controller.php', );
