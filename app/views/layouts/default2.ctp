@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
-		<title><?php e($pm_sitename);?></title>
+		<title><?php e($pm_sitename);?> (beta)</title>
 		<?php e($html->charset());?>
 		
 		<?php echo $html->css('pastemonkey2');?>
@@ -19,7 +19,7 @@
 	<body>
 		<div id="container">
 			<div id="header">
-				<h1><a href="/"><?php e($pm_sitename);?></a></h1>
+				<h1><a href="/"><?php e($pm_sitename);?> (beta)</a></h1>
 				<div class="loading" style="display:none"><?php e($html->image('ajax-loader.gif'));?> <?php __('Loading');?></div>
 				</div>
 			<div id="wrapper">
