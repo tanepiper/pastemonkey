@@ -1,270 +1,115 @@
 <?php
 
-/**
-	Diff implemented in pure php, written from scratch.
-	Copyright (C) 2003  Daniel Unterberger <diff.phpnet@holomind.de>
-
-	This program is free software; you can redistribute it and/or
-    modify it under the terms of the Affero General Public License 
-    Version 1 or any later version.
-  
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    Affero General Public License for more details.
-  
-    You should have received a copy of the Affero General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-	About:
-	I searched a function to compare arrays and the array_diff()
-	was not specific enough. It ignores the order of the array-values.
-	So I reimplemented the diff-function which is found on unix-systems
-	but this you can use directly in your code and adopt for your needs.
-	Simply adopt the $this->formatline-function. with the third-parameter of arr_diff()
-	you can hide matching lines. Hope someone has use for this.
-
-	http://www.holomind.de/phpnet/diff.src.php
-
-	Contact: d.u.diff@holomind.de <daniel unterberger>
-
-
-	Modified by Paul Dixon (paul@elphin.com) to provide class-based 
-	interface for http://pastebin.com diff feature
-
-**/
-
-class Diff
-{
-    var $output='';
-     
-    function Diff( $f1 , $f2 , $show_equal = 0 )
-    {
-
-        $c1         = 0 ;                   # current line of left
-        $c2         = 0 ;                   # current line of right
-        $max1       = count( $f1 ) ;        # maximal lines of left
-        $max2       = count( $f2 ) ;        # maximal lines of right
-        $outcount   = 0;                    # output counter
-        $hit1       = "" ;                  # hit in left
-        $hit2       = "" ;                  # hit in right
-
-        while (
-                ($c1 < $max1                 # have next line in left
-                or                 
-                $c2 < $max2)                 # have next line in right
-                and
-                ($stop++) < 1000            # don-t have more then 1000 ( loop-stopper )
-                and
-                $outcount < 1000            # output count is less then 20
-              )
-        {
-            /**
-            *   is the trimmed line of the current left and current right line
-            *   the same ? then this is a hit (no difference)
-            */  
-            if ( trim( $f1[$c1] ) == trim ( $f2[$c2])  )    
-            {
-                /**
-                *   add to output-string, if "show_equal" is enabled
-                */
-                $out    .= ($show_equal==1)
-                         ?  $this->formatline ( ($c1) , ($c2), "=", $f1[ $c1 ] )
-                         : "" ;
-                /**
-                *   increase the out-putcounter, if "show_equal" is enabled
-                *   this ist more for demonstration purpose
-                */
-                if ( $show_equal == 1 )  
-                {
-                    $outcount++ ;
-                }
-                
-                /**
-                *   move the current-pointer in the left and right side
-                */
-                $c1 ++;
-                $c2 ++;
-            }
-
-            /**
-            *   the current lines are different so we search in parallel
-            *   on each side for the next matching pair, we walk on both
-            *   sided at the same time comparing with the current-lines
-            *   this should be most probable to find the next matching pair
-            *   we only search in a distance of 10 lines, because then it
-            *   is not the same function most of the time. other algos
-            *   would be very complicated, to detect 'real' block movements.
-            */
-            else
-            {
-                
-                $b      = "" ;
-                $s1     = 0  ;      # search on left
-                $s2     = 0  ;      # search on right
-                $found  = 0  ;      # flag, found a matching pair
-                $b1     = "" ;      
-                $b2     = "" ;
-                $fstop  = 0  ;      # distance of maximum search
-
-                #fast search in on both sides for next match.
-                while (
-                        $found == 0             # search until we find a pair
-                        and
-                        ( $c1 + $s1 <= $max1 )  # and we are inside of the left lines
-                        and
-                        ( $c2 + $s2 <= $max2 )  # and we are inside of the right lines
-                        and     
-                        $fstop++  < 10          # and the distance is lower than 10 lines
-                      )
-                {
-
-                    /**
-                    *   test the left side for a hit
-                    *
-                    *   comparing current line with the searching line on the left
-                    *   b1 is a buffer, which collects the line which not match, to
-                    *   show the differences later, if one line hits, this buffer will
-                    *   be used, else it will be discarded later
-                    */
-                    #hit
-                    if ( trim( $f1[$c1+$s1] ) == trim( $f2[$c2] )  )
-                    {
-                        $found  = 1   ;     # set flag to stop further search
-                        $s2     = 0   ;     # reset right side search-pointer
-                        $c2--         ;     # move back the current right, so next loop hits
-                        $b      = $b1 ;     # set b=output (b)uffer
-                    }
-                    #no hit: move on
-                    else
-                    {
-                        /**
-                        *   prevent finding a line again, which would show wrong results
-                        *
-                        *   add the current line to leftbuffer, if this will be the hit
-                        */
-                        if ( $hit1[ ($c1 + $s1) . "_" . ($c2) ] != 1 )
-                        {   
-                            /**
-                            *   add current search-line to diffence-buffer
-                            */
-                            $b1  .= $this->formatline( ($c1 + $s1) , ($c2), "-", $f1[ $c1+$s1 ] );
-
-                            /**
-                            *   mark this line as 'searched' to prevent doubles.
-                            */
-                            $hit1[ ($c1 + $s1) . "_" . $c2 ] = 1 ;
-                        }
-                    }
-
-
-
-                    /**
-                    *   test the right side for a hit
-                    *
-                    *   comparing current line with the searching line on the right
-                    */
-                    if ( trim ( $f1[$c1] ) == trim ( $f2[$c2+$s2])  )
-                    {
-                        $found  = 1   ;     # flag to stop search
-                        $s1     = 0   ;     # reset pointer for search
-                        $c1--         ;     # move current line back, so we hit next loop
-                        $b      = $b2 ;     # get the buffered difference
-                    }
-                    else
-                    {   
-                        /**
-                        *   prevent to find line again
-                        */
-                        if ( $hit2[ ($c1) . "_" . ( $c2 + $s2) ] != 1 )
-                        {
-                            /**
-                            *   add current searchline to buffer
-                            */
-                            $b2   .= $this->formatline ( ($c1) , ($c2 + $s2), "+", $f2[ $c2+$s2 ] );
-
-                            /**
-                            *   mark current line to prevent double-hits
-                            */
-                            $hit2[ ($c1) . "_" . ($c2 + $s2) ] = 1;
-                        }
-
-                     }
-
-                    /**
-                    *   search in bigger distance
-                    *
-                    *   increase the search-pointers (satelites) and try again
-                    */
-                    $s1++ ;     # increase left  search-pointer
-                    $s2++ ;     # increase right search-pointer  
-                }
-
-                /**
-                *   add line as different on both arrays (no match found)
-                */
-                if ( $found == 0 )
-                {
-                    $b  .= $this->formatline ( ($c1) , ($c2), "-", $f1[ $c1 ] );
-                    $b  .= $this->formatline ( ($c1) , ($c2), "+", $f2[ $c2 ] );
-                }
-
-                /**
-                *   add current buffer to outputstring
-                */
-                $out        .= $b;
-                $outcount++ ;       #increase outcounter
-
-                $c1++  ;    #move currentline forward
-                $c2++  ;    #move currentline forward
-
-                /**
-                *   comment the lines are tested quite fast, because
-                *   the current line always moves forward
-                */
-
-            } /*endif*/
-
-        }/*endwhile*/
-
-		$this->output=$out;
-    
-    }/*end func*/
-
     /**
-    *   callback function to format the diffence-lines with your 'style'
-    */
-    function formatline( $nr1, $nr2, $stat, &$value )  #change to $value if problems
-    {
-        if ( trim( $value ) == "" )
-        {
-            return "";
-        }
-
-        $nr1++;
-        $nr2++;
+        Diff implemented in pure php, written from scratch.
+        Copyright (C) 2003  Daniel Unterberger <diff.phpnet@holomind.de>
+        Copyright (C) 2005  Nils Knappmeier next version 
         
-        $code="<pre>".htmlentities( rtrim($value) )."</pre>";
-        switch ( $stat )
-        {
-            case "=":
-                //return $nr1. " : $nr2 : = ".htmlentities( $value );
-                return "<tr><td>$nr1</td><td>$nr2</td><td></td><td class=\"code\">$code</td></tr>\n";
-            break;
+        This program is free software; you can redistribute it and/or
+        modify it under the terms of the GNU General Public License
+        as published by the Free Software Foundation; either version 2
+        of the License, or (at your option) any later version.
+        
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+        
+        You should have received a copy of the GNU General Public License
+        along with this program; if not, write to the Free Software
+        Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+        
+        http://www.gnu.org/licenses/gpl.html
 
-            case "+":
-                //return $nr1. " : $nr2 : + <font color='blue' >".htmlentities( $value )  ."</font>";
-                return "<tr class=\"new\"><td></td><td>$nr2</td><td>+</td><td title=\"line added\" class=\"code\" >$code</td></tr>\n";
-           
-            break;
+        About:
+        I searched a function to compare arrays and the array_diff()
+        was not specific enough. It ignores the order of the array-values.
+        So I reimplemented the diff-function which is found on unix-systems
+        but this you can use directly in your code and adopt for your needs.
+        Simply adopt the formatline-function. with the third-parameter of arr_diff()
+        you can hide matching lines. Hope someone has use for this.
 
-            case "-":
-                //return $nr1. " : $nr2 : - <font color='red' >".htmlentities( $value )  ."</font>";
-                return "<tr class=\"old\"><td>$nr1</td><td></td><td>-</td><td title=\"line removed\" class=\"code\" >$code</td></tr>\n";
-           break;
-        }
+        Contact: d.u.diff@holomind.de <daniel unterberger>
+    **/
 
-    } 
     
+## PHPDiff returns the differences between $old and $new, formatted
+## in the standard diff(1) output format.
+function PHPDiff($old,$new) 
+{
+   # split the source text into arrays of lines
+   $t1 = explode("\n",$old);
+   $x=array_pop($t1); 
+   if ($x>'') $t1[]="$x\n\\ No newline at end of file";
+   $t2 = explode("\n",$new);
+   $x=array_pop($t2); 
+   if ($x>'') $t2[]="$x\n\\ No newline at end of file";
+
+   # build a reverse-index array using the line as key and line number as value
+   # don't store blank lines, so they won't be targets of the shortest distance
+   # search
+   foreach($t1 as $i=>$x) if ($x>'') $r1[$x][]=$i;
+   foreach($t2 as $i=>$x) if ($x>'') $r2[$x][]=$i;
+
+   $a1=0; $a2=0;   # start at beginning of each list
+   $actions=array();
+
+   # walk this loop until we reach the end of one of the lists
+   while ($a1<count($t1) && $a2<count($t2)) {
+     # if we have a common element, save it and go to the next
+     if ($t1[$a1]==$t2[$a2]) { $actions[]=4; $a1++; $a2++; continue; } 
+
+     # otherwise, find the shortest move (Manhattan-distance) from the
+     # current location
+     $best1=count($t1); $best2=count($t2);
+     $s1=$a1; $s2=$a2;
+     while(($s1+$s2-$a1-$a2) < ($best1+$best2-$a1-$a2)) {
+       $d=-1;
+       foreach((array)@$r1[$t2[$s2]] as $n) 
+         if ($n>=$s1) { $d=$n; break; }
+       if ($d>=$s1 && ($d+$s2-$a1-$a2)<($best1+$best2-$a1-$a2))
+         { $best1=$d; $best2=$s2; }
+       $d=-1;
+       foreach((array)@$r2[$t1[$s1]] as $n) 
+         if ($n>=$s2) { $d=$n; break; }
+       if ($d>=$s2 && ($s1+$d-$a1-$a2)<($best1+$best2-$a1-$a2))
+         { $best1=$s1; $best2=$d; }
+       $s1++; $s2++;
+     }
+     while ($a1<$best1) { $actions[]=1; $a1++; }  # deleted elements
+     while ($a2<$best2) { $actions[]=2; $a2++; }  # added elements
+  }
+
+  # we've reached the end of one list, now walk to the end of the other
+  while($a1<count($t1)) { $actions[]=1; $a1++; }  # deleted elements
+  while($a2<count($t2)) { $actions[]=2; $a2++; }  # added elements
+
+  # and this marks our ending point
+  $actions[]=8;
+
+  # now, let's follow the path we just took and report the added/deleted
+  # elements into $out.
+  $op = 0;
+  $x0=$x1=0; $y0=$y1=0;
+  $out = array();
+  foreach($actions as $act) {
+    if ($act==1) { $op|=$act; $x1++; continue; }
+    if ($act==2) { $op|=$act; $y1++; continue; }
+    if ($op>0) {
+      $xstr = ($x1==($x0+1)) ? $x1 : ($x0+1).",$x1";
+      $ystr = ($y1==($y0+1)) ? $y1 : ($y0+1).",$y1";
+      if ($op==1) $out[] = "{$xstr}d{$y1}";
+      elseif ($op==3) $out[] = "{$xstr}c{$ystr}";
+      while ($x0<$x1) { $out[] = '< '.$t1[$x0]; $x0++; }   # deleted elems
+      if ($op==2) $out[] = "{$x1}a{$ystr}";
+      elseif ($op==3) $out[] = '---';
+      while ($y0<$y1) { $out[] = '> '.$t2[$y0]; $y0++; }   # added elems
+    }
+    $x1++; $x0=$x1;
+    $y1++; $y0=$y1;
+    $op=0;
+  }
+  $out[] = '';
+  return join("\n",$out);
 }
+?>

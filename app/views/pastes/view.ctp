@@ -30,7 +30,7 @@
 				<?php if (isset($paste['Paste']['parent_id'])) { ?>
 				<tr>
 					<td><?php e($html->link(__('View Parent', true),SITE_URL . '/pastes/view/' . $paste['Paste']['parent_id']));?></td>
-					<td colspan="3"><?php e($html->link(__('Download Diff File', true),SITE_URL . '/pastes/diff/' . $paste['Paste']['id'] . '&' . $paste['Paste']['parent_id']));?></td>
+					<td colspan="3"><?php e($html->link(__('Download Diff File', true),SITE_URL . '/pastes/diff/' . $paste['Paste']['parent_id'] . '/' . $paste['Paste']['id']));?></td>
 				</tr>
 				<?php } ?>
 				<tr>

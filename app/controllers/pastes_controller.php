@@ -57,9 +57,11 @@ class PastesController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->Paste->read(null, $id);
 		}
-		$parents = $this->Paste->Parent->generateList();
-		$languages = $this->Paste->Language->generateList();
-		$this->set(compact('parents','languages'));
+		$expiry_types = array('day'=>'Day','week'=>'Week','month'=>'Month','never'=>'Never');
+		$languages = $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language');
+		$this->set(compact('languages'));
+		$this->set('this_id', $id);
+		$this->set('expiry_types',$expiry_types);
 	}
 
 	function delete($id = null) {
@@ -120,13 +122,10 @@ class PastesController extends AppController {
 			return $ok;
 	}
 	
-	function diff($ids) {
-		$diffIds = explode('&', $ids,3);
-		pr($diffIds);
-		$code1 = $this->Paste->read(null, $diffIds[0]);
-		$code2 = $this->Paste->read(null, $diffIds[1]);
-		pr($code1);
-		pr($code2);
+	function diff($id1, $id2) {
+		$this->layout = 'download';
+		$this->set('old', $this->Paste->read(null, $id1));
+		$this->set('new', $this->Paste->read(null, $id2));
 	}
 
 }

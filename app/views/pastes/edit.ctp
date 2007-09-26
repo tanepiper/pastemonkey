@@ -3,22 +3,24 @@
 	<fieldset>
  		<legend><?php __('Edit');?> <?php __('Paste');?></legend>
 	<?php
-		echo $form->input('id');
 		echo $form->input('paste');
 		echo $form->input('note');
-		echo $form->input('tags');
-		echo $form->input('parent_id');
-		echo $form->input('language_id');
-		echo $form->input('expiry');
 	?>
 	</fieldset>
-<?php echo $form->end('Submit');?>
-</div>
-<div class="actions">
-	<ul>
-		<li><?php echo $html->link(__('Delete', true), array('action'=>'delete', $form->value('Paste.id')), null, __('Are you sure you want to delete', true).' #' . $form->value('Paste.id')); ?></li>
-		<li><?php echo $html->link(__('List', true).' '.__('Pastes', true), array('action'=>'index'));?></li>
-		<li><?php echo $html->link(__('List', true).' '.__('Languages', true), array('controller'=> 'languages', 'action'=>'index')); ?> </li>
-		<li><?php echo $html->link(__('New', true).' '.__('Language', true), array('controller'=> 'languages', 'action'=>'add')); ?> </li>
-	</ul>
+	<fieldset>
+		<legend><?php __('Paste');?> <?php __('Details');?></legend>
+	<?php
+		echo $form->input('tags', array('type'=>'text'));
+		echo $form->input('parent_id', array('type'=>'hidden', 'value'=>$this_id));
+		echo $form->input('language_id');
+		echo $form->input('author');
+		e($form->input('remember_me', array('type'=>'checkbox', 'disabled'=>'disabled')));
+		//echo $form->input('expiry');
+	?>
+	</fieldset>
+	<fieldset>
+		<legend><?php __('Expiry');?></legend>
+		<?php e($form->input('expire_type', array('type'=>'radio', 'options'=>$expiry_types)));?>
+	</fieldset>
+	<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
 </div>
