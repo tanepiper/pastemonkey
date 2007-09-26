@@ -7,7 +7,10 @@ class Paste extends AppModel {
 		'language_id' => VALID_NOT_EMPTY,
 	);
 	
-	var $actsAs = array('Geshi', 'Tag'); 
+	var $actsAs = array('Geshi', 'Tag', 'Upload'=>array(
+									'field'=>'attachment'
+									)
+	); 
 	
 	
 	//The Associations below have been created with all possible keys, those that are not needed can be removed

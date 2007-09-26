@@ -16,6 +16,7 @@
 		echo $form->input('author');
 		e($form->input('remember_me', array('type'=>'checkbox', 'disabled'=>'disabled')));
 		//echo $form->input('expiry');
+		e($form->input('attachment, array('array'=>'file')));
 	?>
 	</fieldset>
 	<fieldset>
