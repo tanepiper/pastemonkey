@@ -1,5 +1,5 @@
 html,body{margin:0;padding:0; background:#000;}
-body{font: 76% arial,sans-serif}
+body{font: 90% arial,sans-serif}
 p{margin:0 10px 10px}
 
 a {
@@ -17,18 +17,20 @@ ul li {
 }
 
 
-div#header{height:60px;line-height:80px;margin:0;
-  padding-left:10px;background: #000;color: #FFCC44}
+div#header{height:100px;line-height:80px;margin:0;
+  padding-left:10px;background: #000 url('/img/pastemonkey-logo.png') no-repeat;color: #FFCC44}
 div#header h1 {
-	display:block;
+	/*display:block;*/
 	float:left;
+	margin-left: 100px;
 }
 div#header .loading {
 	width: 300px;
-	height:80px;
-	float:right;
-	margin-right:50px;
-	margin-top:0;
+	height:30px;
+	top: 200px;
+	border: 2px solid #eee;
+	margin:0 auto;
+	padding:0;
 }
 div#content {background:#fff;}
 div#content p{line-height:1.4}
@@ -98,7 +100,7 @@ div#content .paging a {
 }
 
 #latest-pastes {
-	font-size:50%;
+	font-size:70%;
 }
 
 #latest-pastes ul {

@@ -3,7 +3,9 @@
 	<head>
 		<title><?php e($pm_sitename);?> (beta)</title>
 		<?php e($html->charset());?>
-		
+		<link rel="icon" href="<?php echo $this->webroot;?>favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="<?php echo $this->webroot;?>favicon.ico" type="image/x-icon" />
+	
 		<?php echo $html->css('pastemonkey2');?>
 		<?php echo $html->css('flora.resizable');?>
 		<?php e($javascript->link('jquery'));?>
@@ -14,6 +16,7 @@
 		<?php e($javascript->link('ui.mouse'));?>
 		<?php e($javascript->link('ui.resizable'));?>
 		<?php e($javascript->link('jquery.highlight-1'));?>
+		<?php e($javascript->link('jquery.blockUI'));?>
 		<?php e($javascript->link('pastemonkey'));?>
 		<?php echo $scripts_for_layout;?>
 	</head>

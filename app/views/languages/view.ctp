@@ -16,7 +16,7 @@
 					<td><?php __('Author');?>:</td>
 					<td><?php e($paste['author']);?></td>
 					<td><?php __('Language');?>:</td>
-					<td><?php echo $html->link($language['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $language['Language']['id'])); ?></td>
+					<td><?php echo $html->link($language['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $language['Language']['id']), array('class'=>'ajaxLink')); ?></td>
 				</tr>
 				<tr>
 					<td><?php __('Date Posted');?>:</td>
@@ -29,7 +29,7 @@
 		<div class="paste-area">
 			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
 		</div>
-		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['id'])); ?>
+		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['id']), array('class'=>'ajaxLink')); ?>
 		<hr />
 		<?php e($form->input('plain_paste',array('type'=>'textarea','value'=>$paste['paste'])));?>
 		<?php echo $paste['tags']?>

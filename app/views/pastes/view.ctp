@@ -7,7 +7,7 @@
 					<td><?php __('Author');?>:</td>
 					<td><?php e($paste['Paste']['author']);?></td>
 					<td><?php __('Language');?>:</td>
-					<td><?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id']), array('class'=>'viewLanguage')); ?></td>
+					<td><?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id']), array('class'=>'ajaxLink')); ?></td>
 				</tr>
 				<tr>
 					<td><?php __('Date Posted');?>:</td>
@@ -19,7 +19,7 @@
 					<td><?php __('Tags');?>:</td>
 					<td colspan="3">
 						<?php foreach($paste['Tag'] as $tag) {
-							e($html->link($tag['tag'], array('controller'=>'tags', 'action'=>'view', $tag['id'])) . ' ');
+							e($html->link($tag['tag'], array('controller'=>'tags', 'action'=>'view', $tag['id']), array('class'=>'ajaxLink')) . ' ');
 						} ?>
 					</td>
 				</tr>
@@ -29,8 +29,8 @@
 				</tr>
 				<?php if (isset($paste['Paste']['parent_id'])) { ?>
 				<tr>
-					<td><?php e($html->link(__('View Parent', true),SITE_URL . '/pastes/view/' . $paste['Paste']['parent_id']));?></td>
-					<td colspan="3"><?php e($html->link(__('Download Diff File', true),SITE_URL . '/pastes/diff/' . $paste['Paste']['parent_id'] . '/' . $paste['Paste']['id']));?></td>
+					<td><?php e($html->link(__('View Parent', true),array('controller'=>'pastes', 'action'=>'view', $paste['Paste']['parent_id']), array('class'=>'ajaxLink')));?></td>
+					<td colspan="3"><?php e($html->link(__('Download Diff File', true),array('controller'=>'pastes', 'action'=>'view', $paste['Paste']['parent_id'], $paste['Paste']['id'])));?></td>
 				</tr>
 				<?php } ?>
 				<tr>
@@ -43,11 +43,7 @@
 		<div>
 			<div>
 				<?php e($html->link(__('Download Code',true), array('controller'=> 'pastes', 'action'=>'download', $paste['Paste']['id']), array('class'=>'download')));?>
-				<?php if ($paste['Language']['id'] == 33) {?>
-					<?php e($html->link(__('Run Code in Firebug',true), '#', array('class'=>'eval-' . $paste['Paste']['id'])));?>
-					<?php e($javascript->codeBlock('$pastemonkey(".eval-' . $paste['Paste']['id'] . '").bind("click", function(){var runeval = confirm("' . __('Warning<br />Running unknown scripts in your browser can be dangerous.  Please note that this site takes NO responibility for damage or loss of data that occurs through you running a bad script.', true) . '"); if (runeval == true) { console.log(eval($pastemonkey("#PasteCopy' . $paste['Paste']['id'] . '").text())); } return false;});'));?>
-				<?php } ?>
-				<?php e($html->link(__('Edit Code',true), array('controller'=> 'pastes', 'action'=>'edit', $paste['Paste']['id']), array('class'=>'editPaste')));?>
+				<?php e($html->link(__('Edit Code',true), array('controller'=> 'pastes', 'action'=>'edit', $paste['Paste']['id']), array('class'=>'ajaxLink')));?>
 			</div>
 			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
 		</div>

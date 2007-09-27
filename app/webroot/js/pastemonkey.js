@@ -2,11 +2,6 @@ $pastemonkey(document).ready(function() {
 	
 	/* Basic Bind Functions */
 	
-	$pastemonkey('.nav-link').bind('click.newPaste', function(){
-			$pastemonkey('.#content').load($pastemonkey(this).attr('href'));
-			return false;
-	});
-	
 	/* Live Query Functions*/
 	
 	$pastemonkey('a', '.paging').livequery(function(){
@@ -16,24 +11,6 @@ $pastemonkey(document).ready(function() {
 		});
 	}, function(){
 		$pastemonkey(this).unbind('click.paging');
-	});
-	
-	$pastemonkey('.viewPaste').livequery(function(){
-		$pastemonkey(this).bind('click.viewPaste', function(){
-			$pastemonkey('#content').load($pastemonkey(this).attr('href'));
-			return false;
-		});
-	}, function(){
-		$pastemonkey(this).unbind('click.viewPaste');
-	});
-	
-	$pastemonkey('.editPaste').livequery(function(){
-		$pastemonkey(this).bind('click.editPaste', function(){
-			$pastemonkey('#content').load($pastemonkey(this).attr('href'));
-			return false;
-		});
-	}, function(){
-		$pastemonkey(this).unbind('click.editPaste');
 	});
 	
 	$pastemonkey('.copyButton').livequery(function(){
@@ -62,22 +39,13 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).unbind('blur.hightlight').unbind('focus.hightlight');
 	});
 	
-	$pastemonkey('a', '#latest-pastes').livequery(function(){
-		$pastemonkey(this).bind('click.latest', function(){
+	$pastemonkey('.ajaxLink').livequery(function(){
+		$pastemonkey(this).bind('click.ajaxLink', function(){
 			$pastemonkey('#content').load($pastemonkey(this).attr('href'));
 			return false;
 		});
 	}, function(){
-		$pastemonkey(this).bind('click.latest');
-	});
-	
-	$pastemonkey('.viewLanguage').livequery(function(){
-		$pastemonkey(this).bind('click.viewLanguage', function(){
-			$pastemonkey('#content').load($pastemonkey(this).attr('href'));
-			return false;
-		});
-	}, function(){
-		$pastemonkey(this).unbind('click.viewLanguage');
+		$pastemonkey(this).unbind('click.ajaxLink');
 	});
 	
 	/* Resizable Text Areas */
@@ -88,12 +56,14 @@ $pastemonkey(document).ready(function() {
 	
 	/* AJAX Start/Stop Functions*/
 	
+	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
+	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
+	
 	$pastemonkey('#content').ajaxStart(function(){
-		$pastemonkey('.loading').animate({opacity:'show', backgroundColor: '#0f0'}, 'slow', 'linear')
-		.animate({backgroundColor: '#000'});
+		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){
-		$pastemonkey('.loading').animate({opacity: 'hide'});
+		$pastemonkey.unblockUI();
 	});
 		
 });

@@ -1,5 +1,5 @@
 (function($) {
-	$.ui = $.ui || {};
+
 	//Make nodes selectable by expression
 	$.extend($.expr[':'], { resizable: "(' '+a.className+' ').indexOf(' ui-resizable ')" });
 
@@ -57,22 +57,29 @@
 			//Move margins to the wrapper
 			$(el).css({ marginLeft: $(oel).css("marginLeft"), marginTop: $(oel).css("marginTop"), marginRight: $(oel).css("marginRight"), marginBottom: $(oel).css("marginBottom")});
 			$(oel).css({ marginLeft: 0, marginTop: 0, marginRight: 0, marginBottom: 0});
-
-			//Adding handles (disabled not so common ones)
-			var t = function(a,b) { $(el).append("<div class='ui-resizable-"+a+" ui-resizable-handle' style='position: absolute; "+b+"'></div>"); };
-			var b = [parseInt($(oel).css('borderTopWidth')),parseInt($(oel).css('borderRightWidth')),parseInt($(oel).css('borderBottomWidth')),parseInt($(oel).css('borderLeftWidth'))];
-			//t('n','top: '+b[0]+'px;');
-			t('e','right: '+b[1]+'px;');
-			t('s','bottom: '+b[1]+'px;');
-			//t('w','left: '+b[3]+'px;');
-			t('se','bottom: '+b[2]+'px; right: '+b[1]+'px;');
-			//t('sw','bottom: '+b[2]+'px; left: '+b[3]+'px;');
-			//t('ne','top: '+b[0]+'px; right: '+b[1]+'px;');
-			//t('nw','top: '+b[0]+'px; left: '+b[3]+'px;');
 			
 			o.proportionallyResize = o.proportionallyResize || [];
 			o.proportionallyResize.push(oel);
+			
+			var b = [parseInt($(oel).css('borderTopWidth')),parseInt($(oel).css('borderRightWidth')),parseInt($(oel).css('borderBottomWidth')),parseInt($(oel).css('borderLeftWidth'))];
+		} else {
+			var b = [0,0,0,0];	
 		}
+		
+		if(options.destructive || !$(".ui-resizable-handle",el).length) {
+			//Adding handles (disabled not so common ones)
+			var t = function(a,b) { $(el).append("<div class='ui-resizable-"+a+" ui-resizable-handle' style='"+b+"'></div>"); };
+			//t('n','top: '+b[0]+'px;');
+			t('e','right: '+b[1]+'px;'+(options.zIndex ? 'z-index: '+options.zIndex+';' : ''));
+			t('s','bottom: '+b[1]+'px;'+(options.zIndex ? 'z-index: '+options.zIndex+';' : ''));
+			//t('w','left: '+b[3]+'px;');
+			t('se','bottom: '+b[2]+'px; right: '+b[1]+'px;'+(options.zIndex ? 'z-index: '+options.zIndex+';' : ''));
+			//t('sw','bottom: '+b[2]+'px; left: '+b[3]+'px;');
+			//t('ne','top: '+b[0]+'px; right: '+b[1]+'px;');
+			//t('nw','top: '+b[0]+'px; left: '+b[3]+'px;');
+		}
+		
+		
 		
 		//If other elements should be modified, we have to copy that array
 		options.modifyThese = [];
@@ -122,6 +129,8 @@
 			helper: helper,
 			nonDestructive: true,
 			dragPrevention: 'input,button,select',
+			minHeight: options.minHeight || 50,
+			minWidth: options.minWidth || 100,
 			startCondition: function(e) {
 				if(self.disabled) return false;
 				for(var i in options.handles) {
@@ -175,7 +184,9 @@
 			this.options.originalPosition = $(this.element).css("position");
 			this.options.originalPositionValues = $(this.element).position();
 
-			this.options.modifyThese.push([$(this.helper),0,0]);
+			if ( this.options.modifyThese.length == 0 || !this.options.modifyThese[this.options.modifyThese.length-1][0].is('.ui-resizable') ) {
+				this.options.modifyThese.push([$(this.helper),0,0]);
+			}
 			
 			$(that.element).triggerHandler("resizestart", [e, that.prepareCallbackObj(this)], this.options.start);			
 			return false;
@@ -221,6 +232,7 @@
 						break;
 					case 's':
 						nw = p[0];
+						if(e.shiftKey) nw = nh * (p[0]/p[1]);
 						break;
 					case 'n':
 					case 'ne':
@@ -232,6 +244,7 @@
 						if(o.axis == 'n') nw = p[0];
 						var mod = (this.pos[1] - co.top); nh = nh - (mod*2);
 						mod = nh <= o.minHeight ? p[1] - o.minHeight : (nh >= o.maxHeight ? 0-(o.maxHeight-p[1]) : mod);
+						if(e.shiftKey) nw = nh * (p[0]/p[1]);
 						$(this.helper).css('top', co.top + mod);
 						break;
 						
@@ -258,6 +271,7 @@
 						var mody = (this.pos[1] - co.top); nh = nh - (mody*2);
 						mody = nh <= o.minHeight ? p[1] - o.minHeight : (nh >= o.maxHeight ? 0-(o.maxHeight-p[1]) : mody);
 
+						if(e.shiftKey) mody = modx * (p[1]/p[0]);
 						$(this.helper).css({
 							left: co.left + modx,
 							top: co.top + mody
