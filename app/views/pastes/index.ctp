@@ -21,7 +21,7 @@
 			<div><?php __('Language');?> <?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id'])); ?></div>
 		</div>
 		<div class="paste-area">
-			<?php echo $paste['Paste']['paste_formatted']?>
+			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
 		</div>
 		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id']), array('class'=>'viewPaste')); ?>
 		<hr />

@@ -38,6 +38,7 @@
 					<td colspan="3"><?php echo $paste['Paste']['note']?></td>
 				</tr>
 			</table>
+			<div><?php e($form->input('highlight'));?>
 		</div>
 		<div>
 			<div>
@@ -48,7 +49,7 @@
 				<?php } ?>
 				<?php e($html->link(__('Edit Code',true), array('controller'=> 'pastes', 'action'=>'edit', $paste['Paste']['id']), array('class'=>'editPaste')));?>
 			</div>
-			<?php echo $paste['Paste']['paste_formatted']?>
+			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
 		</div>
 		<hr />
 		<?php e($form->input('plain_paste',array('type'=>'textarea','value'=>$paste['Paste']['paste'], 'id'=>'PasteCopy' . $paste['Paste']['id'], 'class'=>'PasteCopy')));?>

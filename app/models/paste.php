@@ -7,7 +7,7 @@ class Paste extends AppModel {
 		'language_id' => VALID_NOT_EMPTY,
 	);
 	
-	var $actsAs = array('Geshi', 'Tag'); 
+	var $actsAs = array('Tag'); 
 	
 	
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
@@ -35,22 +35,5 @@ class Paste extends AppModel {
 						'order' => 'Tag.tag ASC',
 						'unique' => true),
 	);
-	
-	/*function afterFind($results) {
-		foreach ($results as $key => $val) {
-			$tags = $this->Tag->findAll(array('PasteTag.paste_id'=>$val['Paste']['id']));
-			pr($tags);
-		}
-	}
-	
-	function beforeSave($result) {
-		pr($result);
-		foreach ($result as $key => $val) {
-			if(!isset($val['Paste']['author'])) {
-				$result[$key]['Paste']['author'] == 'Anonymous';
-			}
-		}
-		return $result;
-	}*/
 }
 ?>

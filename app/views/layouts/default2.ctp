@@ -13,6 +13,7 @@
 		<?php e($javascript->link('jquery.color'));?>
 		<?php e($javascript->link('ui.mouse'));?>
 		<?php e($javascript->link('ui.resizable'));?>
+		<?php e($javascript->link('jquery.highlight-1'));?>
 		<?php e($javascript->link('pastemonkey'));?>
 		<?php echo $scripts_for_layout;?>
 	</head>

@@ -27,7 +27,7 @@
 			</table>
 		</div>
 		<div class="paste-area">
-			<?php echo $paste['paste_formatted']?>
+			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
 		</div>
 		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['id'])); ?>
 		<hr />

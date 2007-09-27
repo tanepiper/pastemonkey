@@ -36,6 +36,32 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).unbind('click.editPaste');
 	});
 	
+	$pastemonkey('.copyButton').livequery(function(){
+		$pastemonkey(this).bind('click.copyButton', function(){
+			$pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).focus();
+			$pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).select();
+			return false;
+		});
+	}, function(){
+		$pastemonkey(this).unbind('click.copyButton');
+	});
+	
+	$pastemonkey('#Highlight').livequery(function(){
+		$pastemonkey(this).bind('blur.highlight', function(){
+				var highlightVal = $pastemonkey(this).val();
+				$pastemonkey('*','ol li').each(function(){
+					$pastemonkey.highlight(this, highlightVal.toUpperCase());	
+				});
+		});
+		$pastemonkey(this).bind('focus.hightlight', function(){
+			$pastemonkey('*','ol li').each(function(){
+					$pastemonkey(this).removeHighlight();	
+				});
+		})
+	}, function(){
+		$pastemonkey(this).unbind('blur.hightlight').unbind('focus.hightlight');
+	});
+	
 	/* AJAX Start/Stop Functions*/
 	
 	$pastemonkey('#content').ajaxStart(function(){
@@ -50,16 +76,6 @@ $pastemonkey(document).ready(function() {
 	
 	$pastemonkey('textarea').livequery(function(){
 		$pastemonkey(this).resizable({ autohide: true, minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 1000 });
-	});
-	
-	$pastemonkey('.copyButton').livequery(function(){
-		$pastemonkey(this).bind('click.copyButton', function(){
-			$pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).focus();
-			$pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).select();
-			return false;
-		});
-	}, function(){
-		$pastemonkey(this).unbind('click.copyButton');
 	});
 		
 });
