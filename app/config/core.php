@@ -40,7 +40,7 @@
 
 //	define ('BASE_URL', env('SCRIPT_NAME'));
 
-define ('SITE_URL', 'http://cakephp.digitalspaghetti.me.uk');
+define ('SITE_URL', 'http://pastemonkey.digitalspaghetti.me.uk');
 
 /**
  * CakePHP Debug Level:

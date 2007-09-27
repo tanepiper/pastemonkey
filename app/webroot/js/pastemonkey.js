@@ -80,6 +80,12 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).unbind('click.viewLanguage');
 	});
 	
+	/* Resizable Text Areas */
+	
+	$pastemonkey('textarea').livequery(function(){
+		$pastemonkey(this).resizable({ autohide: true, minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 1000 });
+	});
+	
 	/* AJAX Start/Stop Functions*/
 	
 	$pastemonkey('#content').ajaxStart(function(){
@@ -88,12 +94,6 @@ $pastemonkey(document).ready(function() {
 	});
 	$pastemonkey('#content').ajaxStop(function(){
 		$pastemonkey('.loading').animate({opacity: 'hide'});
-	});
-	
-	/* Resizable Text Areas */
-	
-	$pastemonkey('textarea').livequery(function(){
-		$pastemonkey(this).resizable({ autohide: true, minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 1000 });
 	});
 		
 });
