@@ -17,7 +17,7 @@ class LanguagesController extends AppController {
 		$this->set('language', $this->Language->read(null, $id));
 	}
 
-	function add() {
+	/*function add() {
 		if (!empty($this->data)) {
 			$this->cleanUpFields();
 			$this->Language->create();
@@ -58,7 +58,7 @@ class LanguagesController extends AppController {
 			$this->Session->setFlash('Language #'.$id.' deleted');
 			$this->redirect(array('action'=>'index'), null, true);
 		}
-	}
+	}*/
 
 }
 ?>

@@ -71,7 +71,7 @@ class PastesController extends AppController {
 		$this->set('expiry_types',$expiry_types);
 	}
 
-	function delete($id = null) {
+	/*function delete($id = null) {
 		if (!$id) {
 			$this->Session->setFlash('Invalid id for Paste');
 			$this->redirect(array('action'=>'index'), null, true);
@@ -80,7 +80,7 @@ class PastesController extends AppController {
 			$this->Session->setFlash('Paste #'.$id.' deleted');
 			$this->redirect(array('action'=>'index'), null, true);
 		}
-	}
+	}*/
 	
 	function latest($num = 10) {
 		$latest = $this->Paste->findAll(null,array('Paste.id','Paste.author','Paste.created'),array('Paste.created'=>'DESC'),10);

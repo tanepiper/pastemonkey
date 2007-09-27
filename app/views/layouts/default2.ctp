@@ -37,6 +37,7 @@
 			<div id="navigation">
 				<?php e($this->renderElement('navigation'));?>
 				<?php e($this->renderElement('latest'));?>
+				<?php e($this->renderElement('donate'));?>
 			</div>
 			<div id="extra">
 				<?php e($this->renderElement('buttons'));?>
