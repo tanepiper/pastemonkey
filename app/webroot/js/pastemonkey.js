@@ -1,7 +1,5 @@
 $pastemonkey(document).ready(function() {
 	
-	/* Basic Bind Functions */
-	
 	/* Live Query Functions*/
 	
 	$pastemonkey('a', '.paging').livequery(function(){

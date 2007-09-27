@@ -30,7 +30,7 @@
 				<?php if (isset($paste['Paste']['parent_id'])) { ?>
 				<tr>
 					<td><?php e($html->link(__('View Parent', true),array('controller'=>'pastes', 'action'=>'view', $paste['Paste']['parent_id']), array('class'=>'ajaxLink')));?></td>
-					<td colspan="3"><?php e($html->link(__('Download Diff File', true),array('controller'=>'pastes', 'action'=>'view', $paste['Paste']['parent_id'], $paste['Paste']['id'])));?></td>
+					<td colspan="3"><?php e($html->link(__('Download Diff File', true),array('controller'=>'pastes', 'action'=>'diff', $paste['Paste']['parent_id'], $paste['Paste']['id'])));?></td>
 				</tr>
 				<?php } ?>
 				<tr>
