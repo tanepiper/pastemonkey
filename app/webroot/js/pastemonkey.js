@@ -62,6 +62,24 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).unbind('blur.hightlight').unbind('focus.hightlight');
 	});
 	
+	$pastemonkey('a', '#latest-pastes').livequery(function(){
+		$pastemonkey(this).bind('click.latest', function(){
+			$pastemonkey('#content').load($pastemonkey(this).attr('href'));
+			return false;
+		});
+	}, function(){
+		$pastemonkey(this).bind('click.latest');
+	});
+	
+	$pastemonkey('.viewLanguage').livequery(function(){
+		$pastemonkey(this).bind('click.viewLanguage', function(){
+			$pastemonkey('#content').load($pastemonkey(this).attr('href'));
+			return false;
+		});
+	}, function(){
+		$pastemonkey(this).unbind('click.viewLanguage');
+	});
+	
 	/* AJAX Start/Stop Functions*/
 	
 	$pastemonkey('#content').ajaxStart(function(){

@@ -7,7 +7,7 @@
 					<td><?php __('Author');?>:</td>
 					<td><?php e($paste['Paste']['author']);?></td>
 					<td><?php __('Language');?>:</td>
-					<td><?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id'])); ?></td>
+					<td><?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id']), array('class'=>'viewLanguage')); ?></td>
 				</tr>
 				<tr>
 					<td><?php __('Date Posted');?>:</td>

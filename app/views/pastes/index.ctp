@@ -18,7 +18,7 @@
 	<div<?php echo $class;?>>
 		<div class="infoarea">
 			<div><?php __('Paste By');?> <?php e($paste['Paste']['author']);?></div>
-			<div><?php __('Language');?> <?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id'])); ?></div>
+			<div><?php __('Language');?> <?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id']), array('class'=>'viewLanguage')); ?></div>
 		</div>
 		<div class="paste-area">
 			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
