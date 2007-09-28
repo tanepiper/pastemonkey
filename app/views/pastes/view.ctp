@@ -19,13 +19,13 @@
 					<td><?php __('Tags');?>:</td>
 					<td colspan="3">
 						<?php foreach($paste['Tag'] as $tag) {
-							e($html->link($tag['tag'], array('controller'=>'tags', 'action'=>'view', $tag['id']), array('class'=>'ajaxLink')) . ' ');
+							e($html->link($tag['tag'], array('controller'=>'tags', 'action'=>'view', $tag['id']), array('class'=>'ajaxLink')) . ', ');
 						} ?>
 					</td>
 				</tr>
 				<tr>
 					<td><?php __('Permalink');?>:</td>
-					<td colspan="3"><?php e($html->link(SITE_URL . '/pastes/view/' . $paste['Paste']['id'],SITE_URL . '/pastes/view/' . $paste['Paste']['id']));?></td>
+					<td colspan="3"><?php e($html->link($pm_siteurl . '/pastes/view/' . $paste['Paste']['id'],array('controller'=>'pastes','action'=>'view', $paste['Paste']['id']), array('class'=>'noAjax')));?></td>
 				</tr>
 				<?php if (isset($paste['Paste']['parent_id'])) { ?>
 				<tr>

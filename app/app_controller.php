@@ -8,7 +8,8 @@ class AppController extends Controller {
 	{
 		$this->layout = "default2";
   		$this->Conf->startup(&$this);
-		$this->set('pm_sitename', $this->Conf->get('app.basics','Paste Monkey', true, true)); 
+		$this->set('pm_sitename', $this->Conf->get('app.sitename','Paste Monkey', true, true)); 
+		$this->set('pm_siteurl', $this->Conf->get('app.siteurl','http://pastemonkey.digitalspaghetti.me.uk', true, true)); 
 	} 
 	
 }

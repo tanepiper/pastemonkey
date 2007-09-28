@@ -10,6 +10,14 @@ class Tag extends AppModel {
 						'fields' => '',
 						'order' => '',
 						'unique' => true),
+			'Pinboard' => array('className' => 'Pinboard',
+						'joinTable' => 'pinboards_tags',
+						'foreignKey' => 'tag_id',
+						'associationForeignKey' => 'pinboard_id',
+						'conditions' => '',
+						'fields' => '',
+						'order' => '',
+						'unique' => true),
 	);
 }
 ?>

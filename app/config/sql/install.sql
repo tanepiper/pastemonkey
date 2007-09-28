@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 -- 
 -- Host: localhost
--- Generation Time: Sep 26, 2007 at 05:06 PM
+-- Generation Time: Sep 28, 2007 at 10:08 AM
 -- Server version: 5.0.38
 -- PHP Version: 5.2.1
 -- 
@@ -186,11 +186,12 @@ CREATE TABLE `pastes` (
   `created` datetime default NULL,
   `expiry` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- 
 -- Dumping data for table `pastes`
 -- 
+
 
 -- --------------------------------------------------------
 
@@ -208,6 +209,49 @@ CREATE TABLE `pastes_tags` (
 -- Dumping data for table `pastes_tags`
 -- 
 
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pinboards`
+-- 
+
+DROP TABLE IF EXISTS `pinboards`;
+CREATE TABLE `pinboards` (
+  `id` int(8) unsigned NOT NULL auto_increment,
+  `title` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `body` text collate utf8_unicode_ci NOT NULL,
+  `author` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `tags` varchar(255) collate utf8_unicode_ci default NULL,
+  `created` datetime default NULL,
+  `modified` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+
+-- 
+-- Dumping data for table `pinboards`
+-- 
+
+INSERT INTO `pinboards` (`id`, `title`, `body`, `author`, `tags`, `created`, `modified`) VALUES 
+(1, 'Paste Monkey 0.2', '<p>Welcome to the Pinboards.  This is a new feature in Paste Monkey that allows me to update you with very simple blog messages about the progress of Paste Monkey.</p>\r\n\r\n<p>As I''ve said, this is version 0.2, and so far here are the existing features:</p>\r\n<ul>\r\n<li>Powered by <a href="http://cakephp.org">CakePHP</a> 1.2 MVC Framework.  Allows for a lightweight application, that is rapidly developed. (Release Early, Release Often!</li>\r\n<li>Full AJAX Interface using <a href="http://jquery.com">jQuery</a>.</li>\r\n<li><a href="http://geshi.sf.net">GeSHi</a> Syntax Highlighting library for PHP, provides the formatting for around 50 lanuages.</li>\r\n<li>Download the source code of each paste, as well as the Diff file of any amendments to a paste.</li>\r\n<li>Fully open-source under the MIT Licence (some components are GPL, License included).</li>\r\n<li class="new-feature">Basic News System called Pinboard that allows paste community to be kept up to date with the latest developments.</li>\r\n</ul>\r\n<p>As I am following the Release Early, Release Often methodology, Paste Monkey is constantly being updated with new features.  Keep an eye out on this pinboard to be kept up to date.</p>', 'Tane', 'Welcome, Pinboard, News, Details', '2007-09-28 08:29:30', '2007-09-28 08:31:59');
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pinboards_tags`
+-- 
+
+DROP TABLE IF EXISTS `pinboards_tags`;
+CREATE TABLE `pinboards_tags` (
+  `pinboard_id` int(11) unsigned NOT NULL,
+  `tag_id` int(11) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- 
+-- Dumping data for table `pinboards_tags`
+-- 
+
+
 -- --------------------------------------------------------
 
 -- 
@@ -221,8 +265,10 @@ CREATE TABLE `tags` (
   `created` datetime default NULL,
   `modified` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- 
 -- Dumping data for table `tags`
 -- 
+
+

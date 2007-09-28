@@ -10,6 +10,7 @@ class TagsController extends AppController {
 	}
 
 	function view($id = null) {
+		$this->Tag->recursive = 2;
 		if (!$id) {
 			$this->Session->setFlash('Invalid Tag.');
 			$this->redirect(array('action'=>'index'), null, true);
@@ -53,7 +54,7 @@ class TagsController extends AppController {
 		$this->set(compact('pastes'));
 	}
 
-	function delete($id = null) {
+/*	function delete($id = null) {
 		if (!$id) {
 			$this->Session->setFlash('Invalid id for Tag');
 			$this->redirect(array('action'=>'index'), null, true);
@@ -63,6 +64,6 @@ class TagsController extends AppController {
 			$this->redirect(array('action'=>'index'), null, true);
 		}
 	}
-
+*/
 }
 ?>

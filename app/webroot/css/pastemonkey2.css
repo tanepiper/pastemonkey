@@ -114,3 +114,26 @@ div#content .paging a {
 }
 
 .highlight { background-color: yellow;}
+
+div.pinboardEntry {
+	background: yellow;
+	margin: 10px auto;
+	border: 2px solid #444;
+	padding: 0;
+}
+
+div.pinboardEntry h2 {
+	padding:0 0 0 40px;
+	margin:10px auto;
+}
+
+div.pinboardEntry div.pinboardHeader {
+	background: #ffcc33 url('/img/pin.png') no-repeat center left;
+	height: 30px;
+	margin: 0;
+	padding-left: 40px;
+}
+
+div.pinboardEntry ul {
+	list-style:square;
+}
