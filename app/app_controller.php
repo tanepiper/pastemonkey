@@ -17,6 +17,7 @@ class AppController extends Controller {
 		$this->Auth->logoutRedirect = array('controller' => 'pastes', 'action' => 'add');
 		$this->Auth->loginError = 'Invalid e-mail / password combination.  Please try again';
 		$this->Auth->autoRedirect = false;
+		$this->Auth->allow('index', 'add', 'view');
 	} 
 	
 }

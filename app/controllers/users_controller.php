@@ -59,6 +59,24 @@ class UsersController extends AppController {
 			$this->redirect(array('action'=>'index'), null, true);
 		}
 	}
+	
+	function login() {
+		if ($this->Auth->user()) {
+			if (!empty($this->data)) {
+				if (empty($this->data['User']['remember_me'])) {
+					$this->Cookie->del('User');
+				}
+				else {
+					$cookie = array();
+					$cookie['email'] = $this->data['User']['email'];
+					$cookie['token'] = $this->data['User']['pasword'];
+					$this->Cookie->write('User', $cookie, true, '+2 weeks');
+				}
+				unset($this->data['User']['remember_me']);
+			}
+			$this->redirect($this->Auth->redirect());
+		}
+	}
 
 }
 ?>
