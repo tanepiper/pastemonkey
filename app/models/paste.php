@@ -24,6 +24,8 @@ class Paste extends AppModel {
 								'fields' => '',
 								'order' => '',
 								'counterCache' => ''),
+			'User' => array('className'=>'User',
+									'foreignKey'=>'author'),
 	);
 
 	var $hasAndBelongsToMany = array(
@@ -35,5 +37,15 @@ class Paste extends AppModel {
 						'order' => 'Tag.tag ASC',
 						'unique' => true),
 	);
+	
+	function afterSave()
+ 	    {
+ 	        @unlink(CACHE.'views'.DS.'element__latest');
+ 	    }
+ 	    
+ 	    function afterDelete()
+ 	    {
+ 	        @unlink(CACHE.'views'.DS.'element__latest');
+ 	    }
 }
 ?>

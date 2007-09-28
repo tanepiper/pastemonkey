@@ -7,11 +7,13 @@ class PastesController extends AppController {
 	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' ,'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language'),'limit'=>5, 'order'=>array('Paste.created'=>'DESC'));
 
 	function index() {
+		$this->cacheAction = '1 hour';
 		$this->Paste->recursive = 0;
 		$this->set('pastes', $this->paginate());
 	}
 
 	function view($id = null) {
+		$this->cacheAction = '1 hour';
 		if (!$id) {
 			$this->Session->setFlash('Invalid Paste.');
 			$this->redirect(array('action'=>'index'), null, true);

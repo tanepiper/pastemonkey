@@ -17,7 +17,7 @@
 		<?php e($javascript->link('ui.resizable'));?>
 		<?php e($javascript->link('jquery.highlight-1'));?>
 		<?php e($javascript->link('jquery.blockUI'));?>
-		<?php e($javascript->link('pastemonkey'));?>
+		<?php e($javascript->link('pastemonkey-min'));?>
 		<?php echo $scripts_for_layout;?>
 	</head>
 	<body>
@@ -38,14 +38,14 @@
 				</div>
 			</div>
 			<div id="navigation">
-				<?php e($this->renderElement('navigation'));?>
-				<?php e($this->renderElement('latest'));?>
-				<?php e($this->renderElement('donate'));?>
+				<?php e($this->element('navigation', array('cache'=>'1 day')));?>
+				<?php e($this->element('latest', array('cache'=>'1 day')));?>
+				<?php e($this->element('donate', array('cache'=>'1 day')));?>
 			</div>
 			<div id="extra">
-				<?php e($this->renderElement('buttons'));?>
+				<?php e($this->element('buttons', array('cache'=>'1 day')));?>
 			</div>
-		<div id="footer"><?php e($this->renderElement('credits'));?></div>
+		<div id="footer"><?php e($this->element('credits', array('cache'=>'1 day')));?></div>
 	</div>
 	<?php echo $cakeDebug?>
 	</body>

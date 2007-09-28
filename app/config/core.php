@@ -63,7 +63,7 @@
  * controller-wide by setting var $cacheAction = true, or in each action
  * using $this->cacheAction = true.
  */
-	define('CACHE_CHECK', false);
+	define('CACHE_CHECK', true);
 /**
  * Defines the default error type when using the log() function. Used for
  * differentiating error logging and debugging. Currently PHP supports LOG_DEBUG.
@@ -82,7 +82,7 @@
  * To use database sessions, execute the SQL file found at /app/config/sql/sessions.sql.
  *
  */
-	define('CAKE_SESSION_SAVE', 'php');
+	define('CAKE_SESSION_SAVE', 'database');
 /**
  * The name of the table used to store CakePHP database sessions.
  *
@@ -94,7 +94,7 @@
 /**
  * A random string used in session management.
  */
-	define('CAKE_SESSION_STRING', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
+	define('CAKE_SESSION_STRING', 'a34DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
 /**
  * The name of CakePHP's session cookie.
  */
