@@ -7,4 +7,5 @@
 <?php e($javascript->link('ui.resizable'));?>
 <?php e($javascript->link('jquery.highlight-1'));?>
 <?php e($javascript->link('jquery.blockUI'));?>
-<?php e($javascript->link('pastemonkey-min'));?>
+<?php e($javascript->link('jquery.suggest'));?>
+<?php e($javascript->link('pastemonkey'));?>

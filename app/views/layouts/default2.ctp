@@ -8,6 +8,7 @@
 	
 		<?php echo $html->css('pastemonkey2');?>
 		<?php echo $html->css('flora.resizable');?>
+		<?php echo $html->css('jquery.suggest');?>
 		<?php e($this->element('jsfiles', array('cache'=>'1 day')));?>
 		<?php echo $scripts_for_layout;?>
 	</head>

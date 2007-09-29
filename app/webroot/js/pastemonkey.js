@@ -52,6 +52,11 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).resizable({ autohide: true, minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 1000 });
 	});
 	
+	/* Tags */
+	$pastemonkey('#PasteTags').livequery(function(){
+		$pastemonkey(this).suggest('/tags/find/');
+	});
+	
 	/* AJAX Start/Stop Functions*/
 	
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
