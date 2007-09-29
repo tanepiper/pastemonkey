@@ -10,6 +10,11 @@ class PastesController extends AppController {
 		$this->cacheAction = '1 hour';
 		$this->Paste->recursive = 0;
 		$this->set('pastes', $this->paginate());
+		
+		$remove = $this->Paste->findAll(array('Paste.expiry'=>'<= NOW()'));
+		foreach ($remove as $paste) {
+			$this->Paste->delete('Paste.id IS EQUAL TO ' .  $paste['Paste']['id']);
+		}
 	}
 
 	function view($id = null) {
@@ -25,6 +30,22 @@ class PastesController extends AppController {
 		if (!empty($this->data)) {
 			$this->cleanUpFields();
 			$this->Paste->create();
+			
+			switch ($this->data['Paste']['expire_type']) {
+				case "day":
+					$this->data['Paste']['expiry'] = date('Y-m-d H:i:s', time() + (24 * 3600));
+					break;
+				case "week":
+					$this->data['Paste']['expiry'] = date('Y-m-d H:i:s', time() + ((24 * 3600) * 7));
+					break;
+				case "month":
+					$this->data['Paste']['expiry'] = date('Y-m-d H:i:s', time() + ((24 * 3600) * 30));
+					break;
+				case "never":
+					$this->data['Paste']['expiry'] = null;
+					break;
+			}
+			
 			if ($this->Paste->save($this->data)) {
 				$this->Session->setFlash('The Paste has been saved');
 				$this->redirect(array('action'=>'index'), null, true);

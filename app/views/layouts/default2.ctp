@@ -8,16 +8,7 @@
 	
 		<?php echo $html->css('pastemonkey2');?>
 		<?php echo $html->css('flora.resizable');?>
-		<?php e($javascript->link('jquery'));?>
-		<?php e($javascript->codeBlock('var $pastemonkey = jQuery.noConflict();'));?>
-		<?php e($javascript->link('jquery.dimensions.min'));?>
-		<?php e($javascript->link('jquery.livequery'));?>
-		<?php e($javascript->link('jquery.color'));?>
-		<?php e($javascript->link('ui.mouse'));?>
-		<?php e($javascript->link('ui.resizable'));?>
-		<?php e($javascript->link('jquery.highlight-1'));?>
-		<?php e($javascript->link('jquery.blockUI'));?>
-		<?php e($javascript->link('pastemonkey-min'));?>
+		<?php e($this->element('jsfiles', array('cache'=>'1 day')));?>
 		<?php echo $scripts_for_layout;?>
 	</head>
 	<body>
@@ -39,8 +30,9 @@
 			</div>
 			<div id="navigation">
 				<?php e($this->element('navigation', array('cache'=>'1 day')));?>
+				<?php e($this->element('search', array('cache'=>'1 day')));?>
 				<?php e($this->element('latest', array('cache'=>'1 day')));?>
-				<?php e($this->element('donate', array('cache'=>'1 day')));?>
+				<?php //e($this->element('donate', array('cache'=>'1 day')));?>
 			</div>
 			<div id="extra">
 				<?php e($this->element('buttons', array('cache'=>'1 day')));?>

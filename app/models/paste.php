@@ -39,13 +39,13 @@ class Paste extends AppModel {
 	);
 	
 	function afterSave()
- 	    {
- 	        @unlink(CACHE.'views'.DS.'element__latest');
- 	    }
+	{
+		@unlink(CACHE.'views'.DS.'element__latest');
+	}
  	    
- 	    function afterDelete()
- 	    {
- 	        @unlink(CACHE.'views'.DS.'element__latest');
- 	    }
+	function afterDelete()
+	{
+		@unlink(CACHE.'views'.DS.'element__latest');
+	}
 }
 ?>

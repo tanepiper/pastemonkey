@@ -54,7 +54,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	define('DEBUG', 0);
+	define('DEBUG', 2);
 /**
  * Turn off or enable cache checking application-wide.
  *
