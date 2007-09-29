@@ -38,6 +38,9 @@ class Paste extends AppModel {
 						'unique' => true),
 	);
 	
+	function beforeRender() {
+	}
+	
 	function afterSave()
 	{
 		@unlink(CACHE.'views'.DS.'element__latest');

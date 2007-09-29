@@ -11,9 +11,9 @@ class PastesController extends AppController {
 		$this->Paste->recursive = 0;
 		$this->set('pastes', $this->paginate());
 		
-		$remove = $this->Paste->findAll(array('Paste.expiry'=>'<= NOW()'));
+		$remove = $this->Paste->query('SELECT `Paste`.`id` FROM `pastes` AS `Paste` WHERE `Paste`.`expiry` < NOW()');
 		foreach ($remove as $paste) {
-			$this->Paste->delete('Paste.id IS EQUAL TO ' .  $paste['Paste']['id']);
+			$this->Paste->delete($paste['Paste']['id']);
 		}
 	}
 
@@ -48,7 +48,7 @@ class PastesController extends AppController {
 			
 			if ($this->Paste->save($this->data)) {
 				$this->Session->setFlash('The Paste has been saved');
-				$this->redirect(array('action'=>'index'), null, true);
+				$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
 			} else {
 				$this->Session->setFlash('The Paste could not be saved. Please, try again.');
 			}

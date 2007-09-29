@@ -3,20 +3,22 @@ class PinboardsController extends AppController {
 
 	var $name = 'Pinboards';
 	var $helpers = array('Html', 'Form' );
+	
+	var $paginate = array('limit'=>5, 'order'=>array('Pinboard.created'=>'DESC'));
 
 	function index() {
 		$this->Pinboard->recursive = 0;
 		$this->set('pinboards', $this->paginate());
 	}
 
-/*	function view($id = null) {
+	function view($id = null) {
 		if (!$id) {
 			$this->Session->setFlash('Invalid Pinboard.');
 			$this->redirect(array('action'=>'index'), null, true);
 		}
 		$this->set('pinboard', $this->Pinboard->read(null, $id));
 	}
-
+/*
 	function add() {
 		if (!empty($this->data)) {
 			$this->cleanUpFields();
@@ -29,7 +31,8 @@ class PinboardsController extends AppController {
 			}
 		}
 	}
-
+*/
+/*
 	function edit($id = null) {
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash('Invalid Pinboard');
