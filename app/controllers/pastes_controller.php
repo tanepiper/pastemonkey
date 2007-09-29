@@ -31,20 +31,7 @@ class PastesController extends AppController {
 			$this->cleanUpFields();
 			$this->Paste->create();
 			
-			switch ($this->data['Paste']['expire_type']) {
-				case "day":
-					$this->data['Paste']['expiry'] = date('Y-m-d H:i:s', time() + (24 * 3600));
-					break;
-				case "week":
-					$this->data['Paste']['expiry'] = date('Y-m-d H:i:s', time() + ((24 * 3600) * 7));
-					break;
-				case "month":
-					$this->data['Paste']['expiry'] = date('Y-m-d H:i:s', time() + ((24 * 3600) * 30));
-					break;
-				case "never":
-					$this->data['Paste']['expiry'] = null;
-					break;
-			}
+			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
 			
 			if ($this->Paste->save($this->data)) {
 				$this->Session->setFlash('The Paste has been saved');
@@ -156,6 +143,24 @@ class PastesController extends AppController {
 		$this->layout = 'download';
 		$this->set('old', $this->Paste->read(null, $id1));
 		$this->set('new', $this->Paste->read(null, $id2));
+	}
+	
+	function _generateDate($expiry_type) {
+		switch ($expiry_type) {
+				case "day":
+					$output = date('Y-m-d H:i:s', time() + (24 * 3600));
+					break;
+				case "week":
+					$output = date('Y-m-d H:i:s', time() + ((24 * 3600) * 7));
+					break;
+				case "month":
+					$output = date('Y-m-d H:i:s', time() + ((24 * 3600) * 30));
+					break;
+				case "never":
+					$output = null;
+					break;
+			}
+			return $output;
 	}
 
 }
