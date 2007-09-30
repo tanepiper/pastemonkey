@@ -45,7 +45,7 @@ div#content {background:#fff;}
 div#content p{line-height:1.4}
 div#content a {color:#539FCF}
 
-div#content .geshi-output {
+div#content .pastes .geshi-output {
 	height: 150px;
 }
 
