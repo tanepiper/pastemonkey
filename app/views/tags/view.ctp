@@ -1,6 +1,6 @@
 <div class="pastesByTags">
-	<h2><?php __('Pastes');?> <?php __('For');?> <?php e($tags['Tag']['tag']);?></h2>
-	<?php foreach ($tags['Paste'] as $paste) { ?>
+	<h2><?php __('Pastes');?> <?php __('For');?> <?php e($tag['Tag']['tag']);?></h2>
+	<?php foreach ($tag['Paste'] as $paste) { ?>
 
 	<div id="paste-<?php e($paste['id']);?>">
 		<div class="infoarea">
