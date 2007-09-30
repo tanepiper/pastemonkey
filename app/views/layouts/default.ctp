@@ -32,7 +32,7 @@
 			<div id="navigation">
 				<?php e($this->element('navigation', array('cache'=>'1 day')));?>
 				<?php e($this->element('search', array('cache'=>'1 day')));?>
-				<?php e($this->element('latest', array('cache'=>'1 day')));?>
+				<?php e($this->element('latest'));?>
 				<?php //e($this->element('donate', array('cache'=>'1 day')));?>
 			</div>
 			<div id="extra">
