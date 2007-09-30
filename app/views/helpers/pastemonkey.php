@@ -1,10 +1,10 @@
 <?php
 
-class PastemonkeyHelper extends Helper {
+class PastemonkeyHelper extends TimeHelper {
 
-	class timeAgo($timestamp) {
+	function timeAgo($timestamp) {
 	
-		$pasted = $time->toUnix($timestamp);
+		$pasted = $this->toUnix($timestamp);
 		$ago = (time() - $pasted);
 		if ($ago < 60) {
 			$output = 'Pasted ' . round($ago) . ' Seconds Ago';
