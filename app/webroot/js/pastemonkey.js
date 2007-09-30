@@ -70,7 +70,7 @@ $pastemonkey(document).ready(function() {
 	});*/
 	
 	$pastemonkey('#recaptcha_div').livequery(function(){
-		var self = $pastemonkey(this);
+		var self = this;
 		$pastemonkey.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
 			Recaptcha.create("6LfncwAAAAAAAIxurXazJ0zspoEwBpeVUfNr87Hr", self);
 		});
