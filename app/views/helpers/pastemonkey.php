@@ -7,13 +7,13 @@ class PastemonkeyHelper extends TimeHelper {
 		$pasted = $this->toUnix($timestamp);
 		$ago = (time() - $pasted);
 		if ($ago < 60) {
-			$output = __('Pasted') . round($ago) . __('Seconds') . ' ' . __('Ago');
+			$output = __('Pasted', true) . ' ' . round($ago) . ' ' . __('Seconds', true) . ' ' . __('Ago', true);
 		} else if ($ago >= 60 && $ago < 3600) {
-			$output = __('Pasted') . round($ago / 60)  . __('Minutes') . ' ' . __('Ago');
+			$output = __('Pasted', true) . ' ' . round($ago / 60) . ' ' .  __('Minutes', true) . ' ' . __('Ago', true);
 		} else if ($ago >= 3600 && $ago < 86400) {
-			$output = __('Pasted') . round($ago / 3600)  . __('Hours') . ' ' . __('Ago');
+			$output = __('Pasted', true) . ' ' . round($ago / 3600) . ' ' . __('Hours', true) . ' ' . __('Ago', true);
 		} else if ($ago >= 86400) {
-			$output = __('Pasted') . round($ago / 86400)  . __('Days') . ' ' . __('Ago');
+			$output = __('Pasted', true) . ' ' . round($ago / 86400) . ' ' . __('Days', true) . ' ' . __('Ago', true);
 		}
 		
 		return $output;
