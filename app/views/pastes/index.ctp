@@ -9,7 +9,7 @@
 	<?php foreach ($pastes as $paste) {	?>
 	<div id="paste-<?php e($paste['Paste']['id']);?>">
 		<div class="infoarea">
-			<strong><?php e($language['Language']['language']);?> post by <?php e($paste['author']);?> <?php e($pastemonkey->timeAgo($paste['created']));?></strong>
+			<strong>Paste by <?php e($paste['Paste']['author']);?> <?php e($pastemonkey->timeAgo($paste['Paste']['created']));?></strong>
 		</div>
 		<div class="geshi-output">
 			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>

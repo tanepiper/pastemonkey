@@ -4,7 +4,7 @@
 
 	<div id="paste-<?php e($paste['id']);?>">
 		<div class="infoarea">
-			<strong><?php e($language['Language']['language']);?> post by <?php e($paste['author']);?> <?php e($pastemonkey->timeAgo($paste['created']));?></strong>
+			<strong><?php e($language['Language']['language']);?> paste by <?php e($paste['author']);?> <?php e($pastemonkey->timeAgo($paste['created']));?></strong>
 		</div>
 		<div class="geshi-output">
 			<?php e($geshi->generate($paste['paste'], strtolower($paste['Language']['language'])));?>
