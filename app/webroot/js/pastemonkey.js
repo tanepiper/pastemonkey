@@ -62,7 +62,7 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
 	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
 	
-	$pastemonkey('#content').not($pastemonkey('#PasteTags')[0]).ajaxStart(function(){
+	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){

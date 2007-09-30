@@ -17,12 +17,13 @@ ul li {
 }
 
 
-div#header{height:80px;line-height:80px;margin:0;
-  padding-left:10px;background: #000 url('/img/edit-paste.png') no-repeat;color: #FFCC44}
+div#header{height:80px;margin:0;  padding-left:10px;background: #000 url('/img/edit-paste.png') no-repeat 20px center ;color: #FFCC44}
 div#header h1 {
 	/*display:block;*/
 	float:left;
 	margin-left: 100px;
+	font: 120% "Lucida Grande", arial, sans-serif;
+	vertical-align:center;
 }
 div#header .loading {
 	width: 300px;
