@@ -32,12 +32,15 @@ class PastesController extends AppController {
 			$this->Paste->create();
 			
 			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
-			
-			if ($this->Paste->save($this->data)) {
-				$this->Session->setFlash('The Paste has been saved');
-				$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
+			if ($this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->data['Paste']['recaptcha_challenge_field'],$this->data['Paste']['recaptcha_response_field'])) {
+				if ($this->Paste->save($this->data)) {
+					$this->Session->setFlash('The Paste has been saved');
+					$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
+				} else {
+					$this->Session->setFlash('The Paste could not be saved. Please, try again.');
+				}
 			} else {
-				$this->Session->setFlash('The Paste could not be saved. Please, try again.');
+				$this->Session->setFlash('Captcha is not valid. Please, try again.');
 			}
 		}
 		
@@ -161,6 +164,16 @@ class PastesController extends AppController {
 					break;
 			}
 			return $output;
+	}
+	
+	function _checkCaptcha ($privateKey, $remote, $challange, $response) {
+		vendor('recaptchalib');
+		$validate = recaptcha_check_answer ($privateKey, $remote, $challange, $response);
+		
+		if ($validate->is_valid) {
+			return true;
+		}
+		return false;
 	}
 
 }
