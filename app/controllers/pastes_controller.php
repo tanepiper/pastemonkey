@@ -11,7 +11,7 @@ class PastesController extends AppController {
 		$this->Paste->recursive = 0;
 		$this->set('pastes', $this->paginate());
 		
-		$remove = $this->Paste->query('SELECT `Paste`.`id` FROM `pastes` AS `Paste` WHERE `Paste`.`expiry` < NOW()');
+		$remove = $this->Paste->findAll('Paste.expiry < NOW()');
 		foreach ($remove as $paste) {
 			$this->Paste->delete($paste['Paste']['id']);
 		}
