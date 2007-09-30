@@ -183,7 +183,7 @@ class PastesController extends AppController {
 			$output['result'] = false;
 			$output['Error'] = $validate->error;
 		}
-		return output;
+		return $output;
 	}
 
 }
