@@ -54,7 +54,7 @@ $pastemonkey(document).ready(function() {
 	
 	/* Tags */
 	$pastemonkey('#PasteTags').livequery(function(){
-		$pastemonkey(this).suggest('/tags/find/');
+		$pastemonkey(this).autocomplete('/tags/find/', {multiple: true, matchContains: true});
 	});
 	
 	/* AJAX Start/Stop Functions*/
@@ -62,7 +62,7 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
 	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
 	
-	$pastemonkey('#content').ajaxStart(function(){
+	$pastemonkey('#content').not($pastemonkey('#PasteTags')[0]).ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){

@@ -66,10 +66,9 @@ class TagsController extends AppController {
 	}
 */
 	function find(){
-
-		$search = $this->params['q'];
-		$this->set('items', $this->query('SELECT `Tag`.`tag` FROM `tags` AS `Tag` WHERE `Tag`.`tag` IS LIKE %s', $search));
-
+		$search = $this->params['url']['q'];
+		$this->set('items', $this->Tag->findAll(array('Tag.tag'=>'LIKE ' . $search . '%')));
+	
 	}
 }
 ?>
