@@ -45,8 +45,11 @@ div#content {background:#fff;}
 div#content p{line-height:1.4}
 div#content a {color:#539FCF}
 
-div#content .pastes .geshi-output {
+div#content .pastes .geshi-output ol {
+	background: #eee;
+	color: #0f0;
 	height: 150px;
+	overflow: hidden;
 }
 
 div#navigation{background:#000; color:#fff;}
