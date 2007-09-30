@@ -45,7 +45,7 @@ class PastesController extends AppController {
 						$this->Session->setFlash('The Paste could not be saved. Please, try again.');
 					}
 				} else {
-					$this->Session->setFlash('Error: ' . $captcha['error']);
+					$this->set('error',  $captcha['error']);
 				}
 			}
 		}
@@ -61,6 +61,7 @@ class PastesController extends AppController {
 		$languages = $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language');
 		$this->set(compact('parents', 'languages'));
 		$this->set('expiry_types',$expiry_types);
+		$this->set('error', null);
 	}
 
 	function edit($id = null) {

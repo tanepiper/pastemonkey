@@ -25,7 +25,7 @@
 	</fieldset>
 	<fieldset id="captchField">
 		<legend><?php __('Captcha');?></legend>
-		<?php e($recaptcha->render('6LfncwAAAAAAAIxurXazJ0zspoEwBpeVUfNr87Hr'));?>
+		<?php e($recaptcha->render('6LfncwAAAAAAAIxurXazJ0zspoEwBpeVUfNr87Hr', $error));?>
 	</fieldset>
 	<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
 </div>
