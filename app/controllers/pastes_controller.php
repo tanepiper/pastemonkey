@@ -30,22 +30,23 @@ class PastesController extends AppController {
 		if (!empty($this->data)) {
 			$this->cleanUpFields();
 			$this->Paste->create();
-			
 			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
-			$captcha = $this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
-			if ($captcha['result']) {
-				if ($this->Paste->save($this->data)) {
-					//if ($this->params['isAjax']) {
-					
-					//} else {
-						$this->Session->setFlash('The Paste has been saved');
-						$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
-					//}	
+			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
+				$captcha = $this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
+				if ($captcha['result']) {
+					if ($this->Paste->save($this->data)) {
+						//if ($this->params['isAjax']) {
+						
+						//} else {
+							$this->Session->setFlash('The Paste has been saved');
+							$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
+						//}	
+					} else {
+						$this->Session->setFlash('The Paste could not be saved. Please, try again.');
+					}
 				} else {
-					$this->Session->setFlash('The Paste could not be saved. Please, try again.');
+					$this->Session->setFlash('Error: ' . $captcha['error']);
 				}
-			} else {
-				$this->Session->setFlash('Error: ' . $captcha['error']);
 			}
 		}
 		
