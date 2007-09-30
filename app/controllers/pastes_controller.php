@@ -32,7 +32,7 @@ class PastesController extends AppController {
 			$this->Paste->create();
 			
 			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
-			if ($this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->data['Paste']['recaptcha_challenge_field'],$this->data['Paste']['recaptcha_response_field'])) {
+			if ($this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['pass']['form']['recaptcha_challenge_field'],$this->params['pass']['form']['recaptcha_response_field'])) {
 				if ($this->Paste->save($this->data)) {
 					$this->Session->setFlash('The Paste has been saved');
 					$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
