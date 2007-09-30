@@ -1,40 +1,15 @@
-<div class="pastes">
-	<h2><?php __('Content');?> <?php __('For');?> <?php __('Tag');?> <?php e($tag['Tag']['tag']);?></h2>
-	<?php
-	$i = 0;
-		foreach ($tag['Paste'] as $paste):
-		$class = null;
-		if ($i++ % 2 == 0) {
-			$class = ' class="altrow"';
-		}
-	?>
+<div class="pastesByTags">
+	<h2><?php __('Pastes');?> <?php __('For');?> <?php e($tags['Language']['language']);?></h2>
+	<?php foreach ($tags['Paste'] as $paste) { ?>
 
-	<div<?php echo $class;?>>
+	<div id="paste-<?php e($paste['id']);?>">
 		<div class="infoarea">
-			<table>
-				<tr>
-					<td><?php __('Author');?>:</td>
-					<td><?php e($paste['author']);?></td>
-					<td><?php __('Language');?>:</td>
-					<td><?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id']), array('class'=>'ajaxLink')); ?></td>
-				</tr>
-				<tr>
-					<td><?php __('Date Posted');?>:</td>
-					<td><?php echo $paste['created']?></td>
-					<td><?php __('Note');?>:</td>
-					<td><?php echo $paste['note']?></td>
-				</tr>
-			</table>
+			<strong><?php e($language['Language']['language']);?> post by <?php e($paste['author']);?> <?php e($pastemonkey->timeAgo($paste['created']));?></strong>
 		</div>
-		<div class="paste-area">
+		<div class="geshi-output">
 			<?php e($geshi->generate($paste['paste'], strtolower($paste['Language']['language'])));?>
 		</div>
-		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['id']), array('class'=>'ajaxLink')); ?>
-		<hr />
-		<?php e($form->input('plain_paste',array('type'=>'textarea','value'=>$paste['paste'])));?>
-		<?php echo $paste['tags']?>
-		<hr />
-		<h4><?php __('Expires');?> :<?php echo $paste['expiry']?></h4>
+		<?php echo $html->link(__('View Full Paste', true), array('controller'=> 'pastes', 'action'=>'view', $paste['id']), array('class'=>'ajaxLink')); ?>
 	</div>
-<?php endforeach; ?>
+<?php } ?>
 </div>

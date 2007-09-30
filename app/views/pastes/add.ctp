@@ -1,4 +1,4 @@
-<div class="paste-new">
+<div class="paste-add">
 <?php echo $form->create('Paste');?>
 	<fieldset>
  		<legend><?php __('Add');?> <?php __('Paste');?></legend>

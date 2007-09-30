@@ -6,23 +6,12 @@
 
 <div class="pastes">
 	<h2><?php __('Latest Pastes');?></h2>
-	<?php
-	$i = 0;
-		foreach ($pastes as $paste):
-		$class = null;
-		if ($i++ % 2 == 0) {
-			$class = ' class="altrow"';
-		}
-	?>
-
-	<div<?php echo $class;?>>
+	<?php foreach ($pastes as $paste) {	?>
+	<div id="paste-<?php e($paste['Paste']['id']);?>">
 		<div class="infoarea">
-			<div><?php __('Paste By');?> <?php e($paste['Paste']['author']);?></div>
-			<div><?php __('Language');?> <?php echo $html->link($paste['Language']['language'], array('controller'=> 'languages', 'action'=>'view', $paste['Language']['id']), array('class'=>'ajaxLink')); ?></div>
-			<div><?php e($pastemonkey->timeAgo($paste['Paste']['created']));?>
-			</div>
+			<strong><?php e($language['Language']['language']);?> post by <?php e($paste['author']);?> <?php e($pastemonkey->timeAgo($paste['created']));?></strong>
 		</div>
-		<div class="paste-area">
+		<div class="geshi-output">
 			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
 		</div>
 		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id']), array('class'=>'ajaxLink')); ?>
