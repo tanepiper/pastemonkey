@@ -68,5 +68,11 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey('#content').ajaxStop(function(){
 		$pastemonkey.unblockUI();
 	});*/
+	
+	$pastemonkey('#recaptcha_div').livequery(function(){
+		$.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
+			Recaptcha.create("6LfncwAAAAAAAIxurXazJ0zspoEwBpeVUfNr87Hr", "recaptcha_div");
+		});
+	});
 		
 });
