@@ -2,6 +2,11 @@ $pastemonkey(document).ready(function() {
 	
 	/* Live Query Functions*/
 	
+	$pastemonkey('#recaptcha_widget_div').livequery(function(){
+		window.location = null;
+		return false;
+	});
+	
 	$pastemonkey('a', '.paging').livequery(function(){
 		$pastemonkey(this).bind('click.paging', function(){
 			$pastemonkey('#content').load($pastemonkey(this).attr('href'));

@@ -23,7 +23,7 @@
 		<legend><?php __('Expiry');?></legend>
 		<?php e($form->input('expire_type', array('type'=>'radio', 'options'=>$expiry_types)));?>
 	</fieldset>
-	<fieldset>
+	<fieldset id="captchField">
 		<legend><?php __('Captcha');?></legend>
 		<?php e($recaptcha->render('6LfncwAAAAAAAIxurXazJ0zspoEwBpeVUfNr87Hr'));?>
 	</fieldset>
