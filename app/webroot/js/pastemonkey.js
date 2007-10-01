@@ -85,8 +85,11 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	$pastemonkey('#flashMessage').livequery(function(){
-		$pastemonkey(this).animate({backgroundColor: 'red'}, 'slow')
-			.animate({backgroundColor: '#fff'}, 'slow');
+		var self = this;
+		$pastemonkey(this).animate({backgroundColor: 'red'}, 'slow', 'linear')
+			.animate({backgroundColor: '#fff'}, 'slow', 'linear', function(){
+				setTimeout(function(){$pastemonkey(self).animate({opacity: 'hide'}, 'slow', 'linear');}, '5000');
+			});
 	});
 		
 });

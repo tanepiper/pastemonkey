@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 -- 
 -- Host: localhost
--- Generation Time: Sep 28, 2007 at 10:08 AM
+-- Generation Time: Oct 01, 2007 at 05:03 PM
 -- Server version: 5.0.38
 -- PHP Version: 5.2.1
 -- 
@@ -38,6 +38,23 @@ CREATE TABLE `attachments` (
 -- 
 
 
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `cake_sessions`
+-- 
+
+DROP TABLE IF EXISTS `cake_sessions`;
+CREATE TABLE `cake_sessions` (
+  `id` varchar(255) collate utf8_unicode_ci NOT NULL default '',
+  `data` text collate utf8_unicode_ci,
+  `expires` int(11) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- 
+-- Dumping data for table `cake_sessions`
+-- 
 -- --------------------------------------------------------
 
 -- 
@@ -186,12 +203,11 @@ CREATE TABLE `pastes` (
   `created` datetime default NULL,
   `expiry` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- 
 -- Dumping data for table `pastes`
 -- 
-
 
 -- --------------------------------------------------------
 
@@ -209,7 +225,6 @@ CREATE TABLE `pastes_tags` (
 -- Dumping data for table `pastes_tags`
 -- 
 
-
 -- --------------------------------------------------------
 
 -- 
@@ -226,14 +241,17 @@ CREATE TABLE `pinboards` (
   `created` datetime default NULL,
   `modified` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5 ;
 
 -- 
 -- Dumping data for table `pinboards`
 -- 
 
 INSERT INTO `pinboards` (`id`, `title`, `body`, `author`, `tags`, `created`, `modified`) VALUES 
-(1, 'Paste Monkey 0.2', '<p>Welcome to the Pinboards.  This is a new feature in Paste Monkey that allows me to update you with very simple blog messages about the progress of Paste Monkey.</p>\r\n\r\n<p>As I''ve said, this is version 0.2, and so far here are the existing features:</p>\r\n<ul>\r\n<li>Powered by <a href="http://cakephp.org">CakePHP</a> 1.2 MVC Framework.  Allows for a lightweight application, that is rapidly developed. (Release Early, Release Often!</li>\r\n<li>Full AJAX Interface using <a href="http://jquery.com">jQuery</a>.</li>\r\n<li><a href="http://geshi.sf.net">GeSHi</a> Syntax Highlighting library for PHP, provides the formatting for around 50 lanuages.</li>\r\n<li>Download the source code of each paste, as well as the Diff file of any amendments to a paste.</li>\r\n<li>Fully open-source under the MIT Licence (some components are GPL, License included).</li>\r\n<li class="new-feature">Basic News System called Pinboard that allows paste community to be kept up to date with the latest developments.</li>\r\n</ul>\r\n<p>As I am following the Release Early, Release Often methodology, Paste Monkey is constantly being updated with new features.  Keep an eye out on this pinboard to be kept up to date.</p>', 'Tane', 'Welcome, Pinboard, News, Details', '2007-09-28 08:29:30', '2007-09-28 08:31:59');
+(1, 'Paste Monkey 0.2', '<p>Welcome to the Pinboards.  This is a new feature in Paste Monkey that allows me to update you with very simple blog messages about the progress of Paste Monkey.</p>\r\n\r\n<p>As I''ve said, this is version 0.2, and so far here are the existing features:</p>\r\n<ul>\r\n<li>Powered by <a href="http://cakephp.org">CakePHP</a> 1.2 MVC Framework.  Allows for a lightweight application, that is rapidly developed. (Release Early, Release Often!</li>\r\n<li>Full AJAX Interface using <a href="http://jquery.com">jQuery</a>.</li>\r\n<li><a href="http://geshi.sf.net">GeSHi</a> Syntax Highlighting library for PHP, provides the formatting for around 50 lanuages.</li>\r\n<li>Download the source code of each paste, as well as the Diff file of any amendments to a paste.</li>\r\n<li>Fully open-source under the MIT Licence (some components are GPL, License included).</li>\r\n<li class="new-feature">Basic News System called Pinboard that allows paste community to be kept up to date with the latest developments.</li>\r\n</ul>\r\n<p>As I am following the Release Early, Release Often methodology, Paste Monkey is constantly being updated with new features.  Keep an eye out on this pinboard to be kept up to date.</p>', 'Tane', 'Welcome, Pinboard, News, Details', '2007-09-28 08:29:30', '2007-09-28 08:31:59'),
+(2, 'Pastebin 0.2.5', 'Today I have uploaded the latest version of my code.  In the code there are some improvements for performance, plus expiries now work, although all old posts that have not got an expiry will not be affected, however there may soon be a purge of any code on here anyway.', 'Tane', 'Paste Monkey, Beta, Expiry', '2007-09-29 11:18:52', '2007-09-29 11:18:52'),
+(3, 'Newest Feature: Captcha', 'Tonight, I have implemented the latest feature into the code - Spam Captcha.  The code uses the <a href="http://recaptcha.net/">ReCaptcha</a> API.  As well as helping to stop spam, it helps the ReCaptcha project as well.  Check out their site for more details', 'Tane', 'Captcha, Recaptcha', '2007-09-30 22:58:58', '2007-09-30 22:58:58'),
+(4, 'New Live Search function', 'Today, the newest feature to be added is the Live Search.  When JavaScript is enabled, all you need to do is type in the word you are looking for, and tab off the field.  This will then fire the search, and load the results into the main content area.  If you don''t have JavaScript, thats fine because you''ll see a search button that works like normal.\r\n\r\nI''ve also started moving over to another design.  At the moment, it''s a bit hodge-podge, but gradually you''ll see it building up.', 'Tane', 'Live Search', '2007-10-01 16:38:16', '2007-10-01 16:38:16');
 
 -- --------------------------------------------------------
 
@@ -251,7 +269,6 @@ CREATE TABLE `pinboards_tags` (
 -- Dumping data for table `pinboards_tags`
 -- 
 
-
 -- --------------------------------------------------------
 
 -- 
@@ -265,10 +282,33 @@ CREATE TABLE `tags` (
   `created` datetime default NULL,
   `modified` datetime default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- 
 -- Dumping data for table `tags`
 -- 
 
+-- --------------------------------------------------------
 
+-- 
+-- Table structure for table `users`
+-- 
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `email` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `passwd` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `author` varchar(255) collate utf8_unicode_ci NOT NULL,
+  `pastes_count` int(11) unsigned NOT NULL default '0',
+  `created` datetime default NULL,
+  `modified` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
+
+-- 
+-- Dumping data for table `users`
+-- 
+
+INSERT INTO `users` (`id`, `email`, `passwd`, `author`, `pastes_count`, `created`, `modified`) VALUES 
+(1, 'null', 'null', 'Anonymous', 0, NULL, NULL);
