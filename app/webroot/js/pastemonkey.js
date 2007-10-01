@@ -63,6 +63,9 @@ $pastemonkey(document).ready(function() {
 				});
 			});
 		});
+		$pastemonkey(this).bind('focus', function(){
+			$pastemonkey(this).val('');
+		})
 	});
 	
 	/* Tags */
@@ -75,13 +78,13 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
 	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
 	
-/*	$pastemonkey('#content').ajaxStart(function(){
+	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){
 		$pastemonkey.unblockUI();
 	});
-*/
+
 	$pastemonkey('#recaptcha_div').livequery(function(){
 		var self = this;
 		$pastemonkey.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
