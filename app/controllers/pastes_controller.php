@@ -75,14 +75,30 @@ class PastesController extends AppController {
 		if (!empty($this->data)) {
 			$this->data['Paste']['parent_id'] = $id;
 			$this->data['Paste']['id'] = null;
+			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
 			$this->cleanUpFields();
 			$this->Paste->create();			
-			if ($this->Paste->save($this->data)) {
-				$this->Session->setFlash('The Paste saved');
-				$this->redirect(array('action'=>'index'), null, true);
+			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
+				$captcha = $this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
+				if ($captcha['result']) {
+					if ($this->Paste->save($this->data)) {
+						if ($this->params['isAjax']) {
+						
+						} else {
+							$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true));
+							$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
+						}	
+					} else {
+						$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true));
+					}
+				} else {
+					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You have entered the ReCaptcha incorrectly.', true) . '<br />' .  __('Please, try again.', true));
+					$this->set('error',  $captcha['error']);
+				}
 			} else {
-				$this->Session->setFlash('The Paste could not be saved. Please, try again.');
+				$this->Session->setFlash('<strong>' . __('Fatal Error', true) . '</strong><br />' . __('Captcha library has failed to load.', true) . '<br />' . __('Please refresh the page', true) . '<br />' . __('If failure continues, please contact the system administator', true), 'default', array('sev'=>'fatal'));
 			}
+		}
 		}
 		if (empty($this->data)) {
 			$this->data = $this->Paste->read(null, $id);

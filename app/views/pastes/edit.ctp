@@ -22,5 +22,9 @@
 		<legend><?php __('Expiry');?></legend>
 		<?php e($form->input('expire_type', array('type'=>'radio', 'options'=>$expiry_types)));?>
 	</fieldset>
+	<fieldset id="captchField">
+		<legend><?php __('Captcha');?></legend>
+		<div id="recaptcha_div"></div>
+	</fieldset>
 	<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
 </div>
