@@ -56,7 +56,12 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey('#PasteLivesearch').livequery(function(){
 		$pastemonkey('input[type=submit]', '#PasteFindForm').hide();
 		$pastemonkey(this).bind('blur', function(){
-			$pastemonkey('#content').load('/pastes/find/?q=' + $pastemonkey(this).val());
+			var highlightVal = $pastemonkey(this).val();
+			$pastemonkey('#content').load('/pastes/find/?q=' + highlightVal, function(){
+				$pastemonkey('*','ol li').each(function(){
+					$pastemonkey.highlight(this, highlightVal.toUpperCase());	
+				});
+			});
 		});
 	});
 	
@@ -70,13 +75,13 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
 	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
 	
-	$pastemonkey('#content').ajaxStart(function(){
+/*	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){
 		$pastemonkey.unblockUI();
 	});
-
+*/
 	$pastemonkey('#recaptcha_div').livequery(function(){
 		var self = this;
 		$pastemonkey.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
