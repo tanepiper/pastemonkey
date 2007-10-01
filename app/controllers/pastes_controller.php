@@ -99,7 +99,7 @@ class PastesController extends AppController {
 				$this->Session->setFlash('<strong>' . __('Fatal Error', true) . '</strong><br />' . __('Captcha library has failed to load.', true) . '<br />' . __('Please refresh the page', true) . '<br />' . __('If failure continues, please contact the system administator', true), 'default', array('sev'=>'fatal'));
 			}
 		}
-		}
+
 		if (empty($this->data)) {
 			$this->data = $this->Paste->read(null, $id);
 		}
