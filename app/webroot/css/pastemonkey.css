@@ -1,4 +1,4 @@
-html,body{margin:0;padding:0; background:#000;}
+html,body{margin:0;padding:0; background:#F0F0F0;}
 body{font: 90% arial,sans-serif}
 p{margin:0 10px 10px}
 
@@ -23,8 +23,8 @@ div#header{
 	padding-left:10px;
 	background: #000 url('/img/edit-paste.png') no-repeat 20px center ;
 	color: #FFCC44;
-	vertical-align: center;
-	
+	vertical-align: middle;
+	border-bottom:5px solid #BDBDBD;
 }
 div#header h1 {
 	margin: 0 0 0 100px;
@@ -41,25 +41,30 @@ div#header .loading {
 	margin:0 auto;
 	padding:0;
 }
-div#content {background:#fff;}
+div#content {}
 div#content p{line-height:1.4}
 div#content a {color:#539FCF}
 
 div#content .pastes .geshi-output ol {
-	background: #eee;
-	color: #0f0;
+	background: #555;
+	color: #fff;
 	height: 150px;
 	overflow: hidden;
+	border:1px solid #000;
 }
 
-div#navigation{background:#000; color:#fff;}
-div#extra{background:#FF8539}
-div#footer{background: #333;color: #FFF}
+div#content .pastes .geshi-output ol li{
+	color: #000;
+}
+
+div#navigation{ color:#fff;}
+div#extra{}
+div#footer{background: #000; color: #FFF}
 div#footer p{margin:0;padding:5px 10px}
 
 div#content .paste-area ol {
 	background: #eee;
-	color: #0f0;
+	color: #000;
 	height: 150px;
 	overflow: hidden;
 }
@@ -87,9 +92,25 @@ div#navigation .nav-link {
 	display:block;
 }
 
+div#navigation #search {
+	background: #D9CEB2;
+	color: #000;
+	margin-bottom: 20px;
+}
+
+div#navigation #latest-pastes {
+	background:#90A8C0;
+	padding:5px;
+	color: #000;
+}
+
+div#navigation #latest-pastes a {
+
+}
+
 div#extra{clear:left;width:100%}
 div#extra .buttons {
-	background: #000;
+
 }
 div#extra .buttons p {
 	float:left;

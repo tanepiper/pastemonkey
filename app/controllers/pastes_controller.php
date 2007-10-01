@@ -205,6 +205,17 @@ class PastesController extends AppController {
 		}
 		return $output;
 	}
+	
+	function find() {
+		/* Improve: Add search for language and tags too */
+		if($this->params['isAjax']) {
+			$search = $this->params['url']['q'];
+		} else {
+			$search = $this->data['Paste']['livesearch'];
+		}
+		$this->set('items', $this->Paste->findAll(array('Paste.paste'=>'LIKE %' . $search . '%')));
+		$this->set('term', $search);
+	}
 
 }
 ?>

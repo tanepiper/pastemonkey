@@ -52,6 +52,14 @@ $pastemonkey(document).ready(function() {
 		$pastemonkey(this).resizable({ autohide: true, minHeight: 100, minWidth: 200, maxHeight: 300, maxWidth: 1000 });
 	});
 	
+	/* Live Search */
+	$pastemonkey('#PasteLivesearch').livequery(function(){
+		$pastemonkey('input[type=submit]', '#PasteFindForm').hide();
+		$pastemonkey(this).bind('blur', function(){
+			$pastemonkey('#content').load('/pastes/find/?q=' + $pastemonkey(this).val());
+		});
+	});
+	
 	/* Tags */
 	$pastemonkey('#PasteTags').livequery(function(){
 		$pastemonkey(this).autocomplete('/tags/find/', {multiple: true, matchContains: true});

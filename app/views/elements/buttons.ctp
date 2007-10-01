@@ -9,14 +9,19 @@
 	</p>
 	<p>
 	<?php echo $html->link(
-			$html->image('jq.png', array('alt'=>"jQuery JavaScript Library", 'border'=>"0")),
+			$html->image('jquery-icon.png', array('alt'=>"jQuery JavaScript Library", 'border'=>"0")),
 			'http://www.jquery.com/',
 			array('target'=>'_new'), null, false
 		  );
 	?>
 	</p>
 	<p>
-	<?php e($html->link(__('Get Source Code',true), 'http://code.google.com/p/pastemonkey/'));?>
+	<?php echo $html->link(
+			$html->image('pastemonkey-button.gif', array('alt'=>"Paste Monkey", 'border'=>"0")),
+			'http://pastemonkey.googlecode.com/',
+			array('target'=>'_new'), null, false
+		  );
+	?>
 	</p>
 	<br style="clear:both;" />
 </div>
