@@ -68,6 +68,14 @@ div#content .paste-area ol li {
 	color:#000;
 }
 
+div#content div#flashMessage {
+	border:2px solid #000;
+	background: #fff url('/img/dialog-warning.png') no-repeat center left;
+	padding-left: 50px;
+	min-height:50px;
+	vertical-align:middle;
+}
+
 div#wrapper{float:left;width:100%}
 div#content{margin-left:200px; padding:20px;}
 div#navigation{float:left;width:200px;margin-left:-100%}

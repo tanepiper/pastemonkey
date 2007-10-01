@@ -62,18 +62,23 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
 	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
 	
-	/*$pastemonkey('#content').ajaxStart(function(){
+/*	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){
 		$pastemonkey.unblockUI();
-	});*/
-	
+	});
+*/	
 	$pastemonkey('#recaptcha_div').livequery(function(){
 		var self = this;
 		$pastemonkey.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
 			Recaptcha.create("6LfncwAAAAAAAIxurXazJ0zspoEwBpeVUfNr87Hr", self);
 		});
+	});
+	
+	$pastemonkey('#flashMessage').livequery(function(){
+		$pastemonkey(this).animate({backgroundColor: 'red'}, 'slow')
+			.animate({backgroundColor: '#fff'}, 'slow');
 	});
 		
 });
