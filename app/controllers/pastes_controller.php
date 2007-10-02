@@ -241,9 +241,9 @@ class PastesController extends AppController {
 		} else {
 			$search = $this->data['Paste']['livesearch'];
 		}
-		$this->passedArgs['limit'] = 5;
-		$this->passedArgs['conditions'] = array('Paste.paste'=>'LIKE %' . $search . '%');
-		$this->set('items', $this->paginate());
+		//$this->passedArgs['limit'] = 5;
+		//$this->passedArgs['conditions'] = array('Paste.paste'=>'LIKE %' . $search . '%');
+		$this->set('items', $this->paginate(array('conditions'=>array('Paste.paste'=>'LIKE %' . $search . '%'))));
 		//$this->set('items', $this->Paste->findAll(array('Paste.paste'=>'LIKE %' . $search . '%')));
 		$this->set('term', $search);
 	}
