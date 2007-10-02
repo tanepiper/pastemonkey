@@ -27,14 +27,13 @@
 					<div class="viewPaste-infoArea-parent">
 						<strong><?php __('This paste is an edit');?></strong>
 						<?php e($html->link(__('View Parent', true),array('controller'=>'pastes', 'action'=>'view', $paste['Paste']['parent_id']), array('class'=>'ajaxLink')));?>
-						<br />
-						<?php e($html->link(__('Download Diff File', true),array('controller'=>'pastes', 'action'=>'diff', $paste['Paste']['parent_id'], $paste['Paste']['id'])));?>
 					</div>	
 				<?php } ?>
 				
 				<div class="viewPaste-infoArea-downloadLinks">
 					<?php e($html->link($html->image("go-down.png") . '<br />' . __('Download', true), array('controller'=> 'pastes', 'action'=>'download', $paste['Paste']['id']), array('class'=>'downloadPaste'), null, false));?>
 					<?php e($html->link($html->image("accessories-text-editor.png") . '<br />' . __('Edit', true), array('controller'=> 'pastes', 'action'=>'edit', $paste['Paste']['id']), array('class'=>'ajaxLink editPaste'), null, false));?>
+					<?php e($html->link($html->image("edit-copy.png") . '<br />' . __('Download Diff File', true),array('controller'=>'pastes', 'action'=>'diff', $paste['Paste']['parent_id'], $paste['Paste']['id']), array('class'=>'downloadDiff'), null, false));?>
 				</div>
 				<br style="clear:both;" />
 			</div>

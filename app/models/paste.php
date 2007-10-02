@@ -38,6 +38,32 @@ class Paste extends AppModel {
 						'unique' => true),
 	);
 	
+var $hasMany = array(
+		'Attachment' => array(
+			'foreignKey' => 'foreign_id',
+			'conditions' => array('Attachment.class' => 'To Be Filled'),
+			'dependent' => true
+		)
+	);
+	var $hasOne = array(
+		'Thumb' => array(
+			'className' => 'Attachment',	
+			'foreignKey' => 'foreign_id',
+			'conditions' => array('Thumb.class' => 'To Be Filled', 'Thumb.thumb' => true),
+			'dependent' => true
+		)
+	);
+
+	function __construct($id = false, $table = null, $ds = null) {
+		parent::__construct();
+		if (isset($this->hasMany['Attachment'])) {
+			$this->hasMany['Attachment']['conditions']['Attachment.class'] = $this->name;
+		}
+		if (isset($this->hasOne['Thumb'])) {
+			$this->hasOne['Thumb']['conditions']['Thumb.class'] = $this->name;
+		}
+	}
+	
 	function beforeRender() {
 	}
 	
