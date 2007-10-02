@@ -10,11 +10,12 @@
 	<div id="paste-<?php e($paste['Paste']['id']);?>">
 		<div class="infoarea">
 			<strong>Paste by <?php e($paste['Paste']['author']);?> <?php __('in');?> <?php e($paste['Language']['language']);?>, <?php e($pastemonkey->timeAgo($paste['Paste']['created']));?></strong>
+			<br />
+			<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id']), array('class'=>'ajaxLink')); ?>
 		</div>
 		<div class="geshi-output">
 			<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['class'])));?>
 		</div>
-		<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id']), array('class'=>'ajaxLink')); ?>
 	</div>
 <?php }; ?>
 </div>
