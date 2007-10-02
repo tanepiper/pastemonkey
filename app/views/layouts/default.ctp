@@ -15,7 +15,7 @@
 	<body>
 		<div id="container">
 			<div id="header">
-				<h1><a href="/"><?php e($pm_sitename);?> (beta)</a></h1>
+				<h1><a href="/"><?php e($html->image('edit-paste.png'));?> <?php e($html->image('face-monkey.png'));?> (beta)</a></h1>
 				<div class="loading" style="display:none"><?php e($html->image('ajax-loader.gif'));?> <?php __('Loading');?></div>
 				</div>
 			<div id="wrapper">

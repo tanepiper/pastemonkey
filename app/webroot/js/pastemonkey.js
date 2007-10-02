@@ -99,7 +99,7 @@ $pastemonkey(document).ready(function() {
 		var self = this;
 		if (typeof self != 'undefined') {
 			$pastemonkey.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
-					Recaptcha.create($pastemonkey(self).attr('class'), self);
+					Recaptcha.create($pastemonkey(self).attr('class'), self, {theme: 'blackglass'});
 			});
 		}
 	});
