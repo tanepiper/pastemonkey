@@ -21,6 +21,11 @@
 		<legend><?php __('Expiry');?></legend>
 		<?php e($form->input('expire_type', array('type'=>'radio', 'options'=>$expiry_types)));?>
 	</fieldset>
+	<fieldset>
+		<legend><?php __('Attachment');?></legend>
+		<?php e($this->element('attachments'));?>
+		<?php e($form->input('filename', array('type'=>'file')));?>
+	</fieldset>
 	<fieldset id="captchField">
 		<legend><?php __('Captcha');?></legend>
 		<?php e($recaptcha->render('6Lf3dAAAAAAAANFCQ7r0Nn3mcOfc4UYPyzvRkZ6v', $error));?>
