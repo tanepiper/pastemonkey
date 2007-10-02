@@ -73,7 +73,7 @@ div#content .paste-area ol li {
 	color:#000;
 }
 
-div#content div#flashMessage {
+.fatal {
 	border:2px solid #000;
 	background: #fff url('/img/dialog-warning.png') no-repeat center left;
 	padding-left: 50px;
@@ -81,9 +81,39 @@ div#content div#flashMessage {
 	vertical-align:middle;
 }
 
+.error {
+	border:2px solid #000;
+	background: #fff url('/img/dialog-error.png') no-repeat center left;
+	padding-left: 50px;
+	min-height:50px;
+	vertical-align:middle;
+}
+
+.warning {
+	border:2px solid #000;
+	background: #fff url('/img/emblem-important.png') no-repeat center left;
+	padding-left: 50px;
+	min-height:50px;
+	vertical-align:middle;
+}
+
+.notice {
+	border:2px solid #000;
+	background: #fff url('/img/dialog-information.png') no-repeat center left;
+	padding-left: 50px;
+	min-height:50px;
+	vertical-align:middle;
+}
+
+
 div#wrapper{float:left;width:100%}
 div#content{margin-left:200px; padding:20px;}
 div#navigation{float:left;width:200px;margin-left:-100%}
+
+div#navigation #primary-nav {
+	padding:0;
+}
+
 div#navigation .nav-link {
 	background: #fc4;
 	border: 2px solid #fff;

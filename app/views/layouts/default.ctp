@@ -9,7 +9,7 @@
 		<?php echo $html->css('pastemonkey');?>
 		<?php echo $html->css('flora.resizable');?>
 		<?php echo $html->css('jquery.autocomplete');?>
-		<?php e($this->element('jsfiles', array('cache'=>'1 day')));?>
+		<?php e($this->element('jsfiles'));?>
 		<?php echo $scripts_for_layout;?>
 	</head>
 	<body>
@@ -29,15 +29,15 @@
 				</div>
 			</div>
 			<div id="navigation">
-				<?php e($this->element('navigation', array('cache'=>'1 day')));?>
-				<?php e($this->element('search', array('cache'=>'1 day')));?>
+				<?php e($this->element('navigation'));?>
+				<?php e($this->element('search'));?>
 				<?php e($this->element('latest'));?>
-				<?php //e($this->element('donate', array('cache'=>'1 day')));?>
+				<?php //e($this->element('donate'));?>
 			</div>
 			<div id="extra">
-				<?php e($this->element('buttons', array('cache'=>'1 day')));?>
+				<?php e($this->element('buttons'));?>
 			</div>
-		<div id="footer"><?php e($this->element('credits', array('cache'=>'1 day')));?></div>
+		<div id="footer"><?php e($this->element('credits'));?></div>
 	</div>
 	<?php echo $cakeDebug?>
 	</body>

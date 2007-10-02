@@ -20,7 +20,7 @@ class PastesController extends AppController {
 	function view($id = null) {
 		$this->cacheAction = '1 hour';
 		if (!$id) {
-			$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('Paste ID', true) . ' ' . $id . ' ' . __('does not exist.'));
+			$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('Paste ID', true) . ' ' . $id . ' ' . __('does not exist.'), 'default', array('sev'=>'warning'));
 			$this->redirect(array('action'=>'index'), null, true);
 		}
 		$this->set('paste', $this->Paste->read(null, $id));
@@ -31,6 +31,13 @@ class PastesController extends AppController {
 			$this->cleanUpFields();
 			$this->Paste->create();
 			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
+			
+			if($this->data['Paste']['remember_me']) {
+				$this->Session->write('author_name', $this->data['Paste']['author']);
+			} else {
+				$this->Session->write('author_name', '');
+			}
+			
 			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
 				$captcha = $this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
 				if ($captcha['result']) {
@@ -38,14 +45,14 @@ class PastesController extends AppController {
 						if ($this->params['isAjax']) {
 						
 						} else {
-							$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true));
+							$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
 							$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
 						}	
 					} else {
-						$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true));
+						$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
 					}
 				} else {
-					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You have entered the ReCaptcha incorrectly.', true) . '<br />' .  __('Please, try again.', true));
+					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You have entered the ReCaptcha incorrectly.', true) . '<br />' .  __('Please, try again.', true), 'default', array('sev'=>'warning'));
 					$this->set('error',  $captcha['error']);
 				}
 			} else {
@@ -55,6 +62,8 @@ class PastesController extends AppController {
 		
 		if (isset($name)) {
 			$this->set('name', $name);
+		} else if ($this->Session->read('author_name')) {
+			$this->set('name', $this->Session->read('author_name'));
 		} else {
 			$this->set('name', 'Anonymous');
 		}
@@ -77,7 +86,14 @@ class PastesController extends AppController {
 			$this->data['Paste']['id'] = null;
 			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
 			$this->cleanUpFields();
-			$this->Paste->create();			
+			$this->Paste->create();
+
+			if($this->data['Paste']['remember_me']) {
+				$this->Session->write('author_name', $this->data['Paste']['author']);
+			} else {
+				$this->Session->write('author_name', '');
+			}			
+			
 			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
 				$captcha = $this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
 				if ($captcha['result']) {
@@ -103,6 +119,14 @@ class PastesController extends AppController {
 		if (empty($this->data)) {
 			$this->data = $this->Paste->read(null, $id);
 		}
+		
+		if ($this->Session->read('author_name')) {
+			$this->set('name', $this->Session->read('author_name'));
+		} else {
+			$this->set('name', $this->data['Paste']['author']);
+		}
+		
+		
 		$expiry_types = array('day'=>'Day','week'=>'Week','month'=>'Month','never'=>'Never');
 		$languages = $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language');
 		$this->set(compact('languages'));

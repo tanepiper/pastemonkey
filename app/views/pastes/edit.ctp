@@ -1,4 +1,4 @@
-<div class="paste">
+<div class="paste-add">
 <?php echo $form->create('Paste');?>
 	<fieldset>
  		<legend><?php __('Edit');?> <?php __('Paste');?></legend>
@@ -13,9 +13,8 @@
 		echo $form->input('tags', array('type'=>'text'));
 		echo $form->input('parent_id', array('type'=>'hidden', 'value'=>$this_id));
 		echo $form->input('language_id');
-		echo $form->input('author');
-		e($form->input('remember_me', array('type'=>'checkbox', 'disabled'=>'disabled')));
-		//echo $form->input('expiry');
+		echo $form->input('author', array('value'=>$name));
+		e($form->input('remember_me', array('type'=>'checkbox', 'value'=>'1')));
 	?>
 	</fieldset>
 	<fieldset>
@@ -26,5 +25,5 @@
 		<legend><?php __('Captcha');?></legend>
 		<div id="recaptcha_div"></div>
 	</fieldset>
-	<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
+	<?php echo $form->end(__('Add Modified Paste', true), array('class'=>'submit-paste'));?>
 </div>

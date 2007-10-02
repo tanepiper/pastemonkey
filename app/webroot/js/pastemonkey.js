@@ -56,6 +56,7 @@ $pastemonkey(document).ready(function() {
 	$pastemonkey('#PasteLivesearch').livequery(function(){
 		$pastemonkey('input[type=submit]', '#PasteFindForm').hide();
 		$pastemonkey(this).bind('blur', function(){
+			$pastemonkey(this).css({backgroundColor: '#fff'});
 			var highlightVal = $pastemonkey(this).val();
 			if (highlightVal != '' && highlightVal.length >= 3) {
 				$pastemonkey('#content').load('/pastes/find/?q=' + highlightVal, function(){
@@ -67,7 +68,14 @@ $pastemonkey(document).ready(function() {
 		});
 		$pastemonkey(this).bind('focus', function(){
 			$pastemonkey(this).val('');
-		})
+		});
+		$pastemonkey(this).bind('keyup', function(){
+			if ($pastemonkey(this).val().length < 3) {
+				$pastemonkey(this).css({backgroundColor: '#EA444A'});
+			} else {
+				$pastemonkey(this).css({backgroundColor: '#5CFF69'});
+			}
+		});
 	});
 	
 	/* Tags */
@@ -79,7 +87,7 @@ $pastemonkey(document).ready(function() {
 	
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
 	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
-	
+/*	
 	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
@@ -93,10 +101,35 @@ $pastemonkey(document).ready(function() {
 				Recaptcha.create("6Lf3dAAAAAAAANFCQ7r0Nn3mcOfc4UYPyzvRkZ6v", self);
 		});
 	});
-	
+*/	
 	$pastemonkey('#flashMessage').livequery(function(){
 		var self = this;
-		$pastemonkey(this).animate({backgroundColor: 'red'}, 'slow', 'linear')
+		var level = $pastemonkey(this).attr('rel');
+		switch (level) {
+			case "fatal":
+				var options = {
+					backgroundColor: 'red'
+				}
+			break;
+			case "error":
+				var options = {
+					backgroundColor: 'orange'
+				}
+			break;
+			case "warning":
+				var options = {
+					backgroundColor: 'yellow'
+				}
+			break;
+			case "notice":
+				var options = {
+					backgroundColor: 'green'
+				}
+			break;
+		}
+		
+		$pastemonkey(this).addClass(level);
+		$pastemonkey(this).animate(options, 'slow', 'linear')
 			.animate({backgroundColor: '#fff'}, 'slow', 'linear', function(){
 				setTimeout(function(){$pastemonkey(self).animate({opacity: 'hide'}, 'slow', 'linear');}, '5000');
 			});

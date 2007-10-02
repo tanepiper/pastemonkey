@@ -14,9 +14,7 @@
 		echo $form->input('parent_id', array('type'=>'hidden'));
 		echo $form->input('language_id');
 		echo $form->input('author', array('value'=>$name));
-		e($form->input('remember_me', array('type'=>'checkbox', 'disabled'=>'disabled')));
-		//echo $form->input('expiry');
-		//e($form->input('filename', array('type'=>'file','id'=>'filename')));
+		e($form->input('remember_me', array('type'=>'checkbox', 'value'=>'1')));
 	?>
 	</fieldset>
 	<fieldset>
@@ -27,5 +25,5 @@
 		<legend><?php __('Captcha');?></legend>
 		<div id="recaptcha_div"></div>
 	</fieldset>
-	<?php echo $form->end('Submit', array('class'=>'submit-paste'));?>
+	<?php echo $form->end(__('Add New Paste', true), array('class'=>'submit-paste'));?>
 </div>

@@ -1,8 +1,7 @@
 <div id="search">
+	<h3><?php __('Search Code');?></h3>
 	<?php e($form->create('Paste', array('action'=>'find')));?>
-	<fieldset>
-		<legend><?php __('Search Code');?></legend>
-		<?php e($form->input('livesearch' , array('value'=>__('Search',true) . '...')));?>
-		<?php e($form->end('Search'));?>
-	</fieldset>
+	<?php e($form->input('livesearch' , array('label'=>'', 'value'=>__('Search',true) . '...')));?>
+	&nbsp;
+	<?php e($form->end('Search'));?>
 </div>

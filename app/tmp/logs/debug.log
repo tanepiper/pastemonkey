@@ -25,3 +25,5 @@
 2007-10-01 09:18:39 Notice: Notice (8): Undefined index:  recaptcha_response_field in [CORE/app/controllers/pastes_controller.php, line 35]
 2007-10-01 09:19:01 Notice: Notice (8): Undefined variable: captcha in [CORE/app/controllers/pastes_controller.php, line 36]
 2007-10-01 09:19:01 Notice: Notice (8): Undefined variable: captcha in [CORE/app/controllers/pastes_controller.php, line 49]
+2007-10-02 09:11:06 Notice: Notice (8): Undefined index:  recaptcha_challenge_field in [CORE/app/controllers/pastes_controller.php, line 42]
+2007-10-02 09:11:06 Notice: Notice (8): Undefined index:  recaptcha_response_field in [CORE/app/controllers/pastes_controller.php, line 42]
