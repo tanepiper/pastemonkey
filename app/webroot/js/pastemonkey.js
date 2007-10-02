@@ -87,7 +87,7 @@ $pastemonkey(document).ready(function() {
 	
 	$pastemonkey.blockUI.defaults.pageMessage = '<img src="/img/ajax-loader.gif" /> Loading';
 	$pastemonkey.extend($pastemonkey.blockUI.defaults.pageMessageCSS, { color: '#000', backgroundColor: '#fff' });
-/*	
+	
 	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
@@ -97,11 +97,13 @@ $pastemonkey(document).ready(function() {
 
 	$pastemonkey('#recaptcha_div').livequery(function(){
 		var self = this;
-		$pastemonkey.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
-				Recaptcha.create("6Lf3dAAAAAAAANFCQ7r0Nn3mcOfc4UYPyzvRkZ6v", self);
-		});
+		if (typeof self != 'undefined') {
+			$pastemonkey.getScript('http://api.recaptcha.net/js/recaptcha_ajax.js', function(){
+					Recaptcha.create($pastemonkey(self).attr('class'), self);
+			});
+		}
 	});
-*/	
+	
 	$pastemonkey('#flashMessage').livequery(function(){
 		var self = this;
 		var level = $pastemonkey(this).attr('rel');

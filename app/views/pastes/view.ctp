@@ -46,7 +46,7 @@
 					<?php e($html->link(__('Download Code',true), array('controller'=> 'pastes', 'action'=>'download', $paste['Paste']['id']), array('class'=>'download')));?>
 					<?php e($html->link(__('Edit Code',true), array('controller'=> 'pastes', 'action'=>'edit', $paste['Paste']['id']), array('class'=>'ajaxLink')));?>
 				</div>
-				<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['language'])));?>
+				<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['class'])));?>
 			</div>
 			<hr />
 			<?php e($form->input('plain_paste',array('type'=>'textarea','value'=>$paste['Paste']['paste'], 'id'=>'PasteCopy' . $paste['Paste']['id'], 'class'=>'PasteCopy')));?>

@@ -4,7 +4,7 @@ class PastesController extends AppController {
 	var $name = 'Pastes';
 	var $helpers = array('Html', 'Form' );
 
-	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' ,'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language'),'limit'=>5, 'order'=>array('Paste.created'=>'DESC'));
+	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' ,'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language', 'Language.class'),'limit'=>5, 'order'=>array('Paste.created'=>'DESC'));
 
 	function index() {
 		$this->cacheAction = '1 hour';
@@ -101,14 +101,14 @@ class PastesController extends AppController {
 						if ($this->params['isAjax']) {
 						
 						} else {
-							$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true));
+							$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
 							$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
 						}	
 					} else {
-						$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true));
+						$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
 					}
 				} else {
-					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You have entered the ReCaptcha incorrectly.', true) . '<br />' .  __('Please, try again.', true));
+					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You have entered the ReCaptcha incorrectly.', true) . '<br />' .  __('Please, try again.', true), 'default', array('sev'=>'warning'));
 					$this->set('error',  $captcha['error']);
 				}
 			} else {
@@ -233,11 +233,18 @@ class PastesController extends AppController {
 	function find() {
 		/* Improve: Add search for language and tags too */
 		if($this->params['isAjax']) {
-			$search = $this->params['url']['q'];
+			if (isset($this->params['url']['q'])) {
+				$search = $this->params['url']['q'];
+			} else {
+				$search = $this->data['Paste']['livesearch'];
+			}
 		} else {
 			$search = $this->data['Paste']['livesearch'];
 		}
-		$this->set('items', $this->Paste->findAll(array('Paste.paste'=>'LIKE %' . $search . '%')));
+		$this->passedArgs['limit'] = 5;
+		$this->passedArgs['conditions'] = array('Paste.paste'=>'LIKE %' . $search . '%');
+		$this->set('items', $this->paginate());
+		//$this->set('items', $this->Paste->findAll(array('Paste.paste'=>'LIKE %' . $search . '%')));
 		$this->set('term', $search);
 	}
 

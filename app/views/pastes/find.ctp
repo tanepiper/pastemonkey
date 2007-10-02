@@ -1,3 +1,9 @@
+<div class="paging">
+	<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>
+ | 	<?php echo $paginator->numbers();?>
+	<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
+</div>
+
 <div class="pastes">
 	<h2><?php __('Pastes for search term');?> <?php e($term);?></h2>
 	<?php if($items) { ?>
@@ -11,8 +17,15 @@
 			</div>
 			<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id']), array('class'=>'ajaxLink')); ?>
 		</div>
+		<?php e($form->input('livesearch', array('type'=>'hidden', 'value'=>$term)));?>
 	<?php }; ?>
 	<?php } else { ?>
 		<strong>Your search term produced no results.</strong>
 	<?php } ?>
+</div>
+
+<div class="paging">
+	<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>
+ | 	<?php echo $paginator->numbers();?>
+	<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
 </div>

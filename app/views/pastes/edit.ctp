@@ -23,7 +23,7 @@
 	</fieldset>
 	<fieldset id="captchField">
 		<legend><?php __('Captcha');?></legend>
-		<div id="recaptcha_div"></div>
+		<?php e($recaptcha->render('6Lf3dAAAAAAAANFCQ7r0Nn3mcOfc4UYPyzvRkZ6v', $error));?>
 	</fieldset>
 	<?php echo $form->end(__('Add Modified Paste', true), array('class'=>'submit-paste'));?>
 </div>
