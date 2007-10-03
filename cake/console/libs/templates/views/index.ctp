@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: index.ctp 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: index.ctp 5499 2007-08-07 20:34:02Z gwoo $ */
 /**
  *
  * PHP versions 4 and 5
@@ -18,14 +18,21 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs.templates.views
  * @since			CakePHP(tm) v 1.2.0.5234
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5499 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-07 21:34:02 +0100 (Tue, 07 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 ?>
 <div class="<?php echo $pluralVar;?>">
 <h2><?php echo "<?php __('{$pluralHumanName}');?>";?></h2>
+<p>
+<?php echo "<?php
+echo \$paginator->counter(array(
+'format' => 'Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%'
+));
+?>";?>
+</p>
 <table cellpadding="0" cellspacing="0">
 <tr>
 <?php  foreach ($fields as $field):?>

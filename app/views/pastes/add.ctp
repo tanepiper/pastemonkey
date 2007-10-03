@@ -15,13 +15,14 @@
 				e($form->input('parent_id', array('type'=>'hidden')));
 				e($form->input('language_id'));
 				e($form->input('author', array('value'=>$name)));
-				e($form->input('remember_me', array('type'=>'checkbox', 'value'=>'1')));
+				e($form->input('remember_me', array('type'=>'checkbox')));
 			?>
 		</fieldset>
 	
 		<fieldset>
-			<legend><?php __('Paste');?> <?php __('Expiry');?></legend>
-			<?php e($form->input('expire_type', array('type'=>'radio', 'options'=>$expiry_types)));?>
+			<legend><?php __('Paste');?> <?php __('Options');?></legend>
+			<?php e($form->radio('expire_type', $expiry_types, null, array('label'=>'How long do you want this paste to last?')));?>
+			<?php e($form->input('private', array('type'=>'checkbox')));?>
 		</fieldset>
 	
 		<fieldset id="captchField">

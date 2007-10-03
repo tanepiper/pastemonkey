@@ -19,10 +19,13 @@ class PastemonkeyHelper extends TimeHelper {
 		return $output;
 	}
 	
-	function checkAddress(){
-		$address = 'http';
-		$address .= '://' . $_SERVER['SERVER_ADDR'];
-		return $address;
+	function curPageURL($trim = false) {
+  		$pageURL = 'http';
+ 		if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+  		$pageURL .= "://";
+  		$pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+  		if ($trim == true) {$pageURL = rtrim($pageURL, '/');}
+  		return $pageURL;
 	}
 
 }

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: test_manager.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: test_manager.php 5460 2007-07-25 04:38:28Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.tests.lib
  * @since			CakePHP(tm) v 1.2.0.4433
- * @version			$Revision: 5422 $
+ * @version			$Revision: 5460 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-07-25 05:38:28 +0100 (Wed, 25 Jul 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 define ('CORE_TEST_CASES', dirname(dirname(__FILE__)) . DS . 'cases');

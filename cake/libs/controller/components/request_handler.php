@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: request_handler.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: request_handler.php 5691 2007-09-24 23:49:54Z phpnut $ */
 /**
  * Request object for handling alternative HTTP requests
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller.components
  * @since			CakePHP(tm) v 0.10.4.1076
- * @version			$Revision: 5422 $
+ * @version			$Revision: 5691 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -81,10 +81,12 @@ class RequestHandlerComponent extends Object {
 	var $__requestContent = array(
 		'javascript'	=> 'text/javascript',
 		'js'			=> 'text/javascript',
+		'json'			=> 'application/json',
 		'css'			=> 'text/css',
 		'html'			=> array('text/html', '*/*'),
 		'text'			=> 'text/plain',
 		'txt'			=> 'text/plain',
+		'csv'			=> array('application/vnd.ms-excel', 'text/plain'),
 		'form'			=> 'application/x-www-form-urlencoded',
 		'file'			=> 'multipart/form-data',
 		'xhtml'			=> array('application/xhtml+xml', 'application/xhtml', 'text/xhtml'),
@@ -210,6 +212,19 @@ class RequestHandlerComponent extends Object {
 		}
 	}
 /**
+ * Handles (fakes) redirects for Ajax requests using requestAction()
+ *
+ * @param object A reference to the controller
+ * @param mixed A string or array containing the redirect location
+ * @return void
+ */
+	function beforeRedirect(&$controller, $url) {
+		if (!$this->isAjax()) {
+			return;
+		}
+
+	}
+/**
  * Returns true if the current HTTP request is Ajax, false otherwise
  *
  * @return bool True if call is Ajax
@@ -257,7 +272,7 @@ class RequestHandlerComponent extends Object {
  */
 	function isMobile() {
 		preg_match('/' . REQUEST_MOBILE_UA . '/i', env('HTTP_USER_AGENT'), $match);
-		if(!empty($match) || $this->accepts('wap')) {
+		if (!empty($match) || $this->accepts('wap')) {
 			return true;
 		}
 		return false;

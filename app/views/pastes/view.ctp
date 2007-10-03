@@ -24,7 +24,7 @@
 				<?php } ?>
 				<div class="viewPaste-infoArea-permalink">
 					<strong><?php __('Permalink');?>:</strong>
-					<?php e($html->link($pastemonkey->checkAddress() . '/pastes/view/' . $paste['Paste']['id'],array('controller'=>'pastes','action'=>'view', $paste['Paste']['id']), array('class'=>'noAjax')));?>
+					<?php e($html->link($pastemonkey->curPageURL(),array('controller'=>'pastes','action'=>'view', $paste['Paste']['id']), array('class'=>'noAjax')));?>
 				</div>
 				
 				<div class="viewPaste-infoArea-downloadLinks">
@@ -43,7 +43,7 @@
 						<strong><?php __('Note');?></strong>: <?php echo $paste['Paste']['note']?>
 					</div>
 				<?php } ?>
-				<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['class'])));?>
+				<?php e($geshi->generate($paste['Paste']['paste'], $paste['Language']['class']));?>
 			</div>
 			
 			<div class="viewpaste-plainOutput">

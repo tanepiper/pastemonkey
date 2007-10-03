@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: project.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: project.php 5698 2007-09-27 11:16:26Z gwoo $ */
 /**
  * The Project Task handles creating the base application
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.scripts.bake
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5698 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-27 12:16:26 +0100 (Thu, 27 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 if (!class_exists('File')) {
@@ -45,6 +45,13 @@ class ProjectTask extends Shell {
 	function initialize() {}
 
 /**
+ * Override
+ *
+ * @return void
+ */
+	function startup() {}
+
+/**
  * Checks that given project path does not already exist, and
  * finds the app directory in it. Then it calls __buildDirLayout() with that information.
  *
@@ -52,26 +59,30 @@ class ProjectTask extends Shell {
  */
 	function execute($project = null) {
 		if ($project === null) {
-			$project = $this->params['app'];
 			if (isset($this->args[0])) {
 				$project = $this->args[0];
 				$this->Dispatch->shiftArgs();
 			}
 		}
 
-		if ($project) {
-			if ($project{0} == DS || $project{0} == '/') {
-				$app = basename($project);
-				$root = dirname($project);
+		if($project) {
+			if($project{0} == '/' || $project{0} == DS) {
+				$this->Dispatch->parseParams(array('-working', $project));
 			} else {
-				$app = $project;
-				$root = $this->params['root'] . DS;
+				$this->Dispatch->parseParams(array('-app', $project));
 			}
+		}
 
-			$root = str_replace(DS . DS, DS, $root . DS);
+		$project = $this->params['working'];
 
-			$project = $root . $app;
+		if (empty($this->params['skel'])) {
+			$this->params['skel'] = '';
+			if (is_dir(CAKE_CORE_INCLUDE_PATH.DS.'cake'.DS.'console'.DS.'libs'.DS.'templates'.DS.'skel') === true) {
+				$this->params['skel'] = CAKE_CORE_INCLUDE_PATH.DS.'cake'.DS.'console'.DS.'libs'.DS.'templates'.DS.'skel';
+			}
+		}
 
+		if ($project) {
 			$response = false;
 			while ($response == false && is_dir($project) === true && config('core') === true) {
 				$response = $this->in('A project already exists in this location: '.$project.' Overwrite?', array('y','n'), 'n');
@@ -83,12 +94,12 @@ class ProjectTask extends Shell {
 		}
 
 		while (!$project) {
-			$project = $this->in("What is the full path for this app including the app directory name?\nExample: ".$working . "myapp", null, $working . 'myapp');
+			$project = $this->in("What is the full path for this app including the app directory name?\nExample: ".$this->params['root'] . DS . "myapp", null, $this->params['root'] . DS . 'myapp');
 			$this->execute($project);
 			exit();
 		}
 
-		if (!is_dir($root)) {
+		if (!is_dir($this->params['root'])) {
 			$this->err('The directory path you supplied was not found. Please try again.');
 		}
 
@@ -105,23 +116,20 @@ class ProjectTask extends Shell {
  * @param string $path
  */
 	function __buildDirLayout($path) {
-		$skel = '';
-		if (is_dir(CAKE_CORE_INCLUDE_PATH.DS.'cake'.DS.'console'.DS.'libs'.DS.'templates'.DS.'skel') === true) {
-			$skel = CAKE_CORE_INCLUDE_PATH.DS.'cake'.DS.'console'.DS.'libs'.DS.'templates'.DS.'skel';
-		} else {
-			while ($skel == '') {
-				$skel = $this->in("What is the path to the app directory you wish to copy?\nExample: ".APP, null, ROOT.DS.'myapp'.DS);
-				if ($skel == '') {
-					$this->out('The directory path you supplied was empty. Please try again.');
-				} else {
-					while (is_dir($skel) === false) {
-						$skel = $this->in('Directory path does not exist please choose another:');
-					}
+		$skel = $this->params['skel'];
+		while ($skel == '') {
+			$skel = $this->in("What is the path to the app directory you wish to copy?\nExample: ".APP, null, ROOT.DS.'myapp'.DS);
+			if ($skel == '') {
+				$this->out('The directory path you supplied was empty. Please try again.');
+			} else {
+				while (is_dir($skel) === false) {
+					$skel = $this->in('Directory path does not exist please choose another:');
 				}
 			}
 		}
+
 		$app = basename($path);
-		$this->out('');
+		$this->out('Bake Project');
 		$this->out("Skel Directory: $skel");
 		$this->out("Will be copied to: {$path}");
 		$this->hr();
@@ -139,7 +147,7 @@ class ProjectTask extends Shell {
 			if ($Folder->copy($path)) {
 				$path = $Folder->slashTerm($path);
 				$this->hr();
-				$this->out(__(sprintf("Created: %s in %s", $app, $path), true));
+				$this->out(sprintf(__("Created: %s in %s", true), $app, $path));
 				$this->hr();
 
 				if ($this->createHome($path, $app)) {
@@ -162,7 +170,7 @@ class ProjectTask extends Shell {
 				}
 
 				if (!$Folder->chmod($path . DS . 'tmp', 0777)) {
-					$this->err('Could path set permissions on '. $project . DS .'tmp' . DS . '*');
+					$this->err('Could not set permissions on '. $path . DS .'tmp');
 					$this->out('You must manually check that these directories can be wrote to by the server');
 				}
 			} else {
@@ -236,17 +244,17 @@ class ProjectTask extends Shell {
 		}
 	}
 /**
- * Enables CAKE_ADMIN in /app/config/core.php
+ * Enables Configure::read('Routing.admin') in /app/config/core.php
  *
  * @return bool
  */
 	function cakeAdmin($name) {
 		$File =& new File(CONFIGS . 'core.php');
 		$contents = $File->read();
-		if (preg_match('%([/\\t\\x20]*define\\(\'CAKE_ADMIN\',[\\t\\x20\'a-z]*\\);)%', $contents, $match)) {
-			$result = str_replace($match[0], 'define(\'CAKE_ADMIN\', \''.$name.'\');', $contents);
+		if (preg_match('%([/\\t\\x20]*Configure::write\(\'Routing.admin\',[\\t\\x20\'a-z]*\\);)%', $contents, $match)) {
+			$result = str_replace($match[0], 'Configure::write(\'Routing.admin\', \''.$name.'\');', $contents);
 			if ($File->write($result)) {
-				define('CAKE_ADMIN', $name);
+				Configure::write('Routing.admin', $name);
 				return true;
 			} else {
 				return false;

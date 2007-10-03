@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: inflector.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: inflector.php 5382 2007-07-06 07:06:06Z phpnut $ */
 /**
  * Pluralize and singularize English words.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5422 $
+ * @version			$Revision: 5382 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-07-06 08:06:06 +0100 (Fri, 06 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**

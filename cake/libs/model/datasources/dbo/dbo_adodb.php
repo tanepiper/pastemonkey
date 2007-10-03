@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_adodb.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: dbo_adodb.php 5643 2007-09-15 22:31:24Z gwoo $ */
 
 /**
  * AdoDB layer for DBO.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5643 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-15 23:31:24 +0100 (Sat, 15 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -221,8 +221,9 @@ class DboAdodb extends DboSource {
 		$cols = $this->_adodb->MetaColumns($this->fullTableName($model, false));
 
 		foreach ($cols as $column) {
-			$fields[] = array('name' => $column->name,
-									'type' => $this->column($column->type));
+			$fields[$column->name] = array(
+										'type' => $this->column($column->type)
+									);
 		}
 
 		$this->__cacheDescription($this->fullTableName($model, false), $fields);
@@ -331,14 +332,12 @@ class DboAdodb extends DboSource {
  * @param mixed $fields
  * @return array
  */
-	function fields(&$model, $alias, $fields) {
+	function fields(&$model, $alias = null, $fields = null, $quote = true) {
 		if (empty($alias)) {
 			$alias = $model->name;
 		}
 
-		if (is_array($fields)) {
-				$fields = $fields;
-		} else {
+		if (!is_array($fields)) {
 			if ($fields != null) {
 				if (strpos($fields, ',')) {
 					$fields = explode(',', $fields);
@@ -421,6 +420,18 @@ class DboAdodb extends DboSource {
 			return false;
 		}
 	}
+/**
+ * Inserts multiple values into a join table
+ *
+ * @param string $table
+ * @param string $fields
+ * @param array $values
+ */
+	function insertMulti($table, $fields, $values) {
+		$count = count($values);
+		for ($x = 0; $x < $count; $x++) {
+			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
+		}
+	}
 }
-
 ?>

@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?php
-/* SVN FILE: $Id: cake.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: cake.php 5627 2007-09-11 19:03:34Z gwoo $ */
 /**
  * Command-line code generation utility to automate programmer chores.
  *
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.console
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5627 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-11 20:03:34 +0100 (Tue, 11 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -127,6 +127,7 @@ class ShellDispatcher {
  * @param array $args the argv.
  */
 	function __construct($args = array()) {
+		set_time_limit(0);
 		$this->__initConstants();
 		$this->parseParams($args);
 		$this->__initEnvironment();
@@ -205,36 +206,33 @@ class ShellDispatcher {
 		define('ROOT', $this->params['root']);
 		define('APP_DIR', $this->params['app']);
 		define('APP_PATH', ROOT . DS . APP_DIR . DS);
+		define('WWW_ROOT', 'webroot');
 
 		$includes = array(
 			CORE_PATH . 'cake' . DS . 'basics.php',
 			CORE_PATH . 'cake' . DS . 'config' . DS . 'paths.php',
+			CORE_PATH . 'cake' . DS . 'libs' . DS . 'object.php',
+		 	CORE_PATH . 'cake' . DS . 'libs' . DS . 'inflector.php',
+			CORE_PATH . 'cake' . DS . 'libs' . DS . 'configure.php',
 		);
 
-		if (!file_exists(APP_PATH . 'config' . DS . 'core.php')) {
-			$includes[] = CORE_PATH . 'cake' . DS . 'console' . DS . 'libs' . DS . 'templates' . DS . 'skel' . DS . 'config' . DS . 'core.php';
-		} else {
-			$includes[] = APP_PATH . 'config' . DS . 'core.php';
-		}
-
 		foreach ($includes as $inc) {
-			if (!@include_once($inc)) {
+			if (!require($inc)) {
 				$this->stderr("Failed to load Cake core file {$inc}");
 				return false;
 			}
 		}
 
-		$libraries = array('object', 'session', 'configure', 'inflector', 'model'.DS.'connection_manager',
-							'debugger', 'security', 'controller' . DS . 'controller');
-		foreach ($libraries as $inc) {
-			if (!file_exists(LIBS . $inc . '.php')) {
-				$this->stderr("Failed to load Cake core class " . ucwords($inc));
-				$this->stderr("(" . LIBS.$inc.".php)");
-				return false;
-			}
-			uses($inc);
-		}
 		Configure::getInstance(file_exists(CONFIGS . 'bootstrap.php'));
+
+		if (!file_exists(APP_PATH . 'config' . DS . 'core.php')) {
+			include_once CORE_PATH . 'cake' . DS . 'console' . DS . 'libs' . DS . 'templates' . DS . 'skel' . DS . 'config' . DS . 'core.php';
+		} else {
+			include_once APP_PATH . 'config' . DS . 'core.php';
+		}
+
+		require CORE_PATH . 'cake' . DS . 'libs' . DS . 'class_registry.php';
+
 		Configure::write('debug', 1);
 		return true;
 	}
@@ -269,23 +267,12 @@ class ShellDispatcher {
 					require CONSOLE_LIBS . 'shell.php';
 					require $this->shellPath;
 					if (class_exists($this->shellClass)) {
-
 						$command = null;
 						if (isset($this->args[0])) {
 							$command = $this->args[0];
 						}
 						$this->shellCommand = Inflector::variable($command);
 						$shell = new $this->shellClass($this);
-						$this->shiftArgs();
-
-						if ($command == 'help') {
-							if (method_exists($shell, 'help')) {
-								$shell->help();
-								exit();
-							} else {
-								$this->help();
-							}
-						}
 
 						$shell->initialize();
 						$shell->loadTasks();
@@ -297,6 +284,7 @@ class ShellDispatcher {
 
 						$task = Inflector::camelize($command);
 						if (in_array($task, $shell->taskNames)) {
+							$this->shiftArgs();
 							$shell->{$task}->startup();
 							if (isset($this->args[0]) && $this->args[0] == 'help') {
 								if (method_exists($shell->{$task}, 'help')) {
@@ -321,7 +309,7 @@ class ShellDispatcher {
 							$missingCommand = true;
 						}
 
-						$protectedCommands = array('initialize', 'main','in','out','err','hr',
+						$protectedCommands = array('initialize','in','out','err','hr',
 													'createfile', 'isdir','copydir','object','tostring',
 													'requestaction','log','cakeerror', 'shelldispatcher',
 													'__initconstants','__initenvironment','__construct',
@@ -334,9 +322,8 @@ class ShellDispatcher {
 						if ($missingCommand && method_exists($shell, 'main')) {
 							$shell->startup();
 							$shell->main();
-						} elseif ($missingCommand && method_exists($shell, 'help')) {
-							$shell->help();
 						} elseif (!$privateMethod && method_exists($shell, $command)) {
+							$this->shiftArgs();
 							$shell->startup();
 							$shell->{$command}();
 						} else {
@@ -374,7 +361,12 @@ class ShellDispatcher {
 		} else {
 			$this->stdout($prompt . " $print_options \n" . "[$default] > ", false);
 		}
-		$result = trim(fgets($this->stdin));
+		$result = fgets($this->stdin);
+
+		if($result === false){
+			exit;
+		}
+		$result = trim($result);
 
 		if ($default != null && empty($result)) {
 			return $default;
@@ -423,34 +415,28 @@ class ShellDispatcher {
 
 		$app = 'app';
 		$root = dirname(dirname(dirname(__FILE__)));
-		$working = $root;
 
-		if (!empty($this->params['working'])) {
-			$root = dirname($this->params['working']);
-			$app = basename($this->params['working']);
- 		} else {
-			$this->params['working'] = $root;
-		}
+		if (!empty($this->params['working']) && (!isset($this->args[0]) || isset($this->args[0]) && $this->args[0]{0} !== '.')) {
+			if (empty($this->params['app'])) {
+				$root = dirname($this->params['working']);
+				$app = basename($this->params['working']);
+			} else {
+				$root = $this->params['working'];
+			}
+			unset($this->params['working']);
+ 		}
 
 		if (!empty($this->params['app'])) {
 			if ($this->params['app']{0} == '/') {
 				$root = dirname($this->params['app']);
-				$app = basename($this->params['app']);
-			} else {
-				$root = realpath($this->params['working']);
-				$app = $this->params['app'];
- 			}
+			}
+			$app = basename($this->params['app']);
 			unset($this->params['app']);
 		}
 
-		if (in_array($app, array('cake', 'console')) || realpath($root.DS.$app) === dirname(dirname(dirname(__FILE__)))) {
-			$root = dirname(dirname(dirname(__FILE__)));
-			$app = 'app';
-		}
+		$working = str_replace(DS . DS, DS, $root . DS . $app);
 
-		$working = $root . DS . $app;
-
-		$this->params = array_merge(array('app'=> $app, 'root'=> $root, 'working'=> $working), $this->params);
+		$this->params = array_merge($this->params, array('app'=> $app, 'root'=> $root, 'working'=> $working));
 	}
 /**
  * Removes first argument and shifts other arguments up

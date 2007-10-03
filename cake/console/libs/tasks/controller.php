@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: controller.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: controller.php 5582 2007-08-25 18:00:19Z gwoo $ */
 /**
  * The ControllerTask handles creating and updating controller files.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs.tasks
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5582 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-25 19:00:19 +0100 (Sat, 25 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -64,9 +64,9 @@ class ControllerTask extends Shell {
 			} else {
 				$actions = 'scaffold';
 			}
-			if (isset($this->args[2]) && $this->args[2] == 'admin') {
+			if ((isset($this->args[1]) && $this->args[1] == 'admin') || (isset($this->args[2]) && $this->args[2] == 'admin')) {
 				if ($admin = $this->getAdmin()) {
-					$this->out('Adding ' . CAKE_ADMIN .' methods');
+					$this->out('Adding ' . Configure::read('Routing.admin') .' methods');
 					if ($actions == 'scaffold') {
 						$actions = $this->__bakeActions($controller, $admin);
 					} else {
@@ -88,6 +88,7 @@ class ControllerTask extends Shell {
 		$this->hr();
 		$this->out('Controller Bake:');
 		$this->hr();
+		$actions = '';
 		$uses = array();
 		$helpers = array();
 		$components = array();
@@ -317,10 +318,10 @@ class ControllerTask extends Shell {
 		$actions .= "\t\t\t\$this->cleanUpFields();\n";
 		$actions .= "\t\t\tif (\$this->{$currentModelName}->save(\$this->data)) {\n";
 		if (low($wannaUseSession) == 'y' || low($wannaUseSession) == 'yes') {
-			$actions .= "\t\t\t\t\$this->Session->setFlash('The ".$singularHumanName." saved');\n";
+			$actions .= "\t\t\t\t\$this->Session->setFlash('The ".$singularHumanName." has been saved');\n";
 			$actions .= "\t\t\t\t\$this->redirect(array('action'=>'index'), null, true);\n";
 		} else {
-			$actions .= "\t\t\t\t\$this->flash('The ".$singularHumanName." saved.', array('action'=>'index'));\n";
+			$actions .= "\t\t\t\t\$this->flash('The ".$singularHumanName." has been saved.', array('action'=>'index'));\n";
 			$actions .= "\t\t\t\texit();\n";
 		}
 		$actions .= "\t\t\t} else {\n";
@@ -413,7 +414,7 @@ class ControllerTask extends Shell {
 			if (count($helpers)) {
 				foreach ($helpers as $help) {
 					if ($help != $helpers[count($helpers) - 1]) {
-						$out .= ", '" . Inflector::camelize($help) . "'";
+						$out .= ", '" . Inflector::camelize($help) . "', ";
 					} else {
 						$out .= ", '" . Inflector::camelize($help) . "'";
 					}
@@ -541,8 +542,8 @@ class ControllerTask extends Shell {
 		$this->out('Commands:');
 		$this->out("\n\tcontroller <name>\n\t\tbakes controller with var \$scaffold");
 		$this->out("\n\tcontroller <name> scaffold\n\t\tbakes controller with scaffold actions.\n\t\t(index, view, add, edit, delete)");
-		$this->out("\n\tcontroller <name> scaffold admin\n\t\tbakes a controller with scaffold actions for both public and CAKE_ADMIN");
-		$this->out("\n\tcontroller <name> null admin\n\t\tbakes a controller with scaffold actions for CAKE_ADMIN");
+		$this->out("\n\tcontroller <name> scaffold admin\n\t\tbakes a controller with scaffold actions for both public and Configure::read('Routing.admin')");
+		$this->out("\n\tcontroller <name> admin\n\t\tbakes a controller with scaffold actions only for Configure::read('Routing.admin')");
 		$this->out("");
 		exit();
 	}

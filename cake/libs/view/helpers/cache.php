@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cache.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: cache.php 5393 2007-07-08 00:50:15Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.0.0.2277
- * @version			$Revision: 5422 $
+ * @version			$Revision: 5393 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-07-08 01:50:15 +0100 (Sun, 08 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**

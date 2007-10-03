@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: component.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: component.php 5495 2007-08-06 15:00:35Z mariano.iglesias $ */
 /**
  *
  * PHP versions 4 and 5
@@ -18,12 +18,13 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller
  * @since			CakePHP(tm) v TBD
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5495 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-08-06 16:00:35 +0100 (Mon, 06 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
+ * Base class for all CakePHP Components.
  *
  * @package		cake
  * @subpackage	cake.cake.libs.controller
@@ -47,7 +48,7 @@ class Component extends Object {
 /**
  * Constructor
  *
- * @return Component
+ * @return object
  */
 	function __construct() {
 	}

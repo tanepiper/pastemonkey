@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: js.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: js.php 5691 2007-09-24 23:49:54Z phpnut $ */
 
 /**
  * Javascript Generator class file.
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP v 1.2
- * @version			$Revision: 5318 $
+ * @version			$Revision: 5691 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -46,8 +46,6 @@ class JsHelper extends Overloadable2 {
 	var $data = null;
 	var $themeWeb = null;
 	var $plugin = null;
-	var $namedArgs = null;
-	var $argSeparator = null;
 
 	var $helpers = array();
 
@@ -72,7 +70,7 @@ class JsHelper extends Overloadable2 {
 
 	function call__($method, $params) {
 		if (is_object($this->hook) && method_exists($this->hook, $method)) {
-			
+
 		}
 		if (method_exists($this, $method . '_')) {
 			return call_user_func_array(array(&$this, $method . '_'), $params);
@@ -92,7 +90,7 @@ class JsHelper extends Overloadable2 {
 		$out = 'if (' . $if . ') { ' . $then . ' }';
 
 		foreach ($elseif as $cond => $exec) {
-			//$out .= 
+			//$out .=
 		}
 
 		if (!empty($else)) {
@@ -347,7 +345,7 @@ class JsHelperObject {
 				if (strpos($args[0], '_') || $args[0]{0} != strtoupper($args[0]{0})) {
 					$args[0] = Inflector::camelize($args[0]);
 				}
-			
+
 				if (strtolower($args[0]) == 'highlight') {
 					$data .= 'new ';
 				}

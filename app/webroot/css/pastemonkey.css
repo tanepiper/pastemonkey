@@ -61,8 +61,12 @@ div#content .viewPaste .viewPaste-geshiOutput ol {
 	border:1px solid #000;
 }
 
-div#content .paste-area .geshi-output ol li{
+div#content .paste-area .geshi-output ol {
+	background: #555;
 	color: #000;
+	height: 150px;
+	overflow: hidden;
+	border:1px solid #000;
 }
 
 div#navigation{ color:#fff;}

@@ -1,9 +1,9 @@
 <?php
-/* SVN FILE: $Id: core.php 5118 2007-05-18 17:19:53Z phpnut $ */
+/* SVN FILE: $Id: core.php 5708 2007-10-01 18:58:35Z gwoo $ */
 /**
  * This is core configuration file.
  *
- * Use it to configure core behaviour ofCake.
+ * Use it to configure core behavior of Cake.
  *
  * PHP versions 4 and 5
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.app.config
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5118 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
+ * @version			$Revision: 5708 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-10-01 19:58:35 +0100 (Mon, 01 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -35,11 +35,9 @@
  * /app/.htaccess
  * /app/webroot/.htaccess
  *
- * And uncomment the define below:
+ * And uncomment the baseUrl below:
  */
-
-//	define ('BASE_URL', env('SCRIPT_NAME'));
-
+	//Configure::write('baseUrl', env('SCRIPT_NAME'));
 /**
  * CakePHP Debug Level:
  *
@@ -54,7 +52,12 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	define('DEBUG', 2);
+	Configure::write('debug', 2);
+/**
+ * Turn off caching application-wide.
+ *
+ */
+	Configure::write('Cache.disable', false);
 /**
  * Turn off or enable cache checking application-wide.
  *
@@ -63,7 +66,7 @@
  * controller-wide by setting var $cacheAction = true, or in each action
  * using $this->cacheAction = true.
  */
-	define('CACHE_CHECK', false);
+	Configure::write('Cache.check', false);
 /**
  * Defines the default error type when using the log() function. Used for
  * differentiating error logging and debugging. Currently PHP supports LOG_DEBUG.
@@ -126,11 +129,14 @@
  * 'admin' 		-> admin_index() and /admin/controller/index
  * 'superuser' -> superuser_index() and /superuser/controller/index
  */
-//	define('CAKE_ADMIN', 'admin');
+//	Configure::write('Routing.admin', 'admin');
 /**
  *  Enable or disable CakePHP webservices routing. Set to 'off' or 'on'.
+ *
+ * @deprecated
+ * @see Router::parseExtensions()
  */
-	define('WEBSERVICES', 'off');
+	Configure::write('Routing.webservices', 'off');
 /**
  * Compress CSS output by removing comments, whitespace, repeating tags, etc.
  * This requires a/var/cache directory to be writable by the web server for caching.
@@ -147,57 +153,58 @@
  */
 	define('MAX_MD5SIZE', (5 * 1024) * 1024);
 /**
- * The classname, filename, (and database) used in CakePHP's
+ * The classname and database used in CakePHP's
  * access control lists.
  */
 	define('ACL_CLASSNAME', 'DB_ACL');
-	define('ACL_FILENAME', 'db_acl');
 	define('ACL_DATABASE', 'default');
 /**
- * How long to cache data if not defined
- * 3600 = 1 hour
- */
-	define('CACHE_DEFAULT_DURATION', 3600);
-/**
- * How often to do garbage collection
- * about once in every hundred page loads
- */
-	define('CACHE_GC_PROBABILITY', 100);
-/**
- * Use the file storage engine with default parameters.
- * Cached data is kept in app/tmp/cache/
+ * Cache Engine Configuration
  *
- * File storage
- * 	$cakeCache = array('File', [optional]array(
- * 		'dir' => '/tmp/', // use system tmp directory - remember to use absolute path
- * 		'prefix' => 'cakecache_', // prefix every cache file with this string
- * 		'lock' => true, // use file locking
+ * File storage engine.
+ * default dir is /app/tmp/cache/
+ * 	$cakeCache = array('File', array(
+ *		[optional] 'duration'=> 3600,
+ *		[optional] 'probability'=> 100,
+ * 		[optional] 'dir' => '/tmp', // use system tmp directory - remember to use absolute path
+ * 		[optional] 'prefix' => 'cake_', // prefix every cache file with this string
+ * 		[optional] 'lock' => false, // use file locking
+ * 		[optional] 'serialize' => true,
  * 		));
- * 	$cakeCache = array('File');
  *
  * APC (Alternative PHP Cache)
- * 	$cakeCache = array('APC');
+ * 	$cakeCache = array('Apc', array(
+ *		[optional] 'duration'=> 3600,
+ *		[optional] 'probability'=> 100
+ * 		));
  *
  * Xcache (PHP opcode cacher)
  *  $cakeCache  = array('Xcache', array(
+ *		[optional] 'duration'=> 3600,
+ *		[optional] 'probability'=> 100,
  *      'user' => 'admin', // user from xcache.admin.user settings
  *      'password' => 'your_password', // plaintext password (xcache.admin.pass)
- *  ));
+ *  	));
  *
  * Memcache
- * 	$cakeCache = array('Memcache', [optional]array(
- * 		'servers' => array(
- * 				'127.0.0.1', // localhost, default port
- * 				'10.0.0.1:12345', // port 12345
- * 				),
- * 				'compress' => true, // compress data in Memcache (slower, but uses less memory)
+ * 	$cakeCache = array('Memcache', array(
+ *		[optional] 'duration'=> 3600,
+ *		[optional] 'probability'=> 100,
+ * 		[optional] 'servers' => array(
+ * 							'127.0.0.1', // localhost, default port
+ * 							'10.0.0.1:12345', // port 12345
+ * 							),
+ * 		[optional] 'compress' => true, // compress data in Memcache (slower, but uses less memory)
  * 				));
  *
  * Cake Model
- * 	$cakeCache = array('Model', [optional]array(
- * 		'modelName' => 'DbModel',
- * 		'dataField' => 'value',
- * 		'expiryField' => 'expires'));
+ * 	$cakeCache = array('Model', array(
+ *		[optional] 'duration'=> 3600,
+ *		[optional] 'probability'=> 100,
+ * 		[optional] 'className' => 'Cache',
+ * 		[optional] 'fields' => array('data' => 'data', 'expires => 'expires'),
+ * 		[optional] 'serialize' => true,
+ *		));
  */
 	$cakeCache = array('File');
 ?>

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: email.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: email.test.php 5505 2007-08-11 13:31:12Z phpnut $ */
 /**
  * Series of tests for email component.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.tests.cases.libs.controller.components
  * @since			CakePHP(tm) v 1.2.0.5347
- * @version			$Revision: 5422 $
+ * @version			$Revision: 5505 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-08-11 14:31:12 +0100 (Sat, 11 Aug 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('controller' . DS . 'components' . DS .'email');
@@ -49,8 +49,9 @@ class EmailTest extends CakeTestCase {
 	}
 
 	function testBadSmtpSend() {
-		if(@fsockopen('localhost', 25)) {
+		if (@fsockopen('localhost', 25)) {
 			$this->Controller->Email->smtpOptions['host'] = 'blah';
+            $this->Controller->Email->delivery = 'smtp';
 			$this->assertFalse($this->Controller->Email->send('Should not work'));
 		} else {
 			$this->skipUnless(@fsockopen('localhost', 25), 'Must be able to connect to localhost port 25');
@@ -58,7 +59,7 @@ class EmailTest extends CakeTestCase {
 	}
 
 	function testSmtpSend() {
-		if(@fsockopen('localhost', 25)) {
+		if (@fsockopen('localhost', 25)) {
 			$this->assertTrue(@fsockopen('localhost', 25), "Local mail server is running");
 			$this->Controller->Email->reset();
 			$this->Controller->Email->to = 'chartjes@localhost';

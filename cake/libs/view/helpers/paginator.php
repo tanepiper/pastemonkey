@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: paginator.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: paginator.php 5653 2007-09-16 18:32:02Z nate $ */
 /**
  * Pagination Helper class file.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5653 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-09-16 19:32:02 +0100 (Sun, 16 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -254,7 +254,7 @@ class PaginatorHelper extends AppHelper {
 			$urlOption = $options['url'];
 			unset($options['url']);
 		}
-		$url = am(array_filter(Set::diff($paging['options'], $paging['defaults'])), $urlOption, $url);
+		$url = am(array_filter(Set::diff(am($paging['defaults'], $paging['options']), $paging['defaults'])), $urlOption, $url);
 
 		if (isset($url['order'])) {
 			$sort = $direction = null;
@@ -267,7 +267,7 @@ class PaginatorHelper extends AppHelper {
 
 		$obj = isset($options['update']) ? 'Ajax' : 'Html';
 		$url = am(array('page' => $this->current($model)), $url);
-		return $this->{$obj}->link($title, $url, $options);
+		return $this->{$obj}->link($title, Set::filter($url, true), $options);
 	}
 /**
  * Protected method for generating prev/next links
@@ -471,16 +471,19 @@ class PaginatorHelper extends AppHelper {
 			for ($i = $start; $i < $end; $i++) {
 				$out .= $this->link($i, array('page' => $i), $options) . $separator;
 			}
-			
+
 			if ($end != $params['page']) {
 				$out .= $this->link($i, array('page' => $end), $options);
 			}
 		} else {
 			for ($i = 1; $i <= $params['pageCount']; $i++) {
 				if ($i == $params['page']) {
-					$out .= $i . $separator;
+					$out .= $i;
 				} else {
-					$out .= $this->link($i, array('page' => $i), $options) . $separator;
+					$out .= $this->link($i, array('page' => $i), $options);
+				}
+				if($i != $params['pageCount']) {
+					$out .= $separator;
 				}
 			}
 		}

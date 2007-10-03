@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: http_socket.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: http_socket.php 5444 2007-07-19 13:38:26Z the_undefined $ */
 /**
  * HTTP Socket connection class.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5444 $
+ * @modifiedby		$LastChangedBy: the_undefined $
+ * @lastmodified	$Date: 2007-07-19 14:38:26 +0100 (Thu, 19 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('socket', 'set');
@@ -29,7 +29,7 @@ uses('socket', 'set');
 /**
  * Cake network socket connection class.
  *
- * Core base class for network communication.
+ * Core base class for HTTP network communication.
  *
  * @package		cake
  * @subpackage	cake.cake.libs

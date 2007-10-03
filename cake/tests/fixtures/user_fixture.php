@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: user_fixture.php 4696 2007-03-27 05:17:49Z phpnut $ */
+/* SVN FILE: $Id: user_fixture.php 5573 2007-08-23 22:38:04Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.fixtures
  * @since			CakePHP(tm) v 1.2.0.4667
- * @version			$Revision: 4696 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-03-27 06:17:49 +0100 (Tue, 27 Mar 2007) $
+ * @version			$Revision: 5573 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-23 23:38:04 +0100 (Thu, 23 Aug 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /**
@@ -35,7 +35,7 @@
 class UserFixture extends CakeTestFixture {
 	var $name = 'User';
 	var $fields = array(
-		'id' => array('type' => 'integer', 'key' => 'primary'),
+		'id' => array('type' => 'integer', 'key' => 'primary', 'extra'=> 'auto_increment'),
 		'user' => array('type' => 'string', 'null' => false),
 		'password' => array('type' => 'string', 'null' => false),
 		'created' => 'datetime',

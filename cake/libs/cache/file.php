@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: file.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: file.php 5700 2007-09-30 07:45:34Z gwoo $ */
 /**
  * File Storage engine for cache
  *
@@ -20,20 +20,20 @@
  * @package			cake
  * @subpackage		cake.cake.libs.cache
  * @since			CakePHP(tm) v 1.2.0.4933
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5700 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Included libraries.
  *
  */
-if (!class_exists('File')) {
-	uses ('file');
-}
-if (!class_exists('Folder')) {
+if (!class_exists('folder')) {
 	uses ('folder');
+}
+if (!class_exists('file')) {
+	uses ('file');
 }
 /**
  * File Storage engine for cache
@@ -43,63 +43,52 @@ if (!class_exists('Folder')) {
  * @subpackage	cake.cake.libs.cache
  */
 class FileEngine extends CacheEngine {
-
 /**
- * Does the cache engine handle prefixes on it's own?
- *
- * @var boolean
- * @access private
- */
-	var $_usesPrefixes = true;
-/**
- * Cache directory
+ * instance of Folder class
  *
  * @var string
  * @access private
  */
-	var $_dir = '';
+	var $__Folder = null;
 /**
- * Cache filename prefix
+ * instance of File class
  *
  * @var string
  * @access private
  */
-	var $_prefix = '';
+	var $__File = null;
 /**
- * Use locking
+ * settings
+ * 		path = absolute path to cache directory, default => CACHE
+ * 		prefix = string prefix for filename, default => cake_
+ * 		lock = enable file locking on write, default => false
+ * 		serialize = serialize the data, default => true
  *
- * @var boolean
- * @access private
- */
-	var $_lock = false;
-/**
- * Set up the cache engine
- *
- * Called automatically by the cache frontend
- *
- * @param array $params Associative array of parameters for the engine
- * @return boolean True if the engine has been succesfully initialized, false if not
+ * @see var __defaults
+ * @var array
  * @access public
  */
-	function init($params) {
-		$dir = CACHE;
-		$prefix = 'cake_';
-		$lock = false;
-		extract($params);
-		$dir = trim($dir);
-		$folder =& new Folder();
-
-		if (!empty($dir)) {
-			$dir = $folder->slashTerm($dir);
-		}
-
-		if (empty($dir) || !$folder->isAbsolute($dir) || !is_writable($dir)) {
+	var $settings = array();
+/**
+ * Initialize the Cache Engine
+ *
+ * Called automatically by the cache frontend
+ * To reinitialize the settings call Cache::engine('EngineName', [optional] settings = array());
+ *
+ * @param array $setting array of setting for the engine
+ * @return boolean True if the engine has been successfully initialized, false if not
+ * @access public
+ */
+	function init($settings = array()) {
+		parent::init($settings);
+		$defaults = array('path' => CACHE, 'prefix'=> 'cake_', 'lock'=> false, 'serialize'=> true);
+		$this->settings = am($this->settings, $defaults, $settings);
+		$this->__Folder =& new Folder($this->settings['path']);
+		$this->settings['path'] = $this->__Folder->pwd();
+		if (!is_writable($this->settings['path'])) {
 			return false;
 		}
 
-		$this->_dir = $dir;
-		$this->_prefix = strval($prefix);
-		$this->_lock = $lock;
 		return true;
 	}
 /**
@@ -113,194 +102,177 @@ class FileEngine extends CacheEngine {
 		return $this->clear(true);
 	}
 /**
- * Write a value in the cache
+ * Write data for key into cache
  *
  * @param string $key Identifier for the data
- * @param mixed $value Data to be cached
+ * @param mixed $data Data to be cached
  * @param mixed $duration How long to cache the data, in seconds
  * @return boolean True if the data was succesfully cached, false on failure
  * @access public
  */
-	function write($key, &$value, $duration = CACHE_DEFAULT_DURATION) {
-		$serialized = serialize($value);
-
-		if (!$serialized) {
+	function write($key, &$data, $duration) {
+		if (!$data) {
+			return false;
+		}
+		if ($duration == null) {
+			$duration = $this->settings['duration'];
+		}
+		if (isset($this->settings['serialize'])) {
+			$data = serialize($data);
+		}
+		if (!$data) {
+			return false;
+		}
+		$file = $this->fullpath($key);
+		if ($file === false) {
 			return false;
 		}
 		$expires = time() + $duration;
-
-		$fileName = $this->_getFilename($key);
-		if ($fileName === false) {
-			return false;
-		}
-		return $this->_writeCache($fileName, $serialized, $expires);
+		return $this->__write($file, $data, $expires);
 	}
 /**
- * Get absolute filename for a key
- *
- * @param string $key The key
- * @return mixed Absolute cache filename for the given key or false if erroneous
- * @access private
- */
-	function _getFilename($key) {
-		$file = new File($this->_dir);
-		$key = implode(DS, array_map(array($file , 'safe'), explode(DS, $key)));
-		$fullpath = $this->_dir . $key;
-		$directoryName = dirname($fullpath);
-		$fileName = $this->_prefix.basename($fullpath);
-		$fullpath = Folder::realpath($directoryName . DS . $fileName);
-
-		$folder = new Folder($this->_dir);
-		if (!$folder->inPath($fullpath, true)) {
-			return false;
-		}
-		return $fullpath;
-	}
-/**
- * write serialized data to a file
- *
- * @param string $filename
- * @param string $value
- * @param integer $expires
- * @return boolean True on success, false on failure
- * @access private
- */
-	function _writeCache(&$filename, &$value, &$expires) {
-		$directoryName = dirname($filename);
-		if (!is_writable($directoryName)) {
-			$folder = new Folder($directoryName);
-			if (!$folder->create($directoryName)) {
-				return false;
-			}
-		}
-		$contents = $expires."\n".$value."\n";
-		return ife(file_put_contents($filename, $contents, ife($this->_lock, LOCK_EX, 0)), true, false);
-	}
-/**
- * Read a value from the cache
+ * Read a key from the cache
  *
  * @param string $key Identifier for the data
  * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
  * @access public
  */
 	function read($key) {
-		$filename = $this->_getFilename($key);
-
-		if ($filename === false || !is_file($filename) || !is_readable($filename)) {
+		$file = $this->fullpath($key);
+		if ($file === false || !is_file($file) || !is_readable($file)) {
 			return false;
 		}
-		$fp = fopen($filename, 'r');
-
+		$fp = fopen($file, 'r');
 		if (!$fp) {
 			return false;
 		}
-
-		if ($this->_lock && !flock($fp, LOCK_SH)) {
+		if ($this->settings['lock'] && !flock($fp, LOCK_SH)) {
 			return false;
 		}
-		$expires = fgets($fp, 11);
-
-		if (intval($expires) < time()) {
+		$cachetime = fgets($fp, 11);
+		if (intval($cachetime) < time()) {
 			fclose($fp);
-			unlink($filename);
+			unlink($file);
 			return false;
 		}
 		$data = '';
-
 		while (!feof($fp)) {
 			$data .= fgets($fp, 4096);
 		}
 		$data = trim($data);
-		return unserialize($data);
+		if (isset($this->settings['serialize'])) {
+			return unserialize($data);
+		}
+		return $data;
 	}
 /**
- * Get the expiry time for a cache file
- *
- * @param string $filename
- * @return mixed Expiration timestamp, or false on failure
- * @access private
- */
-	function _getExpiry($filename) {
-		$fp = fopen($filename, 'r');
-
-		if (!$fp) {
-			return false;
-		}
-
-		if ($this->_lock && !flock($fp, LOCK_SH)) {
-			return false;
-		}
-		$expires = intval(fgets($fp, 11));
-		fclose($fp);
-		return $expires;
-	}
-/**
- * Delete a value from the cache
+ * Delete a key from the cache
  *
  * @param string $key Identifier for the data
- * @return boolean True if the value was succesfully deleted, false if it didn't exist or couldn't be removed
+ * @return boolean True if the value was successfully deleted, false if it didn't exist or couldn't be removed
  * @access public
  */
 	function delete($key) {
-		$filename = $this->_getFilename($key);
-		if ($filename === false) {
+		$file = $this->fullpath($key);
+		if ($file === false) {
 			return false;
 		}
-		return unlink($filename);
+		return unlink($file);
 	}
 /**
  * Delete all values from the cache
  *
- * @param boolean $checkExpiry Optional - only delete expired cache items
+ * @param boolean $check Optional - only delete expired cache items
  * @return boolean True if the cache was succesfully cleared, false otherwise
  * @access public
  */
-	function clear($checkExpiry = false) {
-		$dir = dir($this->_dir);
-
-		if ($checkExpiry) {
+	function clear($check) {
+		$dir = dir($this->settings['path']);
+		if ($check) {
 			$now = time();
 			$threshold = $now - 86400;
 		}
-
 		while (($entry = $dir->read()) !== false) {
-			if (strpos($entry, $this->_prefix) !== 0) {
+			if (strpos($entry, $this->settings['prefix']) !== 0) {
 				continue;
 			}
-			$filename = $this->_dir.$entry;
+			$file = $this->settings['path'] . $entry;
 
-			if ($checkExpiry) {
-				$mtime = filemtime($filename);
+			if ($check) {
+				$mtime = filemtime($file);
 
 				if ($mtime === false || $mtime > $threshold) {
 					continue;
 				}
-				$expires = $this->_getExpiry($filename);
+				$expires = $this->__expires($file);
 
 				if ($expires > $now) {
 					continue;
 				}
 			}
-			unlink($filename);
+			unlink($file);
 		}
 		$dir->close();
 		return true;
 	}
 /**
- * Return the settings for this cache engine
+ * Get absolute file for a given key
  *
- * @return array list of settings for this engine
- * @access public
+ * @param string $key The key
+ * @return mixed Absolute cache file for the given key or false if erroneous
+ * @access private
  */
-	function settings() {
-		$lock = 'false';
-		if ($this->_lock) {
-			$lock = 'true';
+	function fullpath($key) {
+		if (!isset($this->__File)) {
+			$this->__File =& new File($this->settings['path']);
 		}
-		return array('class' => get_class($this),
-						'directory' => $this->_dir,
-						'prefix' => $this->_prefix,
-						'lock' => $lock);
+		$parts = array_map(array($this->__File , 'safe'), explode(DS, $key));
+		$key = array_pop($parts);
+		$dir = implode(DS, $parts) . DS;
+		$path = str_replace(DS . DS, DS, $this->settings['path'] . $dir);
+		$fullpath = $this->__Folder->realpath($path . $this->settings['prefix'] . $key);
+		if (!$this->__Folder->inPath($fullpath, true)) {
+			return false;
+		}
+		return $fullpath;
+	}
+/**
+ * write data to a file
+ *
+ * @param string $file
+ * @param string $value
+ * @param integer $expires
+ * @return boolean True on success, false on failure
+ * @access private
+ */
+	function __write(&$file, &$data, &$expires) {
+		$dir = dirname($file);
+		if (!is_writable($dir)) {
+			if (!$this->__Folder->create($dir)) {
+				return false;
+			}
+		}
+		$contents = $expires."\n".$data."\n";
+		return ife(file_put_contents($file, $contents, ife($this->settings['lock'], LOCK_EX, 0)), true, false);
+	}
+/**
+ * Get the time to live for cache
+ *
+ * @param string $file
+ * @return mixed Expiration timestamp, or false on failure
+ * @access private
+ */
+	function __expires($file) {
+		$fp = fopen($file, 'r');
+		if (!$fp) {
+			return false;
+		}
+		if ($this->settings['lock'] && !flock($fp, LOCK_SH)) {
+			return false;
+		}
+		$expires = intval(fgets($fp, 11));
+		fclose($fp);
+		return $expires;
 	}
 }
 ?>

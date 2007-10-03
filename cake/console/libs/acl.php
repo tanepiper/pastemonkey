@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: acl.php 5616 2007-09-04 13:53:13Z nate $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5616 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-09-04 14:53:13 +0100 (Tue, 04 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses ('controller'.DS.'components'.DS.'acl', 'model'.DS.'db_acl');
@@ -288,23 +288,24 @@ class AclShell extends Shell {
 		}
 		$this->out($class . " tree:");
 		$this->hr();
-		$nodeCount = count($nodes);
-		$right = $left = array();
-		for ($i = 0; $i < $nodeCount; $i++) {
-			$count = 0;
-			$right[$i] = $nodes[$i][$class]['rght'];
-			$left[$i] = $nodes[$i][$class]['lft'];
-			if (isset($left[$i]) && isset($left[$i-1]) && $left[$i] > $left[$i-1]) {
-				array_pop($left);
-				$count = count($left);
+		$stack = array();
+		$last  = null;
+		foreach ($nodes as $n) {
+			$stack[] = $n;
+			if (!empty($last)) {
+				$end = end($stack);
+				if ($end[$class]['rght'] > $last) {
+					foreach ($stack as $k => $v) {
+						$end = end($stack);
+                        if ($v[$class]['rght'] < $end[$class]['rght']) {
+                            unset($stack[$k]);
+                        }
+                    }
+				}
 			}
-			if (isset($right[$i]) && isset($right[$i-1]) && $right[$i] < $right[$i-1]) {
-				array_pop($right);
-				$count = count($right);
-			}
-
-			$this->out(str_repeat('  ', $count) . "[" . $nodes[$i][$class]['id'] . "]" . $nodes[$i][$class]['alias']."\n");
-			$right[] = $nodes[$i][$class]['rght'];
+			$last   = $n[$class]['rght'];
+			$count  = count($stack);
+			$this->out(str_repeat('  ', $count) . "[" . $n[$class]['id'] . "]" . $n[$class]['alias']."\n");
 		}
 		$this->hr();
 	}

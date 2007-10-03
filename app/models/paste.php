@@ -38,13 +38,14 @@ class Paste extends AppModel {
 						'unique' => true),
 	);
 	
-var $hasMany = array(
+	var $hasMany = array(
 		'Attachment' => array(
 			'foreignKey' => 'foreign_id',
 			'conditions' => array('Attachment.class' => 'To Be Filled'),
 			'dependent' => true
 		)
 	);
+	
 	var $hasOne = array(
 		'Thumb' => array(
 			'className' => 'Attachment',	
@@ -53,7 +54,7 @@ var $hasMany = array(
 			'dependent' => true
 		)
 	);
-
+	
 	function __construct($id = false, $table = null, $ds = null) {
 		parent::__construct();
 		if (isset($this->hasMany['Attachment'])) {

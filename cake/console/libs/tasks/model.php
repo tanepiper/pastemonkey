@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: model.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: model.php 5704 2007-09-30 20:47:37Z gwoo $ */
 /**
  * The ModelTask handles creating and updating models files.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs.tasks
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5704 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-30 21:47:37 +0100 (Sun, 30 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -43,14 +43,14 @@ class ModelTask extends Shell {
 		if (empty($this->args)) {
 			$this->__interactive();
 		}
-		
-		if(!empty($this->args[0])) {
+
+		if (!empty($this->args[0])) {
 			$model = $this->args[0];
 			if ($this->__bake($model)) {
 				if ($this->_checkUnitTest()) {
 					$this->__bakeTest($model);
 				}
-			}			
+			}
 		}
 	}
 /**
@@ -69,14 +69,9 @@ class ModelTask extends Shell {
 		$primaryKey = 'id';
 		$validate = array();
 		$associations = array('belongsTo'=> array(), 'hasOne'=> array(), 'hasMany', 'hasAndBelongsToMany'=> array());
-		/*$usingDefault = $this->in('Will your model be using a database connection setting other than the default?');
-		if (low($usingDefault) == 'y' || low($usingDefault) == 'yes')
-		{
-			$useDbConfig = $this->in('Please provide the name of the connection you wish to use.');
-		}*/
-		$useDbConfig = 'default';
-		$currentModelName = $this->getName($useDbConfig);
+		$useDbConfig = $this->in('Database Connection:', null, 'default');
 
+		$currentModelName = $this->getName($useDbConfig);
 		$db =& ConnectionManager::getDataSource($useDbConfig);
 		$tableIsGood = false;
 		$useTable = Inflector::tableize($currentModelName);
@@ -105,16 +100,20 @@ class ModelTask extends Shell {
 			loadModel();
 			$tempModel = new Model(false, $useTable);
 			$modelFields = $db->describe($tempModel);
-			if (isset($modelFields[0]['name']) && $modelFields[0]['name'] != 'id') {
-				$primaryKey = $this->in('What is the primaryKey?', null, $modelFields[0]['name']);
+
+			if (!array_key_exists('id', $modelFields)) {
+				foreach ($modelFields as $name => $field) {
+					break;
+				}
+				$primaryKey = $this->in('What is the primaryKey?', null, $name);
 			}
 		}
 		$validate = array();
 
 		if (array_search($useTable, $this->__tables) !== false && (low($wannaDoValidation) == 'y' || low($wannaDoValidation) == 'yes')) {
-			foreach ($modelFields as $field) {
+			foreach ($modelFields as $fieldName => $field) {
 				$this->out('');
-				$prompt = 'Name: ' . $field['name'] . "\n";
+				$prompt = 'Name: ' . $fieldName . "\n";
 				$prompt .= 'Type: ' . $field['type'] . "\n";
 				$prompt .= '---------------------------------------------------------------'."\n";
 				$prompt .= 'Please select one of the following validation options:'."\n";
@@ -126,7 +125,7 @@ class ModelTask extends Shell {
 				$prompt .= "5- Do not do any validation on this field.\n\n";
 				$prompt .= "... or enter in a valid regex validation string.\n\n";
 
-				if ($field['null'] == 1 || $field['name'] == $primaryKey || $field['name'] == 'created' || $field['name'] == 'modified') {
+				if ($field['null'] == 1 || $fieldName == $primaryKey || $fieldName == 'created' || $fieldName == 'modified') {
 					$validation = $this->in($prompt, null, '5');
 				} else {
 					$validation = $this->in($prompt, null, '1');
@@ -134,21 +133,21 @@ class ModelTask extends Shell {
 
 				switch ($validation) {
 					case '1':
-						$validate[$field['name']] = 'VALID_NOT_EMPTY';
+						$validate[$fieldName] = 'VALID_NOT_EMPTY';
 						break;
 					case '2':
-						$validate[$field['name']] = 'VALID_EMAIL';
+						$validate[$fieldName] = 'VALID_EMAIL';
 						break;
 					case '3':
-						$validate[$field['name']] = 'VALID_NUMBER';
+						$validate[$fieldName] = 'VALID_NUMBER';
 						break;
 					case '4':
-						$validate[$field['name']] = 'VALID_YEAR';
+						$validate[$fieldName] = 'VALID_YEAR';
 						break;
 					case '5':
 						break;
 					default:
-						$validate[$field['name']] = $validation;
+						$validate[$fieldName] = $validation;
 					break;
 				}
 			}
@@ -161,13 +160,13 @@ class ModelTask extends Shell {
 			$possibleKeys = array();
 			//Look for belongsTo
 			$i = 0;
-			foreach ($modelFields as $field) {
-				$offset = strpos($field['name'], '_id');
-				if ($field['name'] != $primaryKey && $offset !== false) {
-					$tmpModelName = $this->_modelNameFromKey($field['name']);
+			foreach ($modelFields as $fieldName => $field) {
+				$offset = strpos($fieldName, '_id');
+				if ($fieldName != $primaryKey && $offset !== false) {
+					$tmpModelName = $this->_modelNameFromKey($fieldName);
 					$associations['belongsTo'][$i]['alias'] = $tmpModelName;
 					$associations['belongsTo'][$i]['className'] = $tmpModelName;
-					$associations['belongsTo'][$i]['foreignKey'] = $field['name'];
+					$associations['belongsTo'][$i]['foreignKey'] = $fieldName;
 					$i++;
 				}
 			}
@@ -177,19 +176,19 @@ class ModelTask extends Shell {
 			foreach ($this->__tables as $otherTable) {
 				$tempOtherModel = & new Model(false, $otherTable);
 				$modelFieldsTemp = $db->describe($tempOtherModel);
-				foreach ($modelFieldsTemp as $field) {
+				foreach ($modelFieldsTemp as $fieldName => $field) {
 					if ($field['type'] == 'integer' || $field['type'] == 'string') {
-						$possibleKeys[$otherTable][] = $field['name'];
+						$possibleKeys[$otherTable][] = $fieldName;
 					}
-					if ($field['name'] != $primaryKey && $field['name'] == $this->_modelKey($currentModelName)) {
+					if ($fieldName != $primaryKey && $fieldName == $this->_modelKey($currentModelName)) {
 						$tmpModelName = $this->_modelName($otherTable);
 						$associations['hasOne'][$j]['alias'] = $tmpModelName;
 						$associations['hasOne'][$j]['className'] = $tmpModelName;
-						$associations['hasOne'][$j]['foreignKey'] = $field['name'];
+						$associations['hasOne'][$j]['foreignKey'] = $fieldName;
 
 						$associations['hasMany'][$j]['alias'] = $tmpModelName;
 						$associations['hasMany'][$j]['className'] = $tmpModelName;
-						$associations['hasMany'][$j]['foreignKey'] = $field['name'];
+						$associations['hasMany'][$j]['foreignKey'] = $fieldName;
 						$j++;
 					}
 				}
@@ -484,7 +483,10 @@ class ModelTask extends Shell {
 		$out .= "\n";
 
 		if (!empty($associations)) {
-			$out.= "\t//The Associations below have been created with all possible keys, those that are not needed can be removed\n";
+			if(!empty($associations['belongsTo']) || !empty($associations['$hasOne']) || !empty($associations['hasMany']) || !empty($associations['hasAndBelongsToMany'])) {
+				$out.= "\t//The Associations below have been created with all possible keys, those that are not needed can be removed\n";
+			}
+
 			if (!empty($associations['belongsTo'])) {
 				$out .= "\tvar \$belongsTo = array(\n";
 

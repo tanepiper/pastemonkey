@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: xml.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: xml.php 5531 2007-08-16 05:44:06Z nate $ */
 
 /**
  * XML handling for Cake.
@@ -22,9 +22,9 @@
  * @package      cake
  * @subpackage   cake.cake.libs
  * @since        CakePHP v .0.10.3.1400
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5531 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-08-16 06:44:06 +0100 (Thu, 16 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('set');
@@ -645,7 +645,7 @@ class XML extends XMLNode {
 		return $data;
 	}
 /**
- * If DEBUG is on, this method echoes an error message.
+ * If debug mode is on, this method echoes an error message.
  *
  * @param string $msg Error message
  * @param int $code Error code
@@ -653,7 +653,7 @@ class XML extends XMLNode {
  * @access public
  */
 	function error($msg, $code = 0, $line = 0) {
-		if (DEBUG) {
+		if (Configure::read('debug')) {
 			echo $msg . " " . $code . " " . $line;
 		}
 	}

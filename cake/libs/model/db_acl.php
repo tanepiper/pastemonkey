@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: db_acl.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: db_acl.php 5588 2007-08-27 03:16:49Z nate $ */
 /**
  * This is core configuration file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5588 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-08-27 04:16:49 +0100 (Mon, 27 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -82,21 +82,24 @@ class AclNode extends AppModel {
 			return null;
 		} elseif (is_string($ref)) {
 			$path = explode('/', $ref);
-			$start = $path[count($path) - 1];
-			unset($path[count($path) - 1]);
+			$start = $path[0];
+			unset($path[0]);
 
+			$i = 0;
+			$cond = "WHERE ({$type}.lft <= {$type}{$i}.lft AND {$type}.rght >= {$type}{$i}.rght) ";
 			$query  = "SELECT {$type}.id, {$type}.parent_id, {$type}.model, {$type}.foreign_key, {$type}.alias FROM {$prefix}{$table} {$db->alias} {$type} ";
 			$query .=  "LEFT JOIN {$prefix}{$table} {$db->alias} {$type}0 ";
 			$query .= "ON {$type}0.alias = " . $db->value($start) . " ";
 
 			foreach ($path as $i => $alias) {
 				$j = $i - 1;
-				$k = $i + 1;
-				$query .= "LEFT JOIN {$prefix}{$table} {$db->alias} {$type}{$k} ";
-				$query .= "ON {$type}{$k}.lft > {$type}{$i}.lft AND {$type}{$k}.rght < {$type}{$i}.rght ";
-				$query .= "AND {$type}{$k}.alias = " . $db->value($alias) . " ";
+				$cond  .="OR ";
+				$query .= "LEFT JOIN {$prefix}{$table} {$db->alias} {$type}{$i} ";
+				$query .= "ON {$type}{$i}.lft > {$type}{$j}.lft AND {$type}{$i}.rght < {$type}{$j}.rght ";
+				$query .= "AND {$type}{$i}.alias = " . $db->value($alias) . " ";
+				$cond  .="({$type}.lft <= {$type}{$i}.lft AND {$type}.rght >= {$type}{$i}.rght ) ";
 			}
-			$result = $this->query("{$query} WHERE {$type}.lft <= {$type}0.lft AND {$type}.rght >= {$type}0.rght ORDER BY {$type}.lft DESC", $this->cacheQueries);
+			$result = $this->query("{$query} {$cond} ORDER BY {$type}.lft DESC", $this->cacheQueries);
 		} elseif (is_object($ref) && is_a($ref, 'Model')) {
 			$ref = array('model' => $ref->name, 'foreign_key' => $ref->id);
 		} elseif (is_array($ref) && !(isset($ref['model']) && isset($ref['foreign_key']))) {

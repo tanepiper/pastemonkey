@@ -5,6 +5,8 @@ class AppController extends Controller {
 						 'Recaptcha');
 	var $components = array('Session','RequestHandler','Conf');
 	
+	var $captchaPrivateKey = '';
+	
 	function beforeFilter()
 	{
 		$this->layout = "default";

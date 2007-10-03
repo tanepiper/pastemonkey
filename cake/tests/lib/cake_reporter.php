@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cake_reporter.php 4451 2007-02-05 05:32:30Z phpnut $ */
+/* SVN FILE: $Id: cake_reporter.php 5691 2007-09-24 23:49:54Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.tests.libs
  * @since			CakePHP(tm) v 1.2.0.4433
- * @version			$Revision: 4451 $
+ * @version			$Revision: 5691 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-02-05 05:32:30 +0000 (Mon, 05 Feb 2007) $
+ * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /**
@@ -39,7 +39,7 @@ class CakeHtmlReporter extends HtmlReporter {
  *    by a web browser.
  *    @access public
  */
-	function CakeHtmlReporter($characterSet = 'ISO-8859-1') {
+	function CakeHtmlReporter($characterSet = 'UTF-8') {
 		parent::HtmlReporter($characterSet);
 	}
 /**
@@ -50,7 +50,7 @@ class CakeHtmlReporter extends HtmlReporter {
  */
 	function paintHeader($testName) {
 		$this->sendNoCacheHeaders();
-		$baseUrl = BASE_URL;
+		$baseUrl = BASE;
 		print "<h2>$testName</h2>\n";
 		flush();
 	}

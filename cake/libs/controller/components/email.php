@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: email.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: email.php 5662 2007-09-16 20:36:28Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller.components
  * @since			CakePHP(tm) v 1.2.0.3467
- * @version			$Revision: 5422 $
+ * @version			$Revision: 5662 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-09-16 21:36:28 +0100 (Sun, 16 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -37,49 +37,58 @@
  */
 class EmailComponent extends Object{
 /**
- * Enter description here...
+ * Recipient of the email
  *
  * @var string
  * @access public
  */
 	var $to = null;
 /**
- * Enter description here...
+ * The mail which the email is sent from
  *
  * @var string
  * @access public
  */
 	var $from = null;
 /**
- * Enter description here...
+ * The email the recipient will reply to
  *
  * @var string
  * @access public
  */
 	var $replyTo = null;
 /**
- * Enter description here...
+ * The mail that will be used in case of any errors like
+ * - Remote mailserver down
+ * - Remote user has exceeded his quota
+ * - Unknown user
  *
  * @var string
  * @access public
  */
 	var $return = null;
 /**
- * Enter description here...
+ * Carbon Copy
+ *
+ * List of email's that should receive a copy of the email.
+ * The Recipient WILL be able to see this list
  *
  * @var array
  * @access public
  */
 	var $cc = array();
 /**
- * Enter description here...
+ * Blind Carbon Copy
+ *
+ * List of email's that should receive a copy of the email.
+ * The Recipient WILL NOT be able to see this list
  *
  * @var array
  * @access public
  */
 	var $bcc = array();
 /**
- * Enter description here...
+ * The subject of the email
  *
  * @var string
  * @access public
@@ -94,70 +103,89 @@ class EmailComponent extends Object{
  */
 	var $headers = array();
 /**
- * Enter description here...
+ * List of additional headers
+ *
+ * These will NOT be used if you are using safemode and mail()
  *
  * @var string
  * @access public
  */
 	var $additionalParams = null;
 /**
- * Enter description here...
+ * Layout for the View
  *
  * @var string
  * @access public
  */
 	var $layout = 'default';
 /**
- * Enter description here...
+ * Template for the view
  *
  * @var string
  * @access public
  */
 	var $template = null;
 /**
- * Enter description here...
+ * What format should the email be sent in
+ *
+ * Supported formats:
+ * - text
+ * - html
+ * - both
  *
  * @var string
  * @access public
  */
-	var $sendAs = 'text';  //html, text, both
+	var $sendAs = 'text';
 /**
- * Enter description here...
+ * What method should the email be sent by
+ *
+ * Supported methods:
+ * - mail
+ * - smtp
+ * - debug
  *
  * @var string
  * @access public
  */
-	var $delivery = 'mail'; //mail, smtp, debug
+	var $delivery = 'mail';
 /**
- * Enter description here...
+ * charset the email is sent in
  *
  * @var string
  * @access public
  */
 	var $charset = 'ISO-8859-15';
 /**
- * Enter description here...
+ * List of files that should be attached to the email.
+ *
+ * Can be both absolute and relative paths
  *
  * @var array
  * @access public
  */
 	var $attachments = array();
 /**
- * Enter description here...
+ * What mailer should EmailComponent identify itself as
  *
  * @var string
  * @access public
  */
 	var $xMailer = 'CakePHP Email Component';
 /**
- * Enter description here...
+ * The list of paths to search if an attachment isnt absolute
  *
  * @var array
  * @access public
  */
 	var $filePaths = array();
 /**
- * SMTP options variable
+ * List of options to use for smtp mail method
+ *
+ * Options is:
+ * - port
+ * - host
+ * - timeout
  *
  * @var array
  * @access public
@@ -166,14 +194,15 @@ class EmailComponent extends Object{
 							 'host' => 'localhost',
 							 'timeout' => 30);
 /**
- * SMTP errors variable
+ * Placeholder for any errors that might happen with the
+ * smtp mail methods
  *
  * @var string
  * @access public
  */
 	var $smtpError = null;
 /**
- * Enter description here...
+ * If set to true, the mail method will be auto-set to 'debug'
  *
  * @var string
  * @access protected
@@ -187,7 +216,7 @@ class EmailComponent extends Object{
  */
 	var $_error = false;
 /**
- * Enter description here...
+ * New lines char
  *
  * @var string
  * @access protected
@@ -281,6 +310,7 @@ class EmailComponent extends Object{
 		if ($this->_debug) {
 			$this->delivery = 'debug';
 		}
+
 		$__method = '__'.$this->delivery;
 
 		return $this->$__method();
@@ -320,14 +350,14 @@ class EmailComponent extends Object{
 			$htmlContent = $content;
 			$msg = '--' . $this->__boundary . $this->_newLine;
 			$msg .= 'Content-Type: text/plain; charset=' . $this->charset . $this->_newLine;
-			$msg .= 'Content-Transfer-Encoding: 8bit' . $this->_newLine;
+			$msg .= 'Content-Transfer-Encoding: 8bit' . $this->_newLine . $this->_newLine;
 			$content = $View->renderElement('email' . DS . 'text' . DS . $this->template, array('content' => $content), true);
 			$View->layoutPath = 'email' . DS . 'text';
 			$msg .= $View->renderLayout($content) . $this->_newLine;
 
 			$msg .= $this->_newLine. '--' . $this->__boundary . $this->_newLine;
 			$msg .= 'Content-Type: text/html; charset=' . $this->charset . $this->_newLine;
-			$msg .=  'Content-Transfer-Encoding: 8bit' . $this->_newLine;
+			$msg .=  'Content-Transfer-Encoding: 8bit' . $this->_newLine . $this->_newLine;
 			$content = $View->renderElement('email' . DS . 'html' . DS . $this->template, array('content' => $htmlContent), true);
 			$View->layoutPath = 'email' . DS . 'html';
 			$msg .= $View->renderLayout($content);
@@ -393,6 +423,9 @@ class EmailComponent extends Object{
 			$this->__createBoundary();
 			$this->__header .= 'MIME-Version: 1.0' . $this->_newLine;
 			$this->__header .= 'Content-Type: multipart/related; boundary="' . $this->__boundary . '"' . $this->_newLine;
+		} elseif ($this->sendAs === 'text') {
+			$this->__header .= 'Content-Type: text/plain; charset=' . $this->charset . $this->_newLine;
+			$this->__header .= 'Content-Transfer-Encoding: 8bit' . $this->_newLine;
 		} elseif ($this->sendAs === 'html') {
 			$this->__header .= 'Content-Type: text/html; charset=' . $this->charset . $this->_newLine;
 			$this->__header .= 'Content-Transfer-Encoding: 8bit' . $this->_newLine;
@@ -538,9 +571,8 @@ class EmailComponent extends Object{
 							'/charset\=/i', '/mime-version\:/i', '/multipart\/mixed/i',
 							'/bcc\:/i','/to\:/i','/cc\:/i', '/\\r/i', '/\\n/i');
 
-		if($message === false) {
-			array_pop($search);
-			array_pop($search);
+		if ($message === true) {
+			$search = array_slice($search, 0, -2);
 		}
 		return preg_replace($search, '', $value);
 	}
@@ -562,14 +594,16 @@ class EmailComponent extends Object{
  * @access private
  */
 	function __smtp() {
-		$response = $this->__smtpConnect($this->smtpOptions);
+		$response = $this->__smtpConnect();
 
-		if ($response['status'] == false) {
+		if ($response['errno'] != 0 && $response['status'] === false) {
 			$this->smtpError = "{$response['errno']}: {$response['errstr']}";
 			return false;
 		}
 
-		$this->__sendData("HELO cake\r\n", false);
+		if (!$this->__sendData("HELO cake\r\n")) {
+			return false;
+		}
 
 		if (!$this->__sendData("MAIL FROM: {$this->from}\r\n")) {
 			return false;
@@ -581,8 +615,10 @@ class EmailComponent extends Object{
 
 		$this->__sendData("DATA\r\n{$this->__header}\r\n{$this->__message}\r\n\r\n\r\n.\r\n", false);
 		$this->__sendData("QUIT\r\n", false);
+
 		return true;
 	}
+
 /**
  * Private method for connecting to an SMTP server
  *
@@ -590,13 +626,19 @@ class EmailComponent extends Object{
  * @param array $options SMTP connection options
  * @return array
  */
-	function __smtpConnect($options) {
+	function __smtpConnect() {
 		$status = true;
-		$this->__smtpConnection = @fsockopen($options['host'], $options['port'], $errno, $errstr, $options['timeout']);
+		$this->__smtpConnection = @fsockopen($this->smtpOptions['host'],
+											$this->smtpOptions['port'],
+											$errno,
+											$errstr,
+											$this->smtpOptions['timeout']);
 
 		if ($this->__smtpConnection == false) {
 			$status = false;
 		}
+
+		$response = $this->__getSmtpResponse();
 
 		return array('status' => $status,
 					 'errno' => $errno,
@@ -619,10 +661,13 @@ class EmailComponent extends Object{
 		@fwrite($this->__smtpConnection, $data);
 		$response = $this->__getSmtpResponse();
 
-		if ($check == true && !stristr($response, '250')) {
-			$this->smtpError = $response;
-			return false;
+		if ($check != false) {
+			if (stristr($response, '250') === false) {
+				$this->smtpError = $response;
+				return false;
+			}
 		}
+
 		return true;
 	}
 /**
@@ -635,17 +680,16 @@ class EmailComponent extends Object{
 		$fm = '<pre>';
 
 		if ($this->delivery == 'smtp') {
-			$fm .= sprintf('%s %s', 'Host:', $this->smtpOptions['host']);
-			$fm .= sprintf('%s %s', 'Port:', $this->smtpOptions['port']);
-			$fm .= sprintf('%s %s', 'Timeout:', $this->smtpOptions['timeout']);
+			$fm .= sprintf("%s %s\n", 'Host:', $this->smtpOptions['host']);
+			$fm .= sprintf("%s %s\n", 'Port:', $this->smtpOptions['port']);
+			$fm .= sprintf("%s %s\n", 'Timeout:', $this->smtpOptions['timeout']);
 		}
-
-		$fm .= sprintf('%s %s', 'To:', $this->to);
-		$fm .= sprintf('%s %s', 'From:', $this->from);
-		$fm .= sprintf('%s %s', 'Subject:', $this->subject);
-		$fm .= sprintf('%s\n\n%s', 'Header:', $this->__header);
-		$fm .= sprintf('%s\n\n%s', 'Parameters:', $this->additionalParams);
-		$fm .= sprintf('%s\n\n%s', 'Message:', $this->__message);
+		$fm .= sprintf("%s %s\n", 'To:', $this->to);
+		$fm .= sprintf("%s %s\n", 'From:', $this->from);
+		$fm .= sprintf("%s %s\n", 'Subject:', $this->subject);
+		$fm .= sprintf("%s\n\n%s", 'Header:', $this->__header);
+		$fm .= sprintf("%s\n\n%s", 'Parameters:', $this->additionalParams);
+		$fm .= sprintf("%s\n\n%s", 'Message:', $this->__message);
 		$fm .= '</pre>';
 
 		$this->Controller->Session->setFlash($fm, 'default', null, 'email');

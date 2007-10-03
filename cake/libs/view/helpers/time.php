@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: time.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: time.php 5691 2007-09-24 23:49:54Z phpnut $ */
 
 /**
  * Time Helper class file.
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5318 $
+ * @version			$Revision: 5691 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -413,7 +413,7 @@ class TimeHelper extends AppHelper {
 		$return = gmmktime($hour, $minute, $second, $month, $day, $year);
 		return $return;
 	}
-	
+
 	function format($format = 'd-m-Y', $date) {
 		return date($format, $this->fromString($date));
 	}

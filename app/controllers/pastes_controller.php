@@ -4,12 +4,12 @@ class PastesController extends AppController {
 	var $name = 'Pastes';
 	var $helpers = array('Html', 'Form' );
 
-	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' ,'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language', 'Language.class'),'limit'=>5, 'order'=>array('Paste.created'=>'DESC'));
+	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' , 'Paste.private', 'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language', 'Language.class'),'limit'=>5, 'order'=>array('Paste.created'=>'DESC'));
 
 	function index() {
 		$this->cacheAction = '1 hour';
 		$this->Paste->recursive = 0;
-		$this->set('pastes', $this->paginate());
+		$this->set('pastes', $this->paginate(array('conditions'=>array('Paste.private'=>'0'))));
 		
 		$remove = $this->Paste->findAll('Paste.expiry < NOW()');
 		foreach ($remove as $paste) {
@@ -39,7 +39,7 @@ class PastesController extends AppController {
 			}
 			
 			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
-				$captcha = $this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
+				$captcha = $this->_checkCaptcha($this->captchaPrivateKey, $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
 				if ($captcha['result']) {
 					if ($this->Paste->save($this->data)) {
 						if ($this->params['isAjax']) {
@@ -95,7 +95,7 @@ class PastesController extends AppController {
 			}			
 			
 			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
-				$captcha = $this->_checkCaptcha('', $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
+				$captcha = $this->_checkCaptcha($this->captchaPrivateKey, $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
 				if ($captcha['result']) {
 					if ($this->Paste->save($this->data)) {
 						if ($this->params['isAjax']) {
@@ -146,7 +146,7 @@ class PastesController extends AppController {
 	}*/
 	
 	function latest($num = 10) {
-		$latest = $this->Paste->findAll(null,array('Paste.id','Paste.author','Paste.created'),array('Paste.created'=>'DESC'),10);
+		$latest = $this->Paste->findAll(array('Paste.private'=>'0'),array('Paste.id','Paste.author','Paste.created'),array('Paste.created'=>'DESC'),10);
 		$this->set('latest',$latest);
 		return $latest;
 	}
