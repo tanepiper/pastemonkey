@@ -180,12 +180,16 @@ div#content .ajax-new-paste {
 	background: #444;
 }
 
-div#content .paging div {
+div#content .paging .paging-prev {
  float: left;
 }
 
-div#content .paging a {
+div#content .paging .paging-numbers {
  float: left;
+}
+
+div#content .paging .paging-next {
+	float:right;
 }
 
 #latest-pastes {

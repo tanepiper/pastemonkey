@@ -1,8 +1,15 @@
 <div class="paging">
-	<?php echo $paginator->prev('<< '.__('previous', true), array(), null, array('class'=>'disabled'));?>
- | 	<?php echo $paginator->numbers();?>
-	<?php echo $paginator->next(__('next', true).' >>', array(), null, array('class'=>'disabled'));?>
+	<span class="paging-prev">
+		<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>
+	</span>
+	<span class="paging-numbers">
+	|	<?php echo $paginator->numbers();?>
+	</span>
+	<span class="paging-next">
+		<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
+	</span>
 </div>
+
 <div class="pinboards">
 <h2><?php __('Lastest');?> <?php __('Pinboards');?></h2>
 <?php
@@ -29,8 +36,15 @@ foreach ($pinboards as $pinboard):
 	</div>
 <?php endforeach; ?>
 </div>
+
 <div class="paging">
-	<?php echo $paginator->prev('<< '.__('previous', true), array(), null, array('class'=>'disabled'));?>
- | 	<?php echo $paginator->numbers();?>
-	<?php echo $paginator->next(__('next', true).' >>', array(), null, array('class'=>'disabled'));?>
+	<span class="paging-prev">
+		<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>
+	</span>
+	<span class="paging-numbers">
+	|	<?php echo $paginator->numbers();?>
+	</span>
+	<span class="paging-next">
+		<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
+	</span>
 </div>
