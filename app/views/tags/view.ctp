@@ -1,4 +1,4 @@
-<div class="pastesByTags">
+<div id="pastesTags" class="paste-area">
 	<h2><?php __('Pastes');?> <?php __('For');?> <?php e($tag['Tag']['tag']);?></h2>
 	<?php foreach ($tag['Paste'] as $paste) { ?>
 

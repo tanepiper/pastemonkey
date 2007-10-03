@@ -3,7 +3,12 @@
 	<div>
 		<?php if ($paste) { ?>
 			<div class="viewPaste-infoArea">
-				<strong><? __('Paste') . ' ' . __('by');?> <?php e($paste['Paste']['author']);?> <?php __('in');?> <?php e($paste['Language']['language']);?>, <?php e($pastemonkey->timeAgo($paste['Paste']['created']));?></strong>
+				<strong><? __('Paste') . ' ' . __('by');?> <?php e($paste['Paste']['author']);?> <?php __('in');?> <?php e($html->link($paste['Language']['language'],array('controller'=>'languages','action'=>'view', $paste['Language']['id']), array('class'=>'ajaxLink')));?>, <?php e($pastemonkey->timeAgo($paste['Paste']['created']));?>
+				<?php if (isset($paste['Paste']['parent_id'])) { ?>
+					<?php __('in response to');?> 
+					<?php e($html->link(__('paste', true) . ' ' . $paste['Paste']['parent_id'],array('controller'=>'pastes', 'action'=>'view', $paste['Paste']['parent_id']), array('class'=>'ajaxLink')));?>				
+				<?php } ?>
+				</strong>
 				
 				<?php if ($paste['Tag']) { ?>
 					<div class="viewPaste-infoArea-tags">
@@ -17,23 +22,17 @@
 						</dl>
 					</div>
 				<?php } ?>
-				
 				<div class="viewPaste-infoArea-permalink">
 					<strong><?php __('Permalink');?>:</strong>
-					<?php e($html->link($pm_siteurl . '/pastes/view/' . $paste['Paste']['id'],array('controller'=>'pastes','action'=>'view', $paste['Paste']['id']), array('class'=>'noAjax')));?>
+					<?php e($html->link($pastemonkey->checkAddress() . '/pastes/view/' . $paste['Paste']['id'],array('controller'=>'pastes','action'=>'view', $paste['Paste']['id']), array('class'=>'noAjax')));?>
 				</div>
-				
-				<?php if (isset($paste['Paste']['parent_id'])) { ?>
-					<div class="viewPaste-infoArea-parent">
-						<strong><?php __('This paste is an edit');?></strong>
-						<?php e($html->link(__('View Parent', true),array('controller'=>'pastes', 'action'=>'view', $paste['Paste']['parent_id']), array('class'=>'ajaxLink')));?>
-					</div>	
-				<?php } ?>
 				
 				<div class="viewPaste-infoArea-downloadLinks">
 					<?php e($html->link($html->image("go-down.png") . '<br />' . __('Download', true), array('controller'=> 'pastes', 'action'=>'download', $paste['Paste']['id']), array('class'=>'downloadPaste'), null, false));?>
 					<?php e($html->link($html->image("accessories-text-editor.png") . '<br />' . __('Edit', true), array('controller'=> 'pastes', 'action'=>'edit', $paste['Paste']['id']), array('class'=>'ajaxLink editPaste'), null, false));?>
-					<?php e($html->link($html->image("edit-copy.png") . '<br />' . __('Download Diff File', true),array('controller'=>'pastes', 'action'=>'diff', $paste['Paste']['parent_id'], $paste['Paste']['id']), array('class'=>'downloadDiff'), null, false));?>
+					<?php if (isset($paste['Paste']['parent_id'])) { ?>
+						<?php e($html->link($html->image("edit-copy.png") . '<br />' . __('Download Diff File', true),array('controller'=>'pastes', 'action'=>'diff', $paste['Paste']['parent_id'], $paste['Paste']['id']), array('class'=>'downloadDiff'), null, false));?>
+					<?php } ?>
 				</div>
 				<br style="clear:both;" />
 			</div>

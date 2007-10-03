@@ -11,7 +11,6 @@ class AppController extends Controller {
   		$this->Conf->startup(&$this);
 		$this->set('pm_sitename', $this->Conf->get('app.sitename','Paste Monkey', true, true)); 
 		$this->set('pm_siteurl', $this->Conf->get('app.siteurl','http://pastemonkey.org', true, true)); 
-	}
-	
+	}	
 }
 ?>

@@ -1,4 +1,4 @@
-<div class="pastesByLanguages">
+<div id="pastesLanguages" class="paste-area">
 	<h2><?php __('Pastes');?> <?php __('For');?> <?php e($language['Language']['language']);?></h2>
 	<?php foreach ($language['Paste'] as $paste) { ?>
 

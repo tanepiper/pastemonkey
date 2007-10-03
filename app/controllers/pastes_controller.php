@@ -152,13 +152,10 @@ class PastesController extends AppController {
 	}
 	
 	function download($id = null) {
-		$ok = false;		
 		$this->layout = 'download';
 		$paste = $this->Paste->read(null, $id);
-		$lang = $this->Paste->Language->find(array('id' => $paste['Paste']['language_id']));			
-		$lang = strtolower($lang['Language']['language']);
 		$ext="txt";
-			switch($lang)
+			switch(strtolower($paste['Language']['class']))
 			{
 				case 'bash':
 					$ext='sh';
@@ -186,10 +183,6 @@ class PastesController extends AppController {
 			
 			$this->set('paste', $paste);
 			$this->set('ext',$ext);
-			header('Content-type: text/plain');
-			header('Content-Disposition: attachment; filename="paste-'.$paste['Paste']['id'].'.'.$ext.'"');
-			$ok=true;
-			return $ok;
 	}
 	
 	function diff($id1, $id2) {

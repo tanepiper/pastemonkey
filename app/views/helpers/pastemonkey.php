@@ -18,6 +18,12 @@ class PastemonkeyHelper extends TimeHelper {
 		
 		return $output;
 	}
+	
+	function checkAddress(){
+		$address = 'http';
+		$address .= '://' . $_SERVER['SERVER_ADDR'];
+		return $address;
+	}
 
 }
 ?>
