@@ -1,4 +1,4 @@
-<div class="paste-add">
+<div class="pasteAdd">
 	<?php e($form->create('Paste'));?>
 		<fieldset>
  			<legend><?php __('Add');?> <?php __('Paste');?></legend>
@@ -19,10 +19,10 @@
 			?>
 		</fieldset>
 	
-		<fieldset>
-			<legend><?php __('Paste');?> <?php __('Options');?></legend>
-			<?php e($form->radio('expire_type', $expiry_types, null, array('label'=>'How long do you want this paste to last?')));?>
-			<?php e($form->input('private', array('type'=>'checkbox')));?>
+		<fieldset id="pasteOptions">
+			<legend><?php __('Paste');?> <?php __('Expiry');?></legend>
+			<?php e($form->select('expire_type', $expiry_types, null, null, false));?>
+			<?php e($form->input('private', array('type'=>'checkbox', 'label'=>'Make this paste private?')));?>
 		</fieldset>
 	
 		<fieldset id="captchField">

@@ -236,7 +236,7 @@ class PastesController extends AppController {
 		}
 		//$this->passedArgs['limit'] = 5;
 		//$this->passedArgs['conditions'] = array('Paste.paste'=>'LIKE %' . $search . '%');
-		$this->set('items', $this->paginate(array('conditions'=>array('Paste.paste'=>'LIKE %' . $search . '%'))));
+		$this->set('items', $this->paginate(array('conditions'=>array('Paste.paste'=>'LIKE %' . $search . '%', 'Paste.private'=>'0'))));
 		//$this->set('items', $this->Paste->findAll(array('Paste.paste'=>'LIKE %' . $search . '%')));
 		$this->set('term', $search);
 	}
