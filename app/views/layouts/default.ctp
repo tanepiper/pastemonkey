@@ -32,7 +32,8 @@
 				<?php e($this->element('navigation'));?>
 				<?php e($this->element('search'));?>
 				<?php e($this->element('latest'));?>
-				<?php //e($this->element('donate'));?>
+				<?php e($this->element('donate'));?>
+				<?php e($this->element('googleads'));?>
 			</div>
 			<div id="extra">
 				<?php e($this->element('buttons'));?>

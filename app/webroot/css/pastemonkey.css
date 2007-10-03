@@ -135,7 +135,7 @@ div#navigation .nav-link {
 	display:block;
 }
 
-div#navigation #search {
+div#navigation #search, div#navigation #donate {
 	background: #D9CEB2;
 	color: #000;
 	margin-bottom: 20px;

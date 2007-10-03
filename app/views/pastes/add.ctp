@@ -1,5 +1,5 @@
 <div class="pasteAdd">
-	<?php e($form->create('Paste'));?>
+	<?php e($form->create('Paste', array('type'=>'file')));?>
 		<fieldset>
  			<legend><?php __('Add');?> <?php __('Paste');?></legend>
 			<?php
@@ -15,7 +15,7 @@
 				e($form->input('parent_id', array('type'=>'hidden')));
 				e($form->input('language_id'));
 				e($form->input('author', array('value'=>$name)));
-				e($form->input('remember_me', array('type'=>'checkbox')));
+				e($form->input('remember_me', array('type'=>'checkbox', 'value'=>$remember_me)));
 			?>
 		</fieldset>
 	

@@ -1,4 +1,13 @@
 <?php
+/***
+	*	pastes_controller.php
+	*	Author: Tane Piper (digitalspaghetti@gmail.com)
+	*	Copyright: Tane Piper
+	*	Licence: MIT Licence
+	*	=======================================
+	*	This code is the main controller for site pastes.
+	*/
+
 class PastesController extends AppController {
 
 	var $name = 'Pastes';
@@ -34,8 +43,10 @@ class PastesController extends AppController {
 			
 			if($this->data['Paste']['remember_me']) {
 				$this->Session->write('author_name', $this->data['Paste']['author']);
+				$this->Session->write('remember_me', 1);
 			} else {
 				$this->Session->write('author_name', '');
+				$this->Session->write('remember_me', 0);
 			}
 			
 			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
@@ -66,6 +77,12 @@ class PastesController extends AppController {
 			$this->set('name', $this->Session->read('author_name'));
 		} else {
 			$this->set('name', 'Anonymous');
+		}
+		
+		if ($this->Session->read('remember_me')) {
+			$this->set('remember_me', 1);
+		} else {
+			$this->set('remember_me', 0);
 		}
 		
 		$expiry_types = array('day'=>'Day','week'=>'Week','month'=>'Month','never'=>'Never');
@@ -234,10 +251,7 @@ class PastesController extends AppController {
 		} else {
 			$search = $this->data['Paste']['livesearch'];
 		}
-		//$this->passedArgs['limit'] = 5;
-		//$this->passedArgs['conditions'] = array('Paste.paste'=>'LIKE %' . $search . '%');
 		$this->set('items', $this->paginate(array('conditions'=>array('Paste.paste'=>'LIKE %' . $search . '%', 'Paste.private'=>'0'))));
-		//$this->set('items', $this->Paste->findAll(array('Paste.paste'=>'LIKE %' . $search . '%')));
 		$this->set('term', $search);
 	}
 
