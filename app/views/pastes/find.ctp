@@ -9,7 +9,7 @@
 		<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
 	</span>
 </div>
-
+<br style="clear:both;" />
 <div class="pastes">
 	<h2><?php __('Pastes for search term');?> <?php e($term);?></h2>
 	<?php if($items) { ?>
@@ -29,7 +29,7 @@
 		<strong>Your search term produced no results.</strong>
 	<?php } ?>
 </div>
-
+<br style="clear:both;" />
 <div class="paging">
 	<span class="paging-prev">
 		<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>

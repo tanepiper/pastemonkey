@@ -1,4 +1,4 @@
-exandria0<?php
+<?php
 class GeshiHelper extends Helper {
 
 	var $defaults = array(

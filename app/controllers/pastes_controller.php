@@ -254,6 +254,9 @@ class PastesController extends AppController {
 		$this->set('items', $this->paginate(array('conditions'=>array('Paste.paste'=>'LIKE %' . $search . '%', 'Paste.private'=>'0'))));
 		$this->set('term', $search);
 	}
-
+	
+	function about(){
+		
+	}
 }
 ?>

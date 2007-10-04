@@ -9,6 +9,7 @@
 		<?php echo $html->css('pastemonkey');?>
 		<?php echo $html->css('flora.resizable');?>
 		<?php echo $html->css('jquery.autocomplete');?>
+		<?php echo $html->css('thickbox');?>
 		<?php e($this->element('jsfiles'));?>
 		<?php echo $scripts_for_layout;?>
 	</head>

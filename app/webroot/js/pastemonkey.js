@@ -138,5 +138,4 @@ $pastemonkey(document).ready(function() {
 				setTimeout(function(){$pastemonkey(self).animate({opacity: 'hide'}, 'slow', 'linear');}, '5000');
 			});
 	});
-		
 });

@@ -9,7 +9,7 @@
 		<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
 	</span>
 </div>
-
+<br style="clear:both;" />
 <div class="pinboards">
 <h2><?php __('Lastest');?> <?php __('Pinboards');?></h2>
 <?php
@@ -36,7 +36,7 @@ foreach ($pinboards as $pinboard):
 	</div>
 <?php endforeach; ?>
 </div>
-
+<br style="clear:both;" />
 <div class="paging">
 	<span class="paging-prev">
 		<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>

@@ -9,7 +9,7 @@
 		<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
 	</span>
 </div>
-
+<br style="clear:both;" />
 <div id="pastesAll" class="paste-area">
 	<h2><?php __('Latest Pastes');?></h2>
 	<?php foreach ($pastes as $paste) {	?>
@@ -25,7 +25,7 @@
 		</div>
 	<?php }; ?>
 </div>
-
+<br style="clear:both;" />
 <div class="paging">
 	<span class="paging-prev">
 		<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>
