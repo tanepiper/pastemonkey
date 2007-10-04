@@ -13,9 +13,8 @@ $pastemonkey(document).ready(function() {
 	
 	$pastemonkey('.copyButton').livequery(function(){
 		$pastemonkey(this).bind('click.copyButton', function(){
-			//$pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).focus();
-			//$pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).select();
-			$pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).clipboard($pastemonkey(this).val(), '/js/jquery.clipboard.swf');
+			var copyText = $pastemonkey('#PasteCopy' + $pastemonkey(this).attr('rel')).val();
+			$pastemonkey.clipboard(copyText, '/js/');
 			return false;
 		});
 	}, function(){

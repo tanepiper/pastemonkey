@@ -59,6 +59,7 @@ div#content .viewPaste .viewPaste-geshiOutput ol {
 	background: #555;
 	color: #000;
 	border:1px solid #000;
+	margin: 0 10px;
 }
 
 div#content .paste-area .geshi-output ol {

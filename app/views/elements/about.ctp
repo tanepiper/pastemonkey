@@ -49,5 +49,6 @@
 		<li><a href="http://brandonaaron.net/docs/livequery/">Live Query</a> - Excellent library by Brandon Aaron that allows the rich features on the clientside.</li>
 		<li><a href="http://ui.jquery.com">jQuery UI</a> - The jQuery UI Library.</li>
 		<li><a href="">jQuery Autocomplete</a> - The library used for Tag Autocomplete.</li>
+		<li><a href="">jQuery Copy to Clipboard</a> - A plugin by Bradley Sepos to handle copying to clipboard.</li>
 	</ul>
 </div>
