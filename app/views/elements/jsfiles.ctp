@@ -10,4 +10,5 @@
 <?php e($javascript->link('jquery.bgiframe.min'));?>
 <?php e($javascript->link('jquery.autocomplete.pack'));?>
 <?php e($javascript->link('thickbox'));?>
+<?php e($javascript->link('jquery.clipboard'));?>
 <?php e($javascript->link('pastemonkey'));?>
