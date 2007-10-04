@@ -1,13 +1,16 @@
 <div class="user">
 <?php echo $form->create('User');?>
 	<fieldset>
- 		<legend><?php __('Add');?> <?php __('User');?></legend>
+ 		<legend><?php __('Regular Signup');?></legend>
 	<?php
 		echo $form->input('email');
 		echo $form->input('passwd');
 		echo $form->input('author');
-		echo $form->input('pastes_count');
 	?>
+	</fieldset>
+	<fieldset>
+		<legend><?php __('OpenID Signup');?></legend>
+		<?php e($form->input('openid_url', array('class'=>'openid_url')));?>
 	</fieldset>
 <?php echo $form->end('Submit');?>
 </div>

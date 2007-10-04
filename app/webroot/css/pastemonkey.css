@@ -86,6 +86,11 @@ div#content .paste-area ol li {
 	color:#000;
 }
 
+div#content .openid_url {
+	background: #fff url('/img/openid-icon-small.gif') no-repeat scroll 0pt 50%;
+	padding-left:18px;
+}
+
 
 .fatal {
 	border:2px solid #000;

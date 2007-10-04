@@ -19,6 +19,11 @@ class UsersController extends AppController {
 
 	function add() {
 		if (!empty($this->data)) {
+			
+			if ($this->data['User']['openid_url']) {
+				
+			}
+			
 			$this->cleanUpFields();
 			$this->User->create();
 			if ($this->User->save($this->data)) {

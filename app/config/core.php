@@ -64,7 +64,7 @@
  * using $this->cacheAction = true.
  */
  	Configure::write('cache_check', true);
-	//define('CACHE_CHECK', true);
+	define('CACHE_CHECK', true);
 /**
  * Defines the default error type when using the log() function. Used for
  * differentiating error logging and debugging. Currently PHP supports LOG_DEBUG.
