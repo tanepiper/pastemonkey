@@ -9,7 +9,9 @@
 		<?php echo $paginator->next(__('Next', true).' >>', array(), null, array('class'=>'disabled'));?>
 	</span>
 </div>
+
 <br style="clear:both;" />
+
 <div id="pastesAll" class="paste-area">
 	<h2><?php __('Latest Pastes');?></h2>
 	<?php foreach ($pastes as $paste) {	?>
@@ -20,12 +22,14 @@
 				<?php echo $html->link('View Full Paste', array('controller'=> 'pastes', 'action'=>'view', $paste['Paste']['id']), array('class'=>'ajaxLink')); ?>
 			</div>
 			<div class="geshi-output">
-				<?php e($geshi->generate($paste['Paste']['paste'], strtolower($paste['Language']['class'])));?>
+				<?php e($geshi->generate($paste['Paste']['paste'], $paste['Language']['class']));?>
 			</div>
 		</div>
 	<?php }; ?>
 </div>
+
 <br style="clear:both;" />
+
 <div class="paging">
 	<span class="paging-prev">
 		<?php echo $paginator->prev('<< '.__('Previous', true), array(), null, array('class'=>'disabled'));?>
