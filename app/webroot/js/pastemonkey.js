@@ -53,13 +53,13 @@ $pastemonkey(document).ready(function() {
 	});
 	
 	/* Live Search */
-	$pastemonkey('#PasteLivesearch').livequery(function(){
-		$pastemonkey('input[type=submit]', '#PasteFindForm').hide();
+	$pastemonkey('#PasteSearchTerm').livequery(function(){
+		$pastemonkey('input[type=submit]', '#PasteSearchForm').hide();
 		$pastemonkey(this).bind('blur', function(){
 			$pastemonkey(this).css({backgroundColor: '#fff'});
 			var highlightVal = $pastemonkey(this).val();
 			if (highlightVal != '' && highlightVal.length >= 3) {
-				$pastemonkey('#content').load('/pastes/find/?q=' + highlightVal, function(){
+				$pastemonkey('#content').load('/pastes/search/' + highlightVal, function(){
 					$pastemonkey('*','ol li').each(function(){
 						$pastemonkey.highlight(this, highlightVal.toUpperCase());	
 					});
@@ -90,13 +90,13 @@ $pastemonkey(document).ready(function() {
 
 	$pastemonkey.ajaxSetup({timeout: 10000});
 	
-	$pastemonkey('#content').ajaxStart(function(){
+/*	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){
 		$pastemonkey.unblockUI();
 	});
-
+*/
 	$pastemonkey('#recaptcha_div').livequery(function(){
 		var self = this;
 		if (typeof self != 'undefined') {

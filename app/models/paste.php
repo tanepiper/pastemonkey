@@ -7,7 +7,7 @@ class Paste extends AppModel {
 		'language_id' => VALID_NOT_EMPTY,
 	);
 	
-	var $actsAs = array('Tag','ImageUpload'); 
+	var $actsAs = array('Tag'/*,'ImageUpload'*/); 
 	
 	
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
@@ -38,7 +38,7 @@ class Paste extends AppModel {
 						'unique' => true),
 	);
 	
-	var $hasMany = array(
+/*	var $hasMany = array(
 		'Attachment' => array(
 			'foreignKey' => 'foreign_id',
 			'conditions' => array('Attachment.class' => 'To Be Filled'),
@@ -64,7 +64,7 @@ class Paste extends AppModel {
 			$this->hasOne['Thumb']['conditions']['Thumb.class'] = $this->name;
 		}
 	}
-	
+*/	
 	function beforeRender() {
 	}
 	
@@ -76,6 +76,13 @@ class Paste extends AppModel {
 	function afterDelete()
 	{
 		@unlink(CACHE.'views'.DS.'element__latest');
+	}
+	
+	function _purge(){
+		$remove = $this->findAll('Paste.expiry < NOW()');
+		foreach ($remove as $paste) {
+			$this->delete($paste['Paste']['id']);
+		}
 	}
 }
 ?>

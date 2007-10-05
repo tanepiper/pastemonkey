@@ -3,7 +3,6 @@
 		<fieldset>
  			<legend><?php __('Add');?> <?php __('Paste');?></legend>
 			<?php
-				e($form->input('id'));
 				e($form->input('paste'));
 				e($form->input('note'));
 			?>
@@ -13,7 +12,6 @@
 			<legend><?php __('Paste');?> <?php __('Details');?></legend>
 			<?php
 				e($form->input('tags', array('type'=>'text')));
-				e($form->input('parent_id', array('type'=>'hidden')));
 				e($form->input('language_id'));
 				e($form->input('author', array('value'=>$name)));
 				e($form->input('remember_me', array('type'=>'checkbox', 'value'=>$remember_me)));
