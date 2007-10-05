@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: file.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: file.test.php 5559 2007-08-21 03:39:02Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -7,32 +7,31 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP Test Suite <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright (c) 2006, Larry E. Masters Shorewood, IL. 60431
- * Author(s): Larry E. Masters aka PhpNut <phpnut@gmail.com>
+ * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
+ * Copyright 2005-2007, Cake Software Foundation, Inc.
+ *								1785 E. Sahara Avenue, Suite 490-204
+ *								Las Vegas, Nevada 89104
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @author       Larry E. Masters aka PhpNut <phpnut@gmail.com>
- * @copyright    Copyright (c) 2006, Larry E. Masters Shorewood, IL. 60431
- * @link         http://www.phpnut.com/projects/
- * @package      test_suite
- * @subpackage   test_suite.cases.app
- * @since        CakePHP Test Suite v 1.0.0.0
- * @version      $Revision: 5422 $
- * @modifiedby   $LastChangedBy: phpnut $
- * @lastmodified $Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
- * @license      http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
+ * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
+ * @link				https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @package			cake.tests
+ * @subpackage		cake.tests.cases.libs
+ * @since			CakePHP(tm) v 1.2.0.4206
+ * @version			$Revision: 5559 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-21 04:39:02 +0100 (Tue, 21 Aug 2007) $
+ * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('file');
 /**
  * Short description for class.
  *
- * @package    test_suite
- * @subpackage test_suite.cases.libs
- * @since      CakePHP Test Suite v 1.0.0.0
+ * @package		cake.tests
+ * @subpackage	cake.tests.cases.libs
  */
 class FileTest extends UnitTestCase {
 
@@ -60,7 +59,7 @@ class FileTest extends UnitTestCase {
 		$expecting = 'php';
 		$this->assertEqual($result, $expecting);
 
-		$result = $this->File->filename();
+		$result = $this->File->name();
 		$expecting = 'file.test';
 		$this->assertEqual($result, $expecting);
 

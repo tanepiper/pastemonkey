@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: html.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: html.test.php 5665 2007-09-17 03:53:06Z nate $ */
 /**
  * Short description for file.
  *
@@ -21,13 +21,13 @@
  * @package      test_suite
  * @subpackage   test_suite.cases.app
  * @since        CakePHP Test Suite v 1.0.0.0
- * @version      $Revision: 5422 $
- * @modifiedby   $LastChangedBy: phpnut $
- * @lastmodified $Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version      $Revision: 5665 $
+ * @modifiedby   $LastChangedBy: nate $
+ * @lastmodified $Date: 2007-09-17 04:53:06 +0100 (Mon, 17 Sep 2007) $
  * @license      http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 require_once CAKE.'app_helper.php';
-uses('class_registry', 'controller'.DS.'controller', 'model'.DS.'model', 'view'.DS.'helper', 
+uses('class_registry', 'controller'.DS.'controller', 'model'.DS.'model', 'view'.DS.'helper',
 	'view'.DS.'helpers'.DS.'html', 'view'.DS.'helpers'.DS.'form');
 
 class TheHtmlTestController extends Controller {
@@ -65,13 +65,114 @@ class HtmlHelperTest extends UnitTestCase {
 
 	function testStyle() {
 		$result = $this->Html->style(array('display'=> 'none', 'margin'=>'10px'));
-		$expected = 'style="display:none; margin:10px;"';
+		$expected = 'display:none; margin:10px;';
 		$this->assertEqual($expected, $result);
 
 		$result = $this->Html->style(array('display'=> 'none', 'margin'=>'10px'), false);
 		$expected = "display:none;\nmargin:10px;";
 		$this->assertEqual($expected, $result);
+	}
 
+	function testCssLink() {
+		$result = $this->Html->css('screen');
+		$this->assertPattern('/^<link[^<>]+\/>$/', $result);
+		$this->assertPattern('/^<link[^<>]+rel="stylesheet"[^<>]+\/>$/', $result);
+		$this->assertPattern('/^<link[^<>]+type="text\/css"[^<>]+\/>$/', $result);
+		$this->assertPattern('/^<link[^<>]+href=".*css\/screen\.css"[^<>]+\/>$/', $result);
+		$this->assertNoPattern('/^<link[^<>]+[^rel|type|href]=[^<>]*>/', $result);
+	}
+
+	function testBreadcrumb() {
+		$this->Html->addCrumb('First', '#first');
+		$this->Html->addCrumb('Second', '#second');
+		$this->Html->addCrumb('Third', '#third');
+
+		$result = $this->Html->getCrumbs();
+		$this->assertPattern('/^<a[^<>]+>First<\/a>&raquo;<a[^<>]+>Second<\/a>&raquo;<a[^<>]+>Third<\/a>$/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#first["\']+[^<>]*>First<\/a>/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#second["\']+[^<>]*>Second<\/a>/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#third["\']+[^<>]*>Third<\/a>/', $result);
+		$this->assertNoPattern('/<a[^<>]+[^href]=[^<>]*>/', $result);
+
+		$result = $this->Html->getCrumbs(' &gt; ');
+		$this->assertPattern('/^<a[^<>]+>First<\/a> &gt; <a[^<>]+>Second<\/a> &gt; <a[^<>]+>Third<\/a>$/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#first["\']+[^<>]*>First<\/a>/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#second["\']+[^<>]*>Second<\/a>/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#third["\']+[^<>]*>Third<\/a>/', $result);
+		$this->assertNoPattern('/<a[^<>]+[^href]=[^<>]*>/', $result);
+
+		$this->Html->addCrumb('Fourth', null);
+
+		$result = $this->Html->getCrumbs();
+		$this->assertPattern('/^<a[^<>]+>First<\/a>&raquo;<a[^<>]+>Second<\/a>&raquo;<a[^<>]+>Third<\/a>&raquo;Fourth$/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#first["\']+[^<>]*>First<\/a>/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#second["\']+[^<>]*>Second<\/a>/', $result);
+		$this->assertPattern('/<a\s+href=["\']+\#third["\']+[^<>]*>Third<\/a>/', $result);
+		$this->assertNoPattern('/<a[^<>]+[^href]=[^<>]*>/', $result);
+	}
+
+	function testNestedList() {
+		$list = array(
+			'Item 1',
+			'Item 2' => array(
+				'Item 2.1'
+			),
+			'Item 3',
+			'Item 4' => array(
+				'Item 4.1',
+				'Item 4.2',
+				'Item 4.3' => array(
+					'Item 4.3.1',
+					'Item 4.3.2'
+				)
+			),
+			'Item 5' => array(
+				'Item 5.1',
+				'Item 5.2'
+			)
+		);
+
+		$result = $this->Html->nestedList($list);
+		$this->assertPattern('/^<ul>\s*<li>Item 1<\/li>\s*<li>Item 2.+<\/li><li>Item 3<\/li>\s*<li>Item 4.+<\/li><li>Item 5.+<\/li><\/ul>$/', $result);
+		$this->assertPattern('/<li>Item 2\s*<ul>\s*<li>Item 2.1<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 4\s*<ul>\s*<li>Item 4.1<\/li>\s*<li>Item 4.2<\/li>\s*<li>Item 4.3.+<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 4.3\s*<ul>\s*<li>Item 4.3.1<\/li>\s*<li>Item 4.3.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 5\s*<ul>\s*<li>Item 5.1<\/li>\s*<li>Item 5.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+
+		$result = $this->Html->nestedList($list, array(), array(), 'ol');
+		$this->assertPattern('/^<ol>\s*<li>Item 1<\/li>\s*<li>Item 2.+<\/li><li>Item 3<\/li>\s*<li>Item 4.+<\/li><li>Item 5.+<\/li><\/ol>$/', $result);
+		$this->assertPattern('/<li>Item 2\s*<ol>\s*<li>Item 2.1<\/li>\s*<\/ol>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 4\s*<ol>\s*<li>Item 4.1<\/li>\s*<li>Item 4.2<\/li>\s*<li>Item 4.3.+<\/li>\s*<\/ol>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 4.3\s*<ol>\s*<li>Item 4.3.1<\/li>\s*<li>Item 4.3.2<\/li>\s*<\/ol>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 5\s*<ol>\s*<li>Item 5.1<\/li>\s*<li>Item 5.2<\/li>\s*<\/ol>\s*<\/li>/', $result);
+
+		$result = $this->Html->nestedList($list, array('class'=>'list'));
+		$this->assertPattern('/^<ul[^<>]*class="list"[^<>]*>\s*<li>Item 1<\/li>\s*<li>Item 2.+<\/li><li>Item 3<\/li>\s*<li>Item 4.+<\/li><li>Item 5.+<\/li><\/ul>$/', $result);
+		$this->assertPattern('/<li>Item 2\s*<ul[^<>]*class="list"[^<>]*>\s*<li>Item 2.1<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 4\s*<ul[^<>]*class="list"[^<>]*>\s*<li>Item 4.1<\/li>\s*<li>Item 4.2<\/li>\s*<li>Item 4.3.+<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 4.3\s*<ul[^<>]*class="list"[^<>]*>\s*<li>Item 4.3.1<\/li>\s*<li>Item 4.3.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li>Item 5\s*<ul[^<>]*class="list"[^<>]*>\s*<li>Item 5.1<\/li>\s*<li>Item 5.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+
+		$result = $this->Html->nestedList($list, array(), array('class' => 'item'));
+		$this->assertPattern('/^<ul>\s*<li[^<>]*class="item"[^<>]*>Item 1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 2.+<\/li><li[^<>]*class="item"[^<>]*>Item 3<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.+<\/li><li[^<>]*class="item"[^<>]*>Item 5.+<\/li><\/ul>$/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 2\s*<ul>\s*<li[^<>]*class="item"[^<>]*>Item 2.1<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 4\s*<ul>\s*<li[^<>]*class="item"[^<>]*>Item 4.1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.2<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.3.+<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 4.3\s*<ul>\s*<li[^<>]*class="item"[^<>]*>Item 4.3.1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.3.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 5\s*<ul>\s*<li[^<>]*class="item"[^<>]*>Item 5.1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 5.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+
+		$result = $this->Html->nestedList($list, array(), array('even' => 'even', 'odd' => 'odd'));
+		$this->assertPattern('/^<ul>\s*<li[^<>]*class="odd"[^<>]*>Item 1<\/li>\s*<li[^<>]*class="even"[^<>]*>Item 2.+<\/li><li[^<>]*class="odd"[^<>]*>Item 3<\/li>\s*<li[^<>]*class="even"[^<>]*>Item 4.+<\/li><li[^<>]*class="odd"[^<>]*>Item 5.+<\/li><\/ul>$/', $result);
+		$this->assertPattern('/<li[^<>]*class="even"[^<>]*>Item 2\s*<ul>\s*<li[^<>]*class="odd"[^<>]*>Item 2.1<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="even"[^<>]*>Item 4\s*<ul>\s*<li[^<>]*class="odd"[^<>]*>Item 4.1<\/li>\s*<li[^<>]*class="even"[^<>]*>Item 4.2<\/li>\s*<li[^<>]*class="odd"[^<>]*>Item 4.3.+<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="odd"[^<>]*>Item 4.3\s*<ul>\s*<li[^<>]*class="odd"[^<>]*>Item 4.3.1<\/li>\s*<li[^<>]*class="even"[^<>]*>Item 4.3.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="odd"[^<>]*>Item 5\s*<ul>\s*<li[^<>]*class="odd"[^<>]*>Item 5.1<\/li>\s*<li[^<>]*class="even"[^<>]*>Item 5.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+
+		$result = $this->Html->nestedList($list, array('class'=>'list'), array('class' => 'item'));
+		$this->assertPattern('/^<ul[^<>]*class="list"[^<>]*>\s*<li[^<>]*class="item"[^<>]*>Item 1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 2.+<\/li><li[^<>]*class="item"[^<>]*>Item 3<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.+<\/li><li[^<>]*class="item"[^<>]*>Item 5.+<\/li><\/ul>$/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 2\s*<ul[^<>]*class="list"[^<>]*>\s*<li[^<>]*class="item"[^<>]*>Item 2.1<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 4\s*<ul[^<>]*class="list"[^<>]*>\s*<li[^<>]*class="item"[^<>]*>Item 4.1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.2<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.3.+<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 4.3\s*<ul[^<>]*class="list"[^<>]*>\s*<li[^<>]*class="item"[^<>]*>Item 4.3.1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 4.3.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
+		$this->assertPattern('/<li[^<>]*class="item"[^<>]*>Item 5\s*<ul[^<>]*class="list"[^<>]*>\s*<li[^<>]*class="item"[^<>]*>Item 5.1<\/li>\s*<li[^<>]*class="item"[^<>]*>Item 5.2<\/li>\s*<\/ul>\s*<\/li>/', $result);
 	}
 
 	function tearDown() {

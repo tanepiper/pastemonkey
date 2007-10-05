@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: set.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: set.test.php 5652 2007-09-16 18:22:17Z nate $ */
 /**
  * Short description for file.
  *
@@ -19,11 +19,11 @@
  * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
  * @link				https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
  * @package			cake.tests
- * @subpackage		cake.tests.cases.libs.model
+ * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5652 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-09-16 19:22:17 +0100 (Sun, 16 Sep 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 
@@ -33,10 +33,16 @@ uses('set');
 /**
  * UnitTestCase for the Set class
  *
- * @package		cake
- * @subpackage	cake.cake.libs
+ * @package		cake.tests
+ * @subpackage	cake.tests.cases.libs
  */
 class SetTest extends UnitTestCase {
+
+	function testNumericKeyExtraction() {
+		$data = array('plugin' => null, 'controller' => '', 'action' => '', 1, 'whatever');
+		$this->assertIdentical(Set::extract($data, '{n}'), array(1, 'whatever'));
+		$this->assertIdentical(Set::diff($data, Set::extract($data, '{n}')), array('plugin' => null, 'controller' => '', 'action' => ''));
+	}
 
 	function testMerge() {
 		// Test that passing in just 1 array returns it "as-is"
@@ -437,6 +443,16 @@ class SetTest extends UnitTestCase {
 			)
 		);
 		$this->assertIdentical($result, $expected);
+
+		$result = Set::combine($a, '{n}.User.id', array('{0}: {1}', '{n}.User.Data.user', '{n}.User.Data.name'), '{n}.User.group_id');
+		$expected = array (
+			1 => array (
+				2 => 'mariano.iglesias: Mariano Iglesias',
+				25 => 'gwoo: The Gwoo'
+			),
+			2 => array (14 => 'phpnut: Larry E. Masters')
+		);
+		$this->assertIdentical($result, $expected);
 	}
 
 	function testMapReverse() {
@@ -508,5 +524,51 @@ class SetTest extends UnitTestCase {
 		$result = Set::reverse($map);
 		$this->assertIdentical($result, $expected);
 	}
+
+	function testFormatting() {
+		$data = array(
+			array('Person'		=> array(
+				'first_name'	=> 'Nate',
+				'last_name'		=> 'Abele',
+				'city'			=> 'Boston',
+				'state'			=> 'MA',
+				'something'		=> '42'
+			)),
+			array('Person'		=> array(
+				'first_name'	=> 'Larry',
+				'last_name'		=> 'Masters',
+				'city'			=> 'Boondock',
+				'state'			=> 'TN',
+				'something'		=> '{0}'
+			)),
+			array('Person'		=> array(
+				'first_name'	=> 'Garrett',
+				'last_name'		=> 'Woodworth',
+				'city'			=> 'Venice Beach',
+				'state'			=> 'CA',
+				'something'		=> '{1}'
+			))
+		);
+
+		$result = Set::format($data, '{1}, {0}', array('{n}.Person.first_name', '{n}.Person.last_name'));
+		$expected = array('Abele, Nate', 'Masters, Larry', 'Woodworth, Garrett');
+		$this->assertEqual($result, $expected);
+
+		$result = Set::format($data, '{0}, {1}', array('{n}.Person.last_name', '{n}.Person.first_name'));
+		$this->assertEqual($result, $expected);
+
+		$result = Set::format($data, '{0}, {1}', array('{n}.Person.city', '{n}.Person.state'));
+		$expected = array('Boston, MA', 'Boondock, TN', 'Venice Beach, CA');
+		$this->assertEqual($result, $expected);
+
+		$result = Set::format($data, '{{0}, {1}}', array('{n}.Person.city', '{n}.Person.state'));
+		$expected = array('{Boston, MA}', '{Boondock, TN}', '{Venice Beach, CA}');
+		$this->assertEqual($result, $expected);
+
+		$result = Set::format($data, '{{0}, {1}}', array('{n}.Person.something', '{n}.Person.something'));
+		$expected = array('{42, 42}', '{{0}, {0}}', '{{1}, {1}}');
+		$this->assertEqual($result, $expected);
+	}
 }
+
 ?>

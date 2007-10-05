@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: no_database.group.php 4696 2007-03-27 05:17:49Z phpnut $ */
+/* SVN FILE: $Id: no_database.group.php 4636 2007-03-20 17:38:53Z nate $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.groups
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 4696 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-03-27 06:17:49 +0100 (Tue, 27 Mar 2007) $
+ * @version			$Revision: 4636 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-03-20 17:38:53 +0000 (Tue, 20 Mar 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /** AllCoreLibGroupTest

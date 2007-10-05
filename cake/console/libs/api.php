@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: api.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: api.php 5582 2007-08-25 18:00:19Z gwoo $ */
 /**
  * API shell to get CakePHP core method signatures.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5582 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-25 19:00:19 +0100 (Sat, 25 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -108,7 +108,7 @@ class ApiShell extends Shell {
 
 			if ($File->exists()) {
 				if (!class_exists($class)) {
-					include($File->getFullPath());
+					include($File->pwd());
 				}
 				if (class_exists($class)) {
 					break;
@@ -223,6 +223,7 @@ class ApiShell extends Shell {
 				loadComponent(null);
 				break;
 			case 'helper':
+				uses('view'.DS.'helper');
 				loadHelper(null);
 				break;
 			case 'model':

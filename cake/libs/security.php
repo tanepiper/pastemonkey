@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: security.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: security.php 5687 2007-09-24 09:56:25Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v .0.10.0.1233
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5687 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-24 10:56:25 +0100 (Mon, 24 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -80,7 +80,10 @@ class Security extends Object{
   */
 	function generateAuthKey() {
 		$_this =& Security::getInstance();
-		return $_this->hash(uniqid(rand(), true));
+		if(!class_exists('String')) {
+			uses('string');
+		}
+		return $_this->hash(String::uuid());
 	}
 /**
  * Validate authorization hash.

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: home.ctp 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: home.ctp 5629 2007-09-11 20:48:37Z gwoo $ */
 /**
  *
  * PHP versions 4 and 5
@@ -18,13 +18,17 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.templates.pages
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5629 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-11 21:48:37 +0100 (Tue, 11 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 ?>
-<?php Debugger::checkSessionKey(); ?>
+<?php
+if(Configure::read() > 0):
+	Debugger::checkSessionKey();
+endif;
+?>
 <p>
 	<span class="notice">
 		<?php
@@ -57,8 +61,10 @@
 			else:
 				__('NOT working.');
 				echo '<br />';
-				if (is_writable(TMP)):
-					__('Edit: config/core.php to insure you have the newset version of this file and the variable $cakeCache set properly');
+				if (is_writable(TMP . 'cache')):
+					__('Edit: config/core.php to insure you have the newset version of this file and the variable \$cakeCache set properly');
+				else:
+					__('Your cache directory is not writable');
 				endif;
 			endif;
 		?>
@@ -75,7 +81,7 @@
 			else:
 				__('NOT present.');
 				echo '<br/>';
-				__('Rename config/database.php.default to config/database.php');
+				__('Rename config'.DS.'database.php.default to config'.DS.'database.php');
 			endif;
 		?>
 	</span>
@@ -107,13 +113,12 @@ if (!empty($filePresent)):
 <?php __('To change the content of this page, create: /app/views/pages/home.ctp.'); ?><br />
 <?php __('To change its layout, create: /app/views/layouts/default.ctp.'); ?><br />
 <a href="http://manual.cakephp.org/"><?php __('See the views section of the manual for more info.'); ?> </a><br />
-<?php __('You can also add some CSS styles for your pages at: app/webroot/css/.'); ?>
+<?php __('You can also add some CSS styles for your pages at: /app/webroot/css/.'); ?>
 </p>
 <h2><?php __('Getting Started'); ?></h2>
 <p>
-<a href="http://manual.cakephp.org/appendix/blog_tutorial"><?php __('The 15 min Blog Tutorial'); ?></a><br />
-<a href="http://www-128.ibm.com/developerworks/edu/os-dw-os-php-cake1.html"><?php __('Cook up Web sites fast with CakePHP'); ?></a><br />
-<a href="http://www-128.ibm.com/developerworks/edu/os-dw-os-php-wiki1.html"><?php __('Create an interactive production wiki using PHP'); ?></a>
+	<a href="http://manual.cakephp.org/appendix/blog_tutorial"><?php __('The 15 min Blog Tutorial'); ?></a><br />
+	<a href="http://cakephp.org/files/OCPHP.pdf"><?php __('The OCPHP presentation on new features in 1.2'); ?></a><br />
 </p>
 <h2><?php __('More about Cake'); ?></h2>
 <p>

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: error.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: error.php 5563 2007-08-21 21:46:59Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.10.5.1732
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5563 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-21 22:46:59 +0100 (Tue, 21 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('sanitize');
@@ -64,13 +64,11 @@ class ErrorHandler extends Object{
 			require CAKE . 'dispatcher.php';
 		}
 		$this->__dispatch =& new Dispatcher();
-
+		if (!class_exists('appcontroller')) {
+			loadController(null);
+		}
 		if ($__previousError != array($method, $messages)) {
 			$__previousError = array($method, $messages);
-
-			if (!class_exists('AppController')) {
-				loadController(null);
-			}
 
 			$this->controller =& new AppController();
 			if (!empty($this->controller->uses)) {
@@ -84,7 +82,7 @@ class ErrorHandler extends Object{
 				return $this->controller->appError($method, $messages);
 			}
 		} else {
-			$this->controller =& new Controller();
+			$this->controller =& new AppController();
 			$this->controller->cacheAction = false;
 		}
 		if (Configure::read() > 0 || $method == 'error') {

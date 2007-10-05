@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: configure.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: configure.php 5700 2007-09-30 07:45:34Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.0.0.2363
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5700 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -99,6 +99,74 @@ class Configure extends Object {
 		return $instance[0];
 	}
 /**
+ * Returns an index of objects of the given type, with the physical path to each object
+ *
+ * @param string	$type Type of object, i.e. 'model', 'controller', 'helper', or 'plugin'
+ * @param mixed		$path Optional
+ * @return Configure instance
+ * @access public
+ */
+	function listObjects($type, $path = null) {
+		$_this =& Configure::getInstance();
+		$Inflector =& Inflector::getInstance();
+
+		$types = array(
+			'model'			=> array('suffix' => '.php', 'base' => 'AppModel'),
+			'controller'	=> array('suffix' => '_controller.php', 'base' => 'AppController'),
+			'helper'		=> array('suffix' => '.php', 'base' => 'AppHelper'),
+			'plugin'		=> array('suffix' => '', 'base' => null),
+			'class'			=> array('suffix' => '.php', 'base' => null)
+		);
+
+		if (!isset($types[$type])) {
+			return false;
+		}
+		if (empty($path)) {
+			$pathVar = $type . 'Paths';
+			$path = $_this->{$pathVar};
+		}
+		$objects = array();
+
+		foreach ((array)$path as $dir) {
+			$items = $_this->__list($dir, $types[$type]['suffix']);
+			$objects = am($items, $objects);
+
+			/*if (file_exists($path . $name . '.php')) {
+				Configure::store('Models', 'class.paths', array($className => array('path' => $path . $name . '.php')));
+				require($path . $name . '.php');
+				return true;
+			}*/
+		}
+		return array_map(array(&$Inflector, 'camelize'), $objects);
+	}
+/**
+ * Returns an array of filenames of PHP files in given directory.
+ *
+ * @param  string $path Path to scan for files
+ * @param  string $suffix if false, return only directories. if string, match and return files
+ * @return array  List of directories or files in directory
+ */
+	function __list($path, $suffix = false) {
+		if(!class_exists('folder')) {
+			uses('folder');
+		}
+		$items = array();
+		$Folder =& new Folder($path);
+		$contents = $Folder->read(false, true);
+		if(is_array($contents)) {
+			if(!$suffix) {
+				return $contents[0];
+			} else {
+				foreach($contents[1] as $item) {
+					if (substr($item, -strlen($suffix)) == $suffix) {
+						$items[] = substr($item, 0, strlen($item) - strlen($suffix));
+					}
+				}
+			}
+		}
+		return $items;
+	}
+/**
  * Used to write a dynamic var in the Configure instance.
  *
  * Usage
@@ -170,7 +238,11 @@ class Configure extends Object {
 		$_this =& Configure::getInstance();
 		if ($var === 'debug') {
 			if (!isset($_this->debug)) {
-				$_this->debug = DEBUG;
+				if (defined('DEBUG')) {
+					$_this->debug = DEBUG;
+				} else {
+					$_this->debug = 0;
+				}
 			}
 			return $_this->debug;
 		}
@@ -221,11 +293,12 @@ class Configure extends Object {
  */
 	function load($fileName) {
 		$_this =& Configure::getInstance();
-
 		if (file_exists(CONFIGS . $fileName . '.php')) {
 			include(CONFIGS . $fileName . '.php');
 		} elseif (file_exists(CACHE . 'persistent' . DS . $fileName . '.php')) {
 			include(CACHE . 'persistent' . DS . $fileName . '.php');
+		} elseif (file_exists(CAKE_CORE_INCLUDE_PATH . DS . 'cake' . DS . 'config' . DS . $fileName . '.php')) {
+			include(CAKE_CORE_INCLUDE_PATH . DS . 'cake' . DS . 'config' . DS . $fileName . '.php');
 		} else {
 			return false;
 		}
@@ -426,6 +499,21 @@ class Configure extends Object {
 		}
 	}
 /**
+ * Sets the var pluginPaths
+ *
+ * @param array $pluginPaths Path to plugins
+ * @access private
+ */
+	function __buildPluginPaths($pluginPaths) {
+		$_this =& Configure::getInstance();
+		$_this->pluginPaths[] = APP . 'plugins' . DS;
+		if (isset($pluginPaths)) {
+			foreach ($pluginPaths as $value) {
+				$_this->pluginPaths[] = $value;
+			}
+		}
+	}
+/**
  * Loads the app/config/bootstrap.php
  * If the alternative paths are set in this file
  * they will be added to the paths vars
@@ -435,23 +523,50 @@ class Configure extends Object {
  */
 	function __loadBootstrap($boot) {
 		$_this =& Configure::getInstance();
+
 		$modelPaths = null;
 		$viewPaths = null;
 		$controllerPaths = null;
 		$helperPaths = null;
 		$componentPaths = null;
 		$behaviorPaths = null;
+		$pluginPaths = null;
+
 		if ($boot) {
+			if (!require_once(APP_PATH . 'config' . DS . 'core.php')) {
+				trigger_error(sprintf(__("Can't find application core file. Please create %score.php, and make sure it is readable by PHP.", true), CONFIGS), E_USER_ERROR);
+			}
 			if (!include(APP_PATH . 'config' . DS . 'bootstrap.php')) {
 				trigger_error(sprintf(__("Can't find application bootstrap file. Please create %sbootstrap.php, and make sure it is readable by PHP.", true), CONFIGS), E_USER_ERROR);
 			}
 		}
+
 		$_this->__buildModelPaths($modelPaths);
 		$_this->__buildViewPaths($viewPaths);
 		$_this->__buildControllerPaths($controllerPaths);
 		$_this->__buildHelperPaths($helperPaths);
 		$_this->__buildComponentPaths($componentPaths);
 		$_this->__buildBehaviorPaths($behaviorPaths);
+		$_this->__buildPluginPaths($pluginPaths);
+
+		$baseUrl = false;
+		if (defined('BASE_URL')) {
+			$baseUrl = BASE_URL;
+		}
+		$_this->write('App', array('base' => false, 'baseUrl' => $baseUrl, 'dir' => APP_DIR, 'webroot' => WEBROOT_DIR));
+
+		if (defined('DEBUG')) {
+			trigger_error('Deprecated: Use Configure::write(\'debug\', ' . DEBUG . ');', E_USER_WARNING);
+			$_this->write('debug', DEBUG);
+		}
+		if (defined('CAKE_ADMIN')) {
+			trigger_error('Deprecated: Use Configure::write(\'Routing.admin\', ' . CAKE_ADMIN . ');', E_USER_WARNING);
+			$_this->write('Routing.admin', CAKE_ADMIN);
+		}
+		if (defined('WEBSERVICES')) {
+			trigger_error('Deprecated: Use Router::parseExtensions();', E_USER_WARNING);
+			$_this->write('Routing.webservices', WEBSERVICES);
+		}
 	}
 }
 ?>

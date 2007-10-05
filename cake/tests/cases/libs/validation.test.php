@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: validation.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: validation.test.php 5461 2007-07-25 14:22:14Z dho $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5461 $
+ * @modifiedby		$LastChangedBy: dho $
+ * @lastmodified	$Date: 2007-07-25 15:22:14 +0100 (Wed, 25 Jul 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('validation');
@@ -45,6 +45,7 @@ class ValidationTestCase extends UnitTestCase {
 		$this->assertTrue($this->Validation->alphaNumeric('frferrf'));
 		$this->assertTrue($this->Validation->alphaNumeric('12234'));
 		$this->assertTrue($this->Validation->alphaNumeric('1w2e2r3t4y'));
+		$this->assertTrue($this->Validation->alphaNumeric('0'));
 		$this->assertFalse($this->Validation->alphaNumeric('12 234'));
 		$this->assertFalse($this->Validation->alphaNumeric('dfd 234'));
 		$this->assertFalse($this->Validation->alphaNumeric("\n"));
@@ -58,6 +59,7 @@ class ValidationTestCase extends UnitTestCase {
 		$this->assertTrue($this->Validation->alphaNumeric(array('check' => 'frferrf')));
 		$this->assertTrue($this->Validation->alphaNumeric(array('check' => '12234')));
 		$this->assertTrue($this->Validation->alphaNumeric(array('check' => '1w2e2r3t4y')));
+		$this->assertTrue($this->Validation->alphaNumeric(array('check' => '0')));
 		$this->assertFalse($this->Validation->alphaNumeric(array('check' => '12 234')));
 		$this->assertFalse($this->Validation->alphaNumeric(array('check' => 'dfd 234')));
 		$this->assertFalse($this->Validation->alphaNumeric(array('check' => "\n")));

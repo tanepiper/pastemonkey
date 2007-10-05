@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_pear.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: dbo_pear.php 5460 2007-07-25 04:38:28Z phpnut $ */
 
 /**
  * {@link http://pear.php.net/package/DB PEAR::DB} layer for DBO.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5318 $
+ * @version			$Revision: 5460 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @lastmodified	$Date: 2007-07-25 05:38:28 +0100 (Wed, 25 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -224,5 +224,18 @@ class DboPear extends DboSource{
 	 function selectLimit($limit, $offset = '0') {
 		  return ' ' . $this->_pear->modifyLimitQuery('', $offset, $limit);
 	 }
+/**
+ * Inserts multiple values into a join table
+ *
+ * @param string $table
+ * @param string $fields
+ * @param array $values
+ */
+	function insertMulti($table, $fields, $values) {
+		$count = count($values);
+		for ($x = 0; $x < $count; $x++) {
+			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
+		}
+	}
 }
 ?>

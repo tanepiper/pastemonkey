@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: author_fixture.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: author_fixture.php 5573 2007-08-23 22:38:04Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.fixtures
  * @since			CakePHP(tm) v 1.2.0.4667
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5573 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-23 23:38:04 +0100 (Thu, 23 Aug 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /**
@@ -35,7 +35,7 @@
 class AuthorFixture extends CakeTestFixture {
 	var $name = 'Author';
 	var $fields = array(
-		'id' => array('type' => 'integer', 'key' => 'primary'),
+		'id' => array('type' => 'integer', 'key' => 'primary', 'extra'=> 'auto_increment'),
 		'user' => array('type' => 'string', 'null' => false),
 		'password' => array('type' => 'string', 'null' => false),
 		'created' => 'datetime',

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: view.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: view.php 5589 2007-08-27 20:54:11Z gwoo $ */
 /**
  * The View Tasks handles creating and updating view files.
  *
@@ -21,11 +21,12 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs.tasks
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5589 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-27 21:54:11 +0100 (Mon, 27 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+uses('controller'.DS.'controller');
 /**
  * Task class for creating and updating view files.
  *
@@ -103,11 +104,7 @@ class ViewTask extends Shell {
 			} else {
 				$vars = $this->__loadController();
 				if ($vars) {
-					$protected = array( 'object', low($this->controllerName. 'Controller'), 'controller', 'appcontroller',
-						'tostring', 'requestaction', 'log', 'cakeerror', 'constructclasses', 'redirect', 'set', 'setaction',
-						'validate', 'validateerrors', 'render', 'referer', 'flash', 'flashout', 'generatefieldnames',
-						'postconditions', 'cleanupfields', 'beforefilter', 'beforerender', 'afterfilter', 'disablecache', 'paginate');
-
+					$protected = array_map('strtolower', get_class_methods('appcontroller'));
 					$classVars = get_class_vars($this->controllerName . 'Controller');
 					if (array_key_exists('scaffold', $classVars)) {
 						$methods = $this->scaffoldActions;
@@ -116,8 +113,9 @@ class ViewTask extends Shell {
 					}
 					$adminDelete = null;
 
-					if (defined('CAKE_ADMIN')) {
-						$adminDelete = CAKE_ADMIN.'_delete';
+					$adminRoute = Configure::read('Routing.admin');
+					if (!empty($adminRoute)) {
+						$adminDelete = $adminRoute.'_delete';
 					}
 					foreach ($methods as $method) {
 						if ($method{0} != '_' && !in_array(low($method), am($protected, array('delete', $adminDelete)))) {
@@ -164,17 +162,15 @@ class ViewTask extends Shell {
 		}
 
 		if (low($wannaDoScaffold) == 'y' || low($wannaDoScaffold) == 'yes') {
-			$file = CONTROLLERS . $this->controllerPath . '_controller.php';
-
+			$actions = $this->scaffoldActions;
 			if ($admin) {
-				foreach ($this->scaffoldActions as $action) {
-					$this->scaffoldActions[] = $admin . $action;
+				foreach ($actions as $action) {
+					$actions[] = $admin . $action;
 				}
 			}
 			$vars = $this->__loadController();
-
 			if ($vars) {
-				foreach ($this->scaffoldActions as $action) {
+				foreach ($actions as $action) {
 					$content = $this->getContent($action, $vars);
 					$this->bake($action, $content);
 				}
@@ -223,6 +219,7 @@ class ViewTask extends Shell {
 			$this->err('could not find the controller');
 		}
 
+		$controllerClassName = $this->controllerName . 'Controller';
 		if (!class_exists($this->controllerName . 'Controller') && !loadController($this->controllerName)) {
 			$file = CONTROLLERS . $this->controllerPath . '_controller.php';
 			$shortPath = $this->shortPath($file);
@@ -230,7 +227,6 @@ class ViewTask extends Shell {
 			exit();
 		}
 
-		$controllerClassName = $this->controllerName . 'Controller';
 		$controllerObj = & new $controllerClassName();
 		$controllerObj->constructClasses();
 		$modelClass = $controllerObj->modelClass;
@@ -290,10 +286,10 @@ class ViewTask extends Shell {
 		}
 		$action = $template;
 
-		if (defined('CAKE_ADMIN') && strpos($template, CAKE_ADMIN) !== false) {
-			$template = str_replace(CAKE_ADMIN.'_', '', $template);
+		$adminRoute = Configure::read('Routing.admin');
+		if (!empty($adminRoute) && strpos($template, $adminRoute) !== false) {
+			$template = str_replace($adminRoute.'_', '', $template);
 		}
-
 		if (in_array($template, array('add', 'edit'))) {
 			$action = $template;
 			$template = 'form';
@@ -309,7 +305,6 @@ class ViewTask extends Shell {
 		if (!$vars) {
 			$vars = $this->__loadController();
 		}
-
 		if ($loaded) {
 			extract($vars);
 			ob_start();
@@ -318,7 +313,6 @@ class ViewTask extends Shell {
 			$content = ob_get_clean();
 			return $content;
 		}
-
 		$this->err('Template for '. $template .' could not be found');
 		return false;
 	}

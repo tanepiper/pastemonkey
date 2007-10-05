@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: error.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: error.php 5299 2007-06-19 13:56:25Z mariano.iglesias $ */
 /**
  * ErrorHandler for Console Shells
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console
  * @since			CakePHP(tm) v 1.2.0.5074
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5299 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-06-19 14:56:25 +0100 (Tue, 19 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**

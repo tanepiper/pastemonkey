@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: connection_manager.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: connection_manager.php 5513 2007-08-11 21:52:23Z nate $ */
 
 /**
  * Short description for file.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model
  * @since			CakePHP(tm) v 0.10.x.1402
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5513 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-08-11 22:52:23 +0100 (Sat, 11 Aug 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -112,6 +112,15 @@ class ConnectionManager extends Object {
 		}
 
 		return $_this->_dataSources[$name];
+	}
+/**
+ * Gets the list of available DataSource connections
+ *
+ * @return array
+ */
+	function sourceList() {
+		$_this =& ConnectionManager::getInstance();
+		return array_keys($_this->_dataSources);
 	}
 /**
  * Gets a DataSource name from an object reference

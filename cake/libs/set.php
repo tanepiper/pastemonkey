@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: set.php 5422 2007-07-09 05:23:06Z phpnut $ */
+/* SVN FILE: $Id: set.php 5652 2007-09-16 18:22:17Z nate $ */
 /**
  * Library of array functions for Cake.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5422 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
+ * @version			$Revision: 5652 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-09-16 19:22:17 +0100 (Sun, 16 Sep 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -115,8 +115,7 @@ class Set extends Object {
  */
 	function filter($var, $isArray = false) {
 		if (is_array($var) && (!empty($var) || $isArray)) {
-			$set = new Set();
-			return array_filter($var, array(&$set, 'filter'));
+			return array_filter($var, array('Set', 'filter'));
 		} else {
 			if ($var === 0 || $var === '0' || !empty($var)) {
 				return true;
@@ -129,7 +128,7 @@ class Set extends Object {
  * Pushes the differences in $array2 onto the end of $array
  *
  * @param mixed $array Original array
- * @param mixed $array2 Diferences to push
+ * @param mixed $array2 Differences to push
  * @return array Combined array
  * @access public
  */
@@ -304,6 +303,51 @@ class Set extends Object {
 		return $return;
 	}
 /**
+ * Returns a series of values extracted from an array, formatted in a format string.
+ *
+ * @param array		$data Source array from which to extract the data
+ * @param string	$format Format string into which values will be inserted
+ * @param array		$keys An array containing one or more Set::extract()-style key paths
+ * @return array	An array of strings extracted from $keys and formatted with $format
+ * @access public
+ */
+	function format($data, $format, $keys) {
+
+		$extracted = array();
+		$count = count($keys);
+
+		if (!$count) {
+			return;
+		}
+
+		for ($i = 0; $i < $count; $i++) {
+			$extracted[] = Set::extract($data, $keys[$i]);
+		}
+
+		if (preg_match_all('/\{([0-9]+)\}/msi', $format, $keys) && isset($keys[1])) {
+			$out = array();
+			$keys = $keys[1];
+			$data = $extracted;
+			$count = count($data[0]);
+			$format = preg_split('/\{([0-9]+)\}/msi', $format);
+			$count2 = count($format);
+
+			for ($j = 0; $j < $count; $j++) {
+				$formatted = '';
+				for ($i = 0; $i <= $count2; $i++) {
+					if (isset($format[$i])) {
+						$formatted .= $format[$i];
+					}
+					if (isset($keys[$i]) && isset($data[$keys[$i]][$j])) {
+						$formatted .= $data[$keys[$i]][$j];
+					}
+				}
+				$out[] = $formatted;
+			}
+		}
+		return $out;
+	}
+/**
  * Gets a value from an array or object that maps a given path.
  * The special {n}, as seen in the Model::generateList method, is taken care of here.
  *
@@ -341,7 +385,14 @@ class Set extends Object {
 				}
 			} elseif ($key == '{n}') {
 				foreach ($data as $j => $val) {
-					$tmp[] = Set::extract($val, array_slice($path, $i + 1));
+					if (is_int($j)) {
+						$tmpPath = array_slice($path, $i + 1);
+						if (empty($tmpPath)) {
+							$tmp[] = $val;
+						} else {
+							$tmp[] = Set::extract($val, $tmpPath);
+						}
+					}
 				}
 				return $tmp;
 			} else {
@@ -473,20 +524,29 @@ class Set extends Object {
 			$val2 = $val1;
 			$val1 = $this->get();
 		}
+
 		if (is_object($val2) && (is_a($val2, 'set') || is_a($val2, 'Set'))) {
 			$val2 = $val2->get();
 		}
-
 		$out = array();
+
 		if (empty($val1)) {
 			return (array)$val2;
 		} elseif (empty($val2)) {
 			return (array)$val1;
 		}
+
 		foreach ($val1 as $key => $val) {
-			if (isset($val2[$key]) && $val2[$key] != $val) {
+			if (array_key_exists($key, $val2) && $val2[$key] != $val) {
 				$out[$key] = $val;
 			} elseif (!array_key_exists($key, $val2)) {
+				$out[$key] = $val;
+			}
+			unset($val2[$key]);
+		}
+
+		foreach ($val2 as $key => $val) {
+			if (!array_key_exists($key, $out)) {
 				$out[$key] = $val;
 			}
 		}
@@ -622,7 +682,7 @@ class Set extends Object {
 			$path2 = $path1;
 			$path1 = $data;
 			$data = $this->get();
-		} else if (is_a($this, 'set') && is_string($data) && empty($path2)) {
+		} elseif (is_a($this, 'set') && is_string($data) && empty($path2)) {
 			$path2 = $path1;
 			$path1 = $data;
 			$data = $this->get();
@@ -632,13 +692,21 @@ class Set extends Object {
 			$data = get_object_vars($data);
 		}
 
-		$keys = Set::extract($data, $path1);
+		if (is_array($path1)) {
+			$format = array_shift($path2);
+			$keys = Set::format($data, $format, $path1);
+		} else {
+			$keys = Set::extract($data, $path1);
+		}
 
-		if (!empty($path2)) {
+		if (!empty($path2) && is_array($path2)) {
+			$format = array_shift($path2);
+			$vals = Set::format($data, $format, $path2);
+		} elseif (!empty($path2)) {
 			$vals = Set::extract($data, $path2);
 		} else {
 			$count = count($keys);
-			for($i=0; $i < $count; $i++) {
+			for ($i = 0; $i < $count; $i++) {
 				$vals[$i] = null;
 			}
 		}
@@ -709,7 +777,7 @@ class Set extends Object {
 			}
 			$return = $object;
 
-			if(!empty($merge)) {
+			if (!empty($merge)) {
 				$mergeKeys = array_keys($merge);
 				$objectKeys = array_keys($object);
 				$count = count($mergeKeys);
@@ -720,8 +788,8 @@ class Set extends Object {
 					$loop = $count1;
 
 					for ($ii = 0; $ii < $loop; $ii++) {
-						if(is_array($object[$objectKeys[$ii]])) {
-							if(array_key_exists($objectKeys[$ii], $object[$objectKeys[$ii]])) {
+						if (is_array($object[$objectKeys[$ii]])) {
+							if (array_key_exists($objectKeys[$ii], $object[$objectKeys[$ii]])) {
 								unset($change[$objectKeys[$ii]][$objectKeys[$ii]]);
 							}
 						} else {
@@ -730,8 +798,8 @@ class Set extends Object {
 					}
 
 					foreach ($objectKeys as $key => $value) {
-						if(is_array($object[$value])) {
-							if(array_key_exists($mergeKeys[$i], $object[$value])) {
+						if (is_array($object[$value])) {
+							if (array_key_exists($mergeKeys[$i], $object[$value])) {
 								unset($change[$value][$mergeKeys[$i]]);
 							}
 						} else {

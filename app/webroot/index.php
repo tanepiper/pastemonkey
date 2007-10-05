@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: index.php 5118 2007-05-18 17:19:53Z phpnut $ */
+/* SVN FILE: $Id: index.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.app.webroot
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5118 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -53,7 +53,7 @@
 	if (!defined('CAKE_CORE_INCLUDE_PATH')) {
 		 //define ('CAKE_CORE_INCLUDE_PATH', 'FULL PATH TO DIRECTORY WHERE CAKE CORE IS INSTALLED. DO NOT ADD A TRAILING DIRECTORY SEPARATOR');
 		 //You should also use the DS define to separate your directories
-		define('CAKE_CORE_INCLUDE_PATH', '/home/pastemonkey/pastemonkey.org');
+		 define('CAKE_CORE_INCLUDE_PATH', ROOT);
 	}
 ///////////////////////////////
 //DO NOT EDIT BELOW THIS LINE//
@@ -74,7 +74,9 @@
 			  define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 		 }
 	}
-	require CORE_PATH . 'cake' . DS . 'bootstrap.php';
+	if (!include(CORE_PATH . 'cake' . DS . 'bootstrap.php')) {
+		trigger_error("Can't find CakePHP core.  Check the value of CAKE_CORE_INCLUDE_PATH in app/webroot/index.php.  It should point to the directory containing your " . DS . "cake core directory and your " . DS . "vendors root directory.", E_USER_ERROR);
+	}
 	if (isset($_GET['url']) && $_GET['url'] === 'favicon.ico') {
 	} else {
 		 $Dispatcher=new Dispatcher();

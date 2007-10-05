@@ -1,4 +1,4 @@
-# $Id: db_acl.sql 5118 2007-05-18 17:19:53Z phpnut $
+# $Id: db_acl.sql 4882 2007-04-26 09:18:35Z dho $
 #
 # Copyright 2005-2007,	Cake Software Foundation, Inc.
 #								1785 E. Sahara Avenue, Suite 490-204

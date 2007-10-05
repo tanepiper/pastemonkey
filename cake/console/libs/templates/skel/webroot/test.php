@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: test.php 5318 2007-06-20 09:01:21Z phpnut $ */
+/* SVN FILE: $Id: test.php 5547 2007-08-18 21:24:42Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.tests.libs
  * @since			CakePHP(tm) v 1.2.0.4433
- * @version			$Revision: 5318 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
+ * @version			$Revision: 5547 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-08-18 22:24:42 +0100 (Sat, 18 Aug 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 error_reporting(E_ALL);
@@ -59,12 +59,13 @@ if (!defined('CORE_PATH')) {
 }
 
 ini_set('display_errors', 1);
-require_once CORE_PATH . 'cake' . DS . 'bootstrap.php';
-require_once CAKE . 'basics.php';
-require_once CAKE . 'config' . DS . 'paths.php';
+if (!include(CORE_PATH . 'cake' . DS . 'bootstrap.php')) {
+	trigger_error("Can't find CakePHP core.  Check the value of CAKE_CORE_INCLUDE_PATH in app/webroot/test.php.  It should point to the directory containing your " . DS . "cake core directory and your " . DS . "vendors root directory.", E_USER_ERROR);
+}
 require_once CAKE . 'tests' . DS . 'lib' . DS . 'test_manager.php';
-if (DEBUG < 1) {
-	die('Invalid url.');
+
+if (Configure::read('debug') < 1) {
+	die(__('Debug setting does not allow access to this url.', true));
 }
 
 if (!isset($_SERVER['SERVER_NAME'])) {
@@ -74,10 +75,10 @@ if (empty( $_GET['output'])) {
 	$_GET['output'] = 'html';
 }
 
-if (!defined('BASE_URL')) {
-	$dispatch =& new Dispatcher();
-	define('BASE_URL', $dispatch->baseUrl());
-}
+$dispatch =& new Dispatcher();
+$dispatch->baseUrl();
+define('BASE', $dispatch->webroot);
+
 /**
  *
  * Used to determine output to display
@@ -179,7 +180,7 @@ if (!vendor('simpletest' . DS . 'reporter')) {
 	function CakePHPTestHeader() {
 		switch (CAKE_TEST_OUTPUT) {
 			case CAKE_TEST_OUTPUT_HTML:
-				$baseUrl = BASE_URL;
+				$baseUrl = BASE;
 				$characterSet = 'ISO-8859-1';
 				include CAKE . 'tests' . DS . 'lib' . DS . 'header.php';
 			break;
@@ -203,7 +204,7 @@ if (!vendor('simpletest' . DS . 'reporter')) {
 	function CakePHPTestSuiteFooter() {
 		switch ( CAKE_TEST_OUTPUT) {
 			case CAKE_TEST_OUTPUT_HTML:
-				$baseUrl = BASE_URL;
+				$baseUrl = BASE;
 				include CAKE . 'tests' . DS . 'lib' . DS . 'footer.php';
 			break;
 		}
