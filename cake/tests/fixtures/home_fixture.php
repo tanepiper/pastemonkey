@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: home_fixture.php 5573 2007-08-23 22:38:04Z gwoo $ */
+/* SVN FILE: $Id: home_fixture.php 4925 2007-04-29 09:46:55Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.fixtures
  * @since			CakePHP(tm) v 1.2.0.4667
- * @version			$Revision: 5573 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-23 23:38:04 +0100 (Thu, 23 Aug 2007) $
+ * @version			$Revision: 4925 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-04-29 10:46:55 +0100 (Sun, 29 Apr 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /**
@@ -35,7 +35,7 @@
 class HomeFixture extends CakeTestFixture {
 	var $name = 'Home';
 	var $fields = array(
-		'id' => array('type' => 'integer', 'key' => 'primary', 'extra'=> 'auto_increment'),
+		'id' => array('type' => 'integer', 'key' => 'primary'),
 		'another_article_id' => array('type' => 'integer', 'null' => false),
 		'advertisement_id' => array('type' => 'integer', 'null' => false),
 		'title' => array('type' => 'string', 'null' => false),

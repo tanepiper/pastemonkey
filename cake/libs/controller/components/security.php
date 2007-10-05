@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: security.php 5696 2007-09-27 00:38:03Z phpnut $ */
+/* SVN FILE: $Id: security.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller.components
  * @since			CakePHP(tm) v 0.10.8.2156
- * @version			$Revision: 5696 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-27 01:38:03 +0100 (Thu, 27 Sep 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -128,9 +128,9 @@ class SecurityComponent extends Object {
  */
 	var $components = array('RequestHandler', 'Session');
 /**
- * Security class initialization
+ * Security class constructor
  */
-	function initialize(&$controller) {
+	function __construct () {
 		$this->Security =& Security::getInstance();
 	}
 /**
@@ -495,7 +495,7 @@ class SecurityComponent extends Object {
 				if ($string === '_') {
 					$newKey = substr($key, 1);
 
-					if (!isset($controller->data[$newKey])) {
+					if(!isset($controller->data[$newKey])) {
 						$controller->data[$newKey] = array();
 					}
 
@@ -524,8 +524,7 @@ class SecurityComponent extends Object {
 					$field[$key] = array_merge($merge, $field[$key]);
 				}
 			}
-			ksort($field);
-			$check = urlencode(Security::hash(serialize($field) . CAKE_SESSION_STRING));
+			$check = urlencode(Security::hash(serialize(sort($field)) . CAKE_SESSION_STRING));
 
 			if ($form !== $check) {
 				if (!$this->blackHole($controller, 'auth')) {
@@ -570,7 +569,7 @@ class SecurityComponent extends Object {
 		$options = am(array('type' => 'basic',
 							'realm' => env('SERVER_NAME'),
 							'qop' => 'auth',
-							'nonce' => String::uuid()),
+							'nonce' => uniqid()),
 							array_filter($options));
 		$options = am(array('opaque' => md5($options['realm'])), $options);
 	}

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: content.php 4442 2007-02-04 04:58:32Z gwoo $ */
+/* SVN FILE: $Id: content.php 4451 2007-02-05 05:32:30Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.tests.lib
  * @since			CakePHP(tm) v 1.2.0.4433
- * @version			$Revision: 4442 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-02-04 04:58:32 +0000 (Sun, 04 Feb 2007) $
+ * @version			$Revision: 4451 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-02-05 05:32:30 +0000 (Mon, 05 Feb 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 ?>

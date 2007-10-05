@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: class_registry.php 5675 2007-09-20 14:50:42Z nate $ */
+/* SVN FILE: $Id: class_registry.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Class collections.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.9.2
- * @version			$Revision: 5675 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-20 15:50:42 +0100 (Thu, 20 Sep 2007) $
+ * @version			$Revision: 5318 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -69,7 +69,6 @@ class ClassRegistry {
  *
  * @param string $key	Key for the object in registry
  * @param mixed $object	Object to store
- * @return boolean True if the object was written, false if $key already exists
  * @access public
  */
 	function addObject($key, &$object) {
@@ -77,9 +76,7 @@ class ClassRegistry {
 		$key = Inflector::underscore($key);
 		if (array_key_exists($key, $_this->__objects) === false) {
 			$_this->__objects[$key] = &$object;
-			return true;
 		}
-		return false;
 	}
 /**
  * Remove object which corresponds to given key.

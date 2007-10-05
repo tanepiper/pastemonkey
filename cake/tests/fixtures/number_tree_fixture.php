@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: number_tree_fixture.php 5573 2007-08-23 22:38:04Z gwoo $ */
+/* SVN FILE: $Id: number_tree_fixture.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Tree behavior class.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.fixtures
  * @since			CakePHP(tm) v 1.2.0.5331
- * @version			$Revision: 5573 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-23 23:38:04 +0100 (Thu, 23 Aug 2007) $
+ * @version			$Revision: 5422 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /**
@@ -36,11 +36,11 @@
  */
 class NumberTreeFixture extends CakeTestFixture {
 	var $name = 'NumberTree';
-	var $fields = array (	'id' => array (
-				'type' => 'integer','key' => 'primary', 'extra'=> 'auto_increment'),
+	var $fields = array ('id' => array (
+				'type' => 'integer','key' => 'primary'),
 				'name' => array ('type' => 'string','null' => false),
 				'parent_id' => 'integer',
-				'lft' => array ('type' => 'integer','null' => false),
-				'rght' => array ('type' => 'integer','null' => false));
+					'lft' => array ('type' => 'integer','null' => false),
+					'rght' => array ('type' => 'integer','null' => false));
 }
 ?>

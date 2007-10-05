@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: scaffold.php 5705 2007-09-30 21:56:59Z gwoo $ */
+/* SVN FILE: $Id: scaffold.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Scaffold.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller
  * @since		Cake v 0.10.0.1076
- * @version			$Revision: 5705 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 22:56:59 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5422 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -110,12 +110,24 @@ class Scaffold extends Object {
  */
 	var $plugin = null;
 /**
+ * Controller URL-generation data
+ *
+ * @var mixed
+ */
+	var $namedArgs = null;
+/**
+ * Controller URL-generation data
+ *
+ * @var string
+ */
+	var $argSeparator = null;
+/**
  * List of variables to collect from the associated controller
  *
  * @var array
  * @access protected
  */
-	var $__passedVars = array('action', 'base', 'webroot', 'layout', 'name', 'viewPath', 'ext', 'params', 'data', 'webservices', 'plugin', 'cacheAction');
+	var $__passedVars = array('action', 'base', 'webroot', 'layout', 'name', 'viewPath', 'ext', 'params', 'data', 'webservices', 'plugin', 'namedArgs', 'argSeparator', 'cacheAction');
 /**
  * Title HTML element for current scaffolded view
  *
@@ -263,7 +275,7 @@ class Scaffold extends Object {
 				} else {
 					return $this->controller->flash(sprintf(__("No id set for %s::edit()", true), Inflector::humanize($this->modelKey)), $this->redirect);
 				}
-			} elseif ($action == 'edit') {
+			} elseif($action == 'edit') {
 				$this->ScaffoldModel->id = $params['pass'][0];
 			}
 
@@ -301,17 +313,9 @@ class Scaffold extends Object {
 					$this->controller->data = $this->ScaffoldModel->create();
 				}
 			}
-
-			foreach ($this->ScaffoldModel->belongsTo as $assocName => $assocData) {
-				$varName = $assocName;
-				if($this->ScaffoldModel->name == $assocData['className']) {
-					$varName = $assocData['className'];
-				}
-				$this->controller->set(Inflector::pluralize(Inflector::variable($varName)), $this->ScaffoldModel->{$assocName}->generateList());
-			}
-
-			foreach($this->ScaffoldModel->hasAndBelongsToMany as $assocName => $assocData) {
-				$this->controller->set(Inflector::pluralize(Inflector::variable($varName)), $this->ScaffoldModel->{$assocName}->generateList());
+			$associations = am($this->ScaffoldModel->belongsTo, $this->ScaffoldModel->hasAndBelongsToMany);
+			foreach ($associations as $assocName => $assocData) {
+				$this->controller->set(Inflector::pluralize(Inflector::variable($assocName)), $this->ScaffoldModel->{$assocName}->generateList());
 			}
 
 			return $this->__scaffoldForm($formAction);
@@ -399,17 +403,16 @@ class Scaffold extends Object {
 	function __scaffold($params) {
 		$db = &ConnectionManager::getDataSource($this->ScaffoldModel->useDbConfig);
 
-        $admin = Configure::read('Routing.admin');
 		if (isset($db)) {
 			if (empty($this->scaffoldActions)) {
 				$this->scaffoldActions = array('index', 'list', 'view', 'add', 'create', 'edit', 'update', 'delete');
-			} elseif (!empty($admin) && $this->scaffoldActions === $admin) {
-				$this->scaffoldActions = array($admin .'_index', $admin .'_list', $admin .'_view', $admin .'_add', $admin .'_create', $admin .'_edit', $admin .'_update', $admin .'_delete');
+			} elseif (defined('CAKE_ADMIN') && $this->scaffoldActions == CAKE_ADMIN) {
+				$this->scaffoldActions = array(CAKE_ADMIN .'_index', CAKE_ADMIN .'_list', CAKE_ADMIN .'_view', CAKE_ADMIN .'_add', CAKE_ADMIN .'_create', CAKE_ADMIN .'_edit', CAKE_ADMIN .'_update', CAKE_ADMIN .'_delete');
 			}
 
 			if (in_array($params['action'], $this->scaffoldActions)) {
-				if (!empty($admin)) {
-					$params['action'] = str_replace($admin . '_', '', $params['action']);
+				if (defined('CAKE_ADMIN')) {
+					$params['action'] = str_replace(CAKE_ADMIN . '_', '', $params['action']);
 				}
 				switch($params['action']) {
 					case 'index':
@@ -491,19 +494,19 @@ class Scaffold extends Object {
 		foreach ($paths->viewPaths as $path) {
 			if (file_exists($path . $this->viewPath . DS . $this->subDir . $type . $scaffoldAction . $this->ext)) {
 				return $path . $this->viewPath . DS . $this->subDir . $type . $scaffoldAction . $this->ext;
-			} elseif (file_exists($path . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . $this->ext)) {
-				return $path . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . $this->ext;
+			} elseif (file_exists($path . $this->viewPath . DS . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . $this->ext)) {
+				return $path . $this->viewPath . DS . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . $this->ext;
 			} elseif (file_exists($path . $this->viewPath . DS . $this->subDir . $type . $scaffoldAction . '.ctp')) {
 				return $path . $this->viewPath . DS . $this->subDir . $type . $scaffoldAction . '.ctp';
 			} elseif (file_exists($path . $this->viewPath . DS . $this->subDir . $type . $scaffoldAction . '.thtml')) {
 				return $path . $this->viewPath . DS . $this->subDir . $type . $scaffoldAction . '.thtml';
-			} elseif (file_exists($path . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.ctp')) {
-				return $path . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.ctp';
-			} elseif (file_exists($path . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.thtml')) {
-				return $path . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.thtml';
+			} elseif (file_exists($path . $this->viewPath . DS . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.ctp')) {
+				return $path . $this->viewPath . DS . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.ctp';
+			} elseif (file_exists($path . $this->viewPath . DS . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.thtml')) {
+				return $path . $this->viewPath . DS . 'scaffolds' . DS . $this->subDir . $type . $scaffoldAction . '.thtml';
 			}
 		}
-		if ($action === 'add') {
+		if($action === 'add') {
 			$action = 'edit';
 		}
 		return LIBS . 'view' . DS . 'templates' . DS . 'scaffolds' . DS . $action . '.ctp';

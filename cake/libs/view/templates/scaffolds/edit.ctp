@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: edit.ctp 5315 2007-06-20 07:51:52Z phpnut $ */
+/* SVN FILE: $Id: edit.ctp 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  *
  * PHP versions 4 and 5
@@ -18,9 +18,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.templates.scaffolds
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5315 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 08:51:52 +0100 (Wed, 20 Jun 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 ?>

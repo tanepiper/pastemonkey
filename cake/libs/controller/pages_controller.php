@@ -1,9 +1,11 @@
 <?php
-/* SVN FILE: $Id: pages_controller.php 5644 2007-09-16 01:06:17Z phpnut $ */
+/* SVN FILE: $Id: pages_controller.php 4787 2007-04-05 18:10:39Z phpnut $ */
+
 /**
- * Static content controller.
+ * Short description for file.
  *
- * This file will render views from views/pages/
+ * This file is application-wide controller file. You can put all
+ * application-wide controller-related methods here.
  *
  * PHP versions 4 and 5
  *
@@ -21,69 +23,83 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5644 $
+ * @version			$Revision: 4787 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-16 02:06:17 +0100 (Sun, 16 Sep 2007) $
+ * @lastmodified	$Date: 2007-04-05 19:10:39 +0100 (Thu, 05 Apr 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+
 /**
- * Static content controller
+ * Short description for class.
  *
- * Override this controller by placing a copy in controllers directory of an application
+ * This file is application-wide controller file. You can put all
+ * application-wide controller-related methods here.
+ *
+ * Add your application-wide methods in the class below, your controllers
+ * will inherit them.
  *
  * @package		cake
  * @subpackage	cake.cake.libs.controller
  */
 class PagesController extends AppController{
+
 /**
- * Controller name
+ * Enter description here...
  *
- * @var string
+ * @var unknown_type
  */
-	var $name = 'Pages';
+	 var $name = 'Pages';
+
 /**
- * Default helper
+ * Enter description here...
  *
- * @var array
+ * @var unknown_type
  */
-	var $helpers = array('Html');
+	 var $helpers = array('Html');
+
 /**
  * This controller does not use a model
  *
- * @var array
+ * @var $uses
  */
-	var $uses = array();
+	 var $uses = array();
+
 /**
  * Displays a view
  *
  */
-	function display() {
-		if (!func_num_args()) {
-			$this->redirect('/');
-		}
-		$path = func_get_args();
+	 function display() {
+		  if (!func_num_args()) {
+				$this->redirect('/');
+		  }
 
-		if (!count($path)) {
-			$this->redirect('/');
-		}
-		$count = count($path);
-		$page = null;
-		$subpage = null;
-		$title = null;
+		  $path=func_get_args();
 
-		if (!empty($path[0])) {
-			$page = $path[0];
-		}
-		if (!empty($path[1])) {
-			$subpage = $path[1];
-		}
-		if (!empty($path[$count - 1])) {
-			$title = Inflector::humanize($path[$count - 1]);
-		}
-		$this->set('page', $page);
-		$this->set('subpage', $subpage);
-		$this->set('title', $title);
-		$this->render(join('/', $path));
-	}
+		  if (!count($path)) {
+				$this->redirect('/');
+		  }
+
+		  $count  =count($path);
+		  $page   =null;
+		  $subpage=null;
+		  $title  =null;
+
+		  if (!empty($path[0])) {
+				$page = $path[0];
+		  }
+
+		  if (!empty($path[1])) {
+				$subpage = $path[1];
+		  }
+
+		  if (!empty($path[$count - 1])) {
+				$title = ucfirst($path[$count - 1]);
+		  }
+
+		  $this->set('page', $page);
+		  $this->set('subpage', $subpage);
+		  $this->set('title', $title);
+		  $this->render(join('/', $path));
+	 }
 }
 ?>

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_sqlite.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: dbo_sqlite.php 5318 2007-06-20 09:01:21Z phpnut $ */
 
 /**
  * SQLite layer for DBO
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.9.0
- * @version			$Revision: 5691 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -160,7 +160,8 @@ class DboSqlite extends DboSource {
 		$result = $this->fetchAll('PRAGMA table_info(' . $model->tablePrefix . $model->table . ')');
 
 		foreach ($result as $column) {
-			$fields[$column[0]['name']] = array(
+			$fields[] = array(
+				'name' => $column[0]['name'],
 				'type' => $this->column($column[0]['type']),
 				'null' => ! $column[0]['notnull'],
 				'default' => $column[0]['dflt_value']
@@ -392,18 +393,6 @@ class DboSqlite extends DboSource {
 		}
 		return null;
 	}
-/**
- * Inserts multiple values into a join table
- *
- * @param string $table
- * @param string $fields
- * @param array $values
- */
-	function insertMulti($table, $fields, $values) {
-		$count = count($values);
-		for ($x = 0; $x < $count; $x++) {
-			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
-		}
-	}
 }
+
 ?>

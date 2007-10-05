@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cookie.php 5590 2007-08-28 01:29:00Z phpnut $ */
+/* SVN FILE: $Id: cookie.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller.components
  * @since			CakePHP(tm) v 1.2.0.4213
- * @version			$Revision: 5590 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-08-28 02:29:00 +0100 (Tue, 28 Aug 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -116,7 +116,7 @@ class CookieComponent extends Object {
  * @var string
  * @access protected
  */
-	var $key = CAKE_SESSION_STRING;
+	var $key = CAKE_SESSION_COOKIE;
 /**
  * Values stored in the cookie.
  *
@@ -330,9 +330,10 @@ class CookieComponent extends Object {
 					unset($this->__values[$name][$key]);
 					$this->__delete("[$name][$key]");
 				}
+			} else {
+				unset($this->__values[$name]);
+				$this->__delete("[$name]");
 			}
-			unset($this->__values[$name]);
-			$this->__delete("[$name]");
 		}
 	}
 /**

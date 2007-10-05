@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: apc.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: apc.php 5135 2007-05-20 06:50:08Z phpnut $ */
 /**
  * APC storage engine for cache.
  *
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.cache
  * @since			CakePHP(tm) v 1.2.0.4933
- * @version			$Revision: 5700 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5135 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-05-20 07:50:08 +0100 (Sun, 20 May 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -33,22 +33,19 @@
  */
 class APCEngine extends CacheEngine {
 /**
- * Initialize the Cache Engine
+ * Set up the cache engine
  *
  * Called automatically by the cache frontend
- * To reinitialize the settings call Cache::engine('EngineName', [optional] settings = array());
  *
- * @see var $__defaults
- * @param array $setting array of setting for the engine
- * @return boolean True if the engine has been successfully initialized, false if not
+ * @param array $params	Associative array of parameters for the engine
+ * @return boolean	True if the engine has been succesfully initialized, false if not
  * @access public
  */
-	function init($settings = array()) {
-		parent::init($settings);
+	function init(&$params) {
 		return function_exists('apc_cache_info');
 	}
 /**
- * Write data for key into cache
+ * Write a value in the cache
  *
  * @param string $key Identifier for the data
  * @param mixed $value Data to be cached
@@ -56,11 +53,11 @@ class APCEngine extends CacheEngine {
  * @return boolean True if the data was succesfully cached, false on failure
  * @access public
  */
-	function write($key, &$value, $duration) {
+	function write($key, &$value, $duration = CACHE_DEFAULT_DURATION) {
 		return apc_store($key, $value, $duration);
 	}
 /**
- * Read a key from the cache
+ * Read a value from the cache
  *
  * @param string $key Identifier for the data
  * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
@@ -70,7 +67,7 @@ class APCEngine extends CacheEngine {
 		return apc_fetch($key);
 	}
 /**
- * Delete a key from the cache
+ * Delete a value from the cache
  *
  * @param string $key Identifier for the data
  * @return boolean True if the value was succesfully deleted, false if it didn't exist or couldn't be removed
@@ -80,13 +77,22 @@ class APCEngine extends CacheEngine {
 		return apc_delete($key);
 	}
 /**
- * Delete all keys from the cache
+ * Delete all values from the cache
  *
  * @return boolean True if the cache was succesfully cleared, false otherwise
  * @access public
  */
 	function clear() {
 		return apc_clear_cache('user');
+	}
+/**
+ * Return the settings for this cache engine
+ *
+ * @return array list of settings for this engine
+ * @access public
+ */
+	function settings() {
+		return array('class' => get_class($this));
 	}
 }
 ?>

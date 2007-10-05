@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: javascript.test.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: javascript.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package      test_suite
  * @subpackage   test_suite.cases.app
  * @since        CakePHP Test Suite v 1.0.0.0
- * @version      $Revision: 5691 $
+ * @version      $Revision: 5422 $
  * @modifiedby   $LastChangedBy: phpnut $
- * @lastmodified $Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified $Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license      http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 require_once CAKE.'app_helper.php';
@@ -48,20 +48,20 @@ class JavascriptTest extends UnitTestCase {
 		$result = $this->Javascript->link('script.js');
 		$expected = '<script type="text/javascript" src="js/script.js"></script>';
 		$this->assertEqual($result, $expected);
-
+		
 		$result = $this->Javascript->link('script');
 		$expected = '<script type="text/javascript" src="js/script.js"></script>';
 		$this->assertEqual($result, $expected);
-
+		
 		$result = $this->Javascript->link('scriptaculous.js?load=effects');
 		$expected = '<script type="text/javascript" src="js/scriptaculous.js?load=effects"></script>';
 		$this->assertEqual($result, $expected);
-
+		
 		$result = $this->Javascript->link('jquery-1.1.2');
 		$expected = '<script type="text/javascript" src="js/jquery-1.1.2.js"></script>';
 		$this->assertEqual($result, $expected);
 	}
-
+	
 	function testObjectGeneration() {
 		$object = array('title' => 'New thing', 'indexes' => array(5, 6, 7, 8));
 
@@ -72,44 +72,18 @@ class JavascriptTest extends UnitTestCase {
 		$result = $this->Javascript->object(array('default' => 0));
 		$expected = '{"default":0}';
 		$this->assertEqual($result, $expected);
-
+		
 		$result = $this->Javascript->object(array(
 			'2007' => array(
-				'Spring' => array('1' => array('id' => '1', 'name' => 'Josh'), '2' => array('id' => '2', 'name' => 'Becky')),
-				'Fall' => array('1' => array('id' => '1', 'name' => 'Josh'), '2' => array('id' => '2', 'name' => 'Becky'))
+				'Spring'=>array('1'=>array('id'=>'1','name'=>'Josh'), '2'=>array('id'=>'2','name'=>'Becky')),
+				'Fall' => array('1'=>array('id'=>'1','name'=>'Josh'), '2'=>array('id'=>'2','name'=>'Becky'))
 			), '2006' => array(
-				'Spring' => array('1' => array('id' => '1', 'name' => 'Josh'), '2' => array('id' => '2', 'name' => 'Becky')),
-				'Fall' => array('1' => array('id' => '1', 'name' => 'Josh'), '2' => array('id' => '2', 'name' => 'Becky')
+				'Spring' => array('1'=>array('id'=>'1','name'=>'Josh'), '2'=>array('id'=>'2','name'=>'Becky')),
+				'Fall' => array('1' => array('id'=>'1','name'=>'Josh'), '2'=>array('id'=>'2','name'=>'Becky') 
 			))
 		));
 		$expected = '{"2007":{"Spring":{"1":{"id":1, "name":"Josh"}, "2":{"id":2, "name":"Becky"}}, "Fall":{"1":{"id":1, "name":"Josh"}, "2":{"id":2, "name":"Becky"}}}, "2006":{"Spring":{"1":{"id":1, "name":"Josh"}, "2":{"id":2, "name":"Becky"}}, "Fall":{"1":{"id":1, "name":"Josh"}, "2":{"id":2, "name":"Becky"}}}}';
 		$this->assertEqual($result, $expected);
-	}
-
-	function testScriptBlock() {
-		$result = $this->Javascript->codeBlock("something");
-		$this->assertPattern('/^<script[^<>]+>something<\/script>$/', $result);
-		$this->assertPattern('/^<script[^<>]+type="text\/javascript">something<\/script>$/', $result);
-		$this->assertPattern('/^<script[^<>]+type="text\/javascript"[^<>]*>/', $result);
-		$this->assertNoPattern('/^<script[^type]=[^<>]*>/', $result);
-
-		$result = $this->Javascript->codeBlock();
-		$this->assertPattern('/^<script[^<>]+>$/', $result);
-		$this->assertNoPattern('/^<script[^type]=[^<>]*>/', $result);
-
-		$result = $this->Javascript->blockEnd();
-		$this->assertEqual("</script>", $result);
-
-		$this->Javascript->cacheEvents(false, true);
-		$result = $this->Javascript->codeBlock();
-		$this->assertIdentical($result, null);
-		echo 'alert("this is a buffered script");';
-
-		$result = $this->Javascript->blockEnd();
-		$this->assertIdentical($result, null);
-
-		$result = $this->Javascript->getCache();
-		$this->assertEqual('alert("this is a buffered script");', $result);
 	}
 
 	function tearDown() {

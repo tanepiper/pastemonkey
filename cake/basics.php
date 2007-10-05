@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: basics.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: basics.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Basic Cake functionality.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5700 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5422 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -47,16 +47,13 @@
 		}');
 	}
 /**
- * Loads all models, or set of specified models.
- * E.g:
- *
- * loadModels() - Loads all models
- * loadModels('User', 'Group') loads models User & Group
+ * Loads all models.
  */
 	function loadModels() {
 		if (!class_exists('Model')) {
 			require LIBS . 'model' . DS . 'model.php';
 		}
+		$path = Configure::getInstance();
 		if (!class_exists('AppModel')) {
 			if (file_exists(APP . 'app_model.php')) {
 				require(APP . 'app_model.php');
@@ -65,33 +62,17 @@
 			}
 			Overloadable::overload('AppModel');
 		}
-
-		$loadModels = array();
-		if (func_num_args() > 0) {
-			$args = func_get_args();
-			foreach($args as $arg) {
-				if (is_array($arg)) {
-					$loadModels = am($loadModels, $arg);
-				} else {
-					$loadModels[] = $arg;
-				}
-			}
-		}
-
 		$loadedModels = array();
-		$path = Configure::getInstance();
+
 		foreach ($path->modelPaths as $path) {
-			foreach (listClasses($path) as $modelFilename) {
-				list($name) = explode('.', $modelFilename);
+			foreach (listClasses($path) as $model_fn) {
+				list($name) = explode('.', $model_fn);
 				$className = Inflector::camelize($name);
+				$loadedModels[$model_fn] = $model_fn;
 
-				if (empty($loadModels) || in_array($className, $loadModels)) {
-					$loadedModels[$modelFilename] = $modelFilename;
-				}
-
-				if (isset($loadedModels[$modelFilename]) && !class_exists($className)) {
-					require($path . $modelFilename);
-					list($name) = explode('.', $modelFilename);
+				if (!class_exists($className)) {
+					require($path . $model_fn);
+					list($name) = explode('.', $model_fn);
 					Overloadable::overload(Inflector::camelize($name));
 				}
 			}
@@ -314,9 +295,8 @@
 		foreach ($paths->controllerPaths as $path) {
 			foreach (listClasses($path) as $controller) {
 				list($name) = explode('.', $controller);
-				$className = Inflector::camelize(str_replace('_controller', '', $name));
-
-				if (loadController($className)) {
+				$className = Inflector::camelize($name);
+				if (loadController($name)) {
 					$loadedControllers[$controller] = $className;
 				}
 			}
@@ -340,16 +320,14 @@
 		if ($name === null) {
 			return true;
 		}
-
-		$parent = 'AppController';
 		if (strpos($name, '.') !== false) {
 			list($plugin, $name) = explode('.', $name);
 
-			$parent = Inflector::camelize($plugin . '_app_controller');
+			$pluginAppController = Inflector::camelize($plugin . '_app_controller');
 			$plugin = Inflector::underscore($plugin);
 			$pluginAppControllerFile = APP . 'plugins' . DS . $plugin . DS . $plugin . '_app_controller.php';
 
-			if (!class_exists($parent)) {
+			if (!class_exists($pluginAppController)) {
 				if (file_exists($pluginAppControllerFile)) {
 					require($pluginAppControllerFile);
 				} else {
@@ -358,7 +336,7 @@
 			}
 
 			if (empty($name)) {
-				if (!class_exists(Inflector::camelize($plugin . 'Controller'))) {
+				if (!class_exists(Inflector::camelize($plugin . 'controller'))) {
 					if (file_exists(APP . 'plugins' . DS . $plugin . DS . 'controllers' . DS . $plugin . '_controller.php')) {
 						require(APP . 'plugins' . DS . $plugin . DS . 'controllers' . DS . $plugin . '_controller.php');
 						return true;
@@ -369,6 +347,7 @@
 			if (!class_exists($name . 'Controller')) {
 				$name = Inflector::underscore($name);
 				$file = APP . 'plugins' . DS . $plugin . DS . 'controllers' . DS . $name . '_controller.php';
+
 				if (file_exists($file)) {
 					require($file);
 					return true;
@@ -376,17 +355,16 @@
 					if (file_exists(APP . 'plugins' . DS . $plugin . DS . 'controllers' . DS . $plugin . '_controller.php')) {
 						require(APP . 'plugins' . DS . $plugin . DS . 'controllers' . DS . $plugin . '_controller.php');
 						return true;
+					} else {
+						return false;
 					}
 				}
-				return false;
 			}
 			return true;
 		}
 
 		$className = $name . 'Controller';
-		if (class_exists($className) && low(get_parent_class($className)) !== low($name . 'AppController')) {
-			return true;
-		} else {
+		if (!class_exists($className)) {
 			$name = Inflector::underscore($className);
 			$controllers = Configure::read('Controllers');
 			if (is_array($controllers)) {
@@ -667,7 +645,7 @@
  */
 	function listClasses($path) {
 		$dir = opendir($path);
-		$classes = array();
+		$classes=array();
 		while (false !== ($file = readdir($dir))) {
 			if ((substr($file, -3, 3) == 'php') && substr($file, 0, 1) != '.') {
 				$classes[] = $file;
@@ -759,18 +737,13 @@
 /**
  * Prints out debug information about given variable.
  *
- * Only runs if debug level is non-zero.
+ * Only runs if DEBUG level is non-zero.
  *
  * @param boolean $var		Variable to show debug information for.
- * @param boolean $showHtml	If set to true, the method prints the debug data in a screen-friendly way.
- * @param boolean $showFrom	If set to true, the method prints from where the function was called.
+ * @param boolean $show_html	If set to true, the method prints the debug data in a screen-friendly way.
  */
-	function debug($var = false, $showHtml = false, $showFrom = true) {
+	function debug($var = false, $showHtml = false) {
 		if (Configure::read() > 0) {
-			if ($showFrom) {
-				$calledFrom = debug_backtrace();
-				print "<strong>".substr(r(ROOT, "", $calledFrom[0]['file']), 1)."</strong> (line <strong>".$calledFrom[0]['line']."</strong>)";
-			}
 			print "\n<pre class=\"cake_debug\">\n";
 			ob_start();
 			print_r($var);
@@ -953,8 +926,7 @@
  * the output of given array. Similar to debug().
  *
  * @see	debug()
- * @param array $var Variable to print out
- * @param boolean $showFrom If set to true, the method prints from where the function was called
+ * @param array	$var Variable to print out
  */
 	function pr($var) {
 		if (Configure::read() > 0) {
@@ -1000,20 +972,38 @@
 		return $r;
 	}
 /**
- * see Dispatcher::uri();
+ * Returns the REQUEST_URI from the server environment, or, failing that,
+ * constructs a new one, using the PHP_SELF constant and other variables.
  *
- * @deprecated
+ * @return string URI
  */
 	function setUri() {
-		return null;
-	}
-/**
- * see Dispatcher::getUrl();
- *
- * @deprecated
- */
-	function setUrl() {
-		return null;
+		if (env('HTTP_X_REWRITE_URL')) {
+			$uri = env('HTTP_X_REWRITE_URL');
+		} elseif (env('REQUEST_URI')) {
+			$uri = env('REQUEST_URI');
+		} else {
+			if ($uri = env('argv')) {
+				if (defined('SERVER_IIS') && SERVER_IIS) {
+					if (key($_GET) && strpos(key($_GET), '?') !== false) {
+						unset($_GET[key($_GET)]);
+					}
+					$uri = preg_split('/\?/', $uri[0], 2);
+					if (isset($uri[1])) {
+						foreach (preg_split('/&/', $uri[1]) as $var) {
+							@list($key, $val) = explode('=', $var);
+							$_GET[$key] = $val;
+						}
+					}
+					$uri = BASE_URL . $uri[0];
+				} else {
+					$uri = env('PHP_SELF') . '/' . $uri[0];
+				}
+			} else {
+				$uri = env('PHP_SELF') . '/' . env('QUERY_STRING');
+			}
+		}
+		return preg_replace('/\?url=\//', '', $uri);
 	}
 /**
  * Gets an environment variable from available sources, and provides emulation
@@ -1122,7 +1112,7 @@
  */
 	function cache($path, $data = null, $expires = '+1 day', $target = 'cache') {
 
-		if (Configure::read('Cache.disable')) {
+		if (defined('DISABLE_CACHE')) {
 			return null;
 		}
 		$now = time();
@@ -1539,12 +1529,13 @@
 		return $string;
 	}
 /**
- * See Folder::chmod
+ * chmod recursively on a directory
  *
- * @deprecated
+ * @param string $path Path to chmod
+ * @param int $mode Mode to apply
+ * @return boolean Success
  */
 	function chmodr($path, $mode = 0755) {
-		trigger_error("Deprecated. See Folder::chmod()", E_USER_ERROR);
 		if (!is_dir($path)) {
 			return chmod($path, $mode);
 		}
@@ -1571,45 +1562,6 @@
 			return true;
 		} else {
 			return false;
-		}
-	}
-/**
- * Implements http_build_query for PHP4.
- *
- * @param string $data Data to set in query string
- * @param string $prefix If numeric indices, prepend this to index for elements in base array.
- * @param string $argSep String used to separate arguments
- * @param string $baseKey Base key
- * @return string URL encoded query string
- * @see http://php.net/http_build_query
- */
-	if (!function_exists('http_build_query')) {
-		function http_build_query($data, $prefix = null, $argSep = null, $baseKey = null) {
-			if (empty($argSep)) {
-				$argSep = ini_get('arg_separator.output');
-			}
-			if (is_object($data)) {
-				$data = get_object_vars($data);
-			}
-			$out = array();
-
-			foreach ((array)$data as $key => $v) {
-				if (is_numeric($key) && !empty($prefix)) {
-					$key = $prefix . $key;
-				}
-				$key = urlencode($key);
-
-				if (!empty($baseKey)) {
-					$key = $baseKey . '[' . $key . ']';
-				}
-
-				if (is_array($v) || is_object($v)) {
-					$out[] = http_build_query($v, $prefix, $argSep, $key);
-				} else {
-					$out[] = $key . '=' . urlencode($v);
-				}
-			}
-			return implode($argSep, $out);
 		}
 	}
 /**

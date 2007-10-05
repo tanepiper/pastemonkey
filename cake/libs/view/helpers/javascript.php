@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: javascript.php 5686 2007-09-23 14:23:39Z nate $ */
+/* SVN FILE: $Id: javascript.php 5318 2007-06-20 09:01:21Z phpnut $ */
 
 /**
  * Javascript Helper class file.
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5686 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-23 15:23:39 +0100 (Sun, 23 Sep 2007) $
+ * @version			$Revision: 5318 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -105,8 +105,8 @@ class JavascriptHelper extends AppHelper {
 
 		if (!empty($script)) {
 			$this->_cachedEvents[] = $script;
-			return null;
 		}
+
 		return $this->tags['javascriptend'];
 	}
 /**

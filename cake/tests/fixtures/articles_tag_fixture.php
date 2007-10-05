@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: articles_tag_fixture.php 5563 2007-08-21 21:46:59Z gwoo $ */
+/* SVN FILE: $Id: articles_tag_fixture.php 4696 2007-03-27 05:17:49Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.fixtures
  * @since			CakePHP(tm) v 1.2.0.4667
- * @version			$Revision: 5563 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-21 22:46:59 +0100 (Tue, 21 Aug 2007) $
+ * @version			$Revision: 4696 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-03-27 06:17:49 +0100 (Tue, 27 Mar 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /**
@@ -37,8 +37,8 @@ class ArticlesTagFixture extends CakeTestFixture {
 	var $fields = array(
 		'article_id' => array('type' => 'integer', 'null' => false),
 		'tag_id' => array('type' => 'integer', 'null' => false),
-		'indexes' => array('UNIQUE_TAG' => array('column'=> array('article_id', 'tag_id'), 'unique'=>1))
 	);
+	var $primaryKey = array('article_id', 'tag_id');
 	var $records = array(
 		array('article_id' => 1, 'tag_id' => 1),
 		array('article_id' => 1, 'tag_id' => 2),

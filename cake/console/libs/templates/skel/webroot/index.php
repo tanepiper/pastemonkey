@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: index.php 5460 2007-07-25 04:38:28Z phpnut $ */
+/* SVN FILE: $Id: index.php 5118 2007-05-18 17:19:53Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.app.webroot
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5460 $
+ * @version			$Revision: 5118 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-25 05:38:28 +0100 (Wed, 25 Jul 2007) $
+ * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -74,13 +74,10 @@
 			  define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 		 }
 	}
-	if (!include(CORE_PATH . 'cake' . DS . 'bootstrap.php')) {
-		trigger_error("Can't find CakePHP core.  Check the value of CAKE_CORE_INCLUDE_PATH in app/webroot/index.php.  It should point to the directory containing your " . DS . "cake core directory and your " . DS . "vendors root directory.", E_USER_ERROR);
-	}
+	require CORE_PATH . 'cake' . DS . 'bootstrap.php';
 	if (isset($_GET['url']) && $_GET['url'] === 'favicon.ico') {
-		return;
 	} else {
-		 $Dispatcher = new Dispatcher();
+		 $Dispatcher=new Dispatcher();
 		 $Dispatcher->dispatch($url);
 	}
 	if (Configure::read() > 0) {

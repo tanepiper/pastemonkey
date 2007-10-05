@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: helper.php 5319 2007-06-21 06:47:57Z phpnut $ */
+/* SVN FILE: $Id: helper.php 5422 2007-07-09 05:23:06Z phpnut $ */
 
 /**
  * Backend for helpers.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5319 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-21 07:47:57 +0100 (Thu, 21 Jun 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: object.php 5383 2007-07-06 17:08:44Z phpnut $ */
+/* SVN FILE: $Id: object.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Object class, allowing __construct and __destruct in PHP4.
  *
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5383 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-06 18:08:44 +0100 (Fri, 06 Jul 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**

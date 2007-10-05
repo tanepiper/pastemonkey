@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: file.php 5673 2007-09-20 02:54:20Z phpnut $ */
+/* SVN FILE: $Id: file.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Convenience class for reading, writing and appending to files.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5673 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-20 03:54:20 +0100 (Thu, 20 Sep 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -62,7 +62,7 @@ class File extends Object{
  * @var string
  * @access public
  */
-	var $info = array();
+	var $info = null;	
 /**
  * Constructor
  *
@@ -73,9 +73,7 @@ class File extends Object{
 	function __construct($path, $create = false, $mode = 0755) {
 		parent::__construct();
 		$this->Folder =& new Folder(dirname($path), $create, $mode);
-		if (!is_dir($path)) {
-			$this->name = basename($path);
-		}
+		$this->name = basename($path);
 		if (!$this->exists()) {
 			if ($create === true) {
 				$this->safe();
@@ -183,7 +181,7 @@ class File extends Object{
 			$this->info = pathinfo($this->pwd());
 		}
 		if (!isset($this->info['filename'])) {
-			$this->info['filename'] = $this->name();
+			$this->info['filename'] = $this->filename();
 		}
 		return $this->info;
 	}
@@ -208,14 +206,12 @@ class File extends Object{
  * @return string The File name without extension.
  * @access public
  */
-	function name() {
+	function filename() {
 		if ($this->info == null) {
 			$this->info();
 		}
 		if (isset($this->info['extension'])) {
 			return basename($this->name, '.'.$this->info['extension']);
-		} elseif ($this->name) {
-			return $this->name;
 		}
 		return false;
 	}
@@ -364,7 +360,6 @@ class File extends Object{
  * @see File::pwd
  */
 	function getFullPath() {
-		trigger_error('Deprecated: Use File::pwd() instead.', E_USER_WARNING);
 		return $this->pwd();
 	}
 /**
@@ -372,31 +367,20 @@ class File extends Object{
  * @see File::name
  */
 	function getName() {
-		trigger_error('Deprecated: Use File::name() instead.', E_USER_WARNING);
 		return $this->name;
-	}
-/**
- * @deprecated
- * @see File::name()
- */
-	function filename() {
-		trigger_error('Deprecated: Use File::name() instead.', E_USER_WARNING);
-		return $this->name();
 	}
 /**
  * @deprecated
  * @see File::ext()
  */
 	function getExt() {
-		trigger_error('Deprecated: Use File::ext() instead.', E_USER_WARNING);
 		return $this->ext();
 	}
 /**
  * @deprecated
- * @see File::md5()
+ * @see File::group()
  */
 	function getMd5() {
-		trigger_error('Deprecated: Use File::md5() instead.', E_USER_WARNING);
 		return $this->md5();
 	}
 /**
@@ -404,7 +388,6 @@ class File extends Object{
  * @see File::size()
  */
 	function getSize() {
-		trigger_error('Deprecated: Use File::size() instead.', E_USER_WARNING);
 		return $this->size();
 	}
 /**
@@ -412,7 +395,6 @@ class File extends Object{
  * @see File::owner()
  */
 	function getOwner() {
-		trigger_error('Deprecated: Use File::owner() instead.', E_USER_WARNING);
 		return $this->owner();
 	}
 /**
@@ -420,7 +402,6 @@ class File extends Object{
  * @see File::group()
  */
 	function getGroup() {
-		trigger_error('Deprecated: Use File::group() instead.', E_USER_WARNING);
 		return $this->group();
 	}
 /**
@@ -428,7 +409,6 @@ class File extends Object{
  * @see File::perms()
  */
 	function getChmod() {
-		trigger_error('Deprecated: Use File::perms() instead.', E_USER_WARNING);
 		return $this->perms();
 	}
 /**
@@ -436,7 +416,6 @@ class File extends Object{
  * @see File::Folder()
  */
 	function getFolder() {
-		trigger_error('Deprecated: Use File::Folder() instead.', E_USER_WARNING);
 		return $this->Folder();
 	}
 }

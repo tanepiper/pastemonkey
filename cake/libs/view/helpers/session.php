@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: session.php 5657 2007-09-16 19:05:31Z phpnut $ */
+/* SVN FILE: $Id: session.php 4758 2007-04-04 08:36:00Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.1.7.3328
- * @version			$Revision: 5657 $
+ * @version			$Revision: 4758 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-16 20:05:31 +0100 (Sun, 16 Sep 2007) $
+ * @lastmodified	$Date: 2007-04-04 09:36:00 +0100 (Wed, 04 Apr 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -35,9 +35,6 @@
  * @subpackage	cake.cake.libs.view.helpers
  *
  */
-if(!class_exists('cakesession')) {
-	uses('session');
-}
 class SessionHelper extends CakeSession {
 /**
  * List of helpers used by this helper
@@ -160,16 +157,6 @@ class SessionHelper extends CakeSession {
 		if ($this->__active === true) {
 			return parent::valid();
 		}
-	}
-/**
- * Override CakeSession::write().
- * This method should not be used in a view
- *
- * @return boolean
- * @access public
- */
-	function write() {
-		trigger_error(__('You can not write to a Session from the view', true), E_USER_WARNING);
 	}
 }
 ?>

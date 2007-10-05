@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_sybase.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: dbo_sybase.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Sybase layer for DBO
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 1.2.0.3097
- * @version			$Revision: 5691 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -170,9 +170,7 @@ class DboSybase extends DboSource {
 				$column[0] = $column[$colKey[0]];
 			}
 			if (isset($column[0])) {
-				$fields[$column[0]['Field']] = array('type' => $this->column($column[0]['Type']),
-														'null' => $column[0]['Null']
-													);
+				$fields[] = array('name' => $column[0]['Field'], 'type' => $this->column($column[0]['Type']), 'null' => $column[0]['Null']);
 			}
 		}
 
@@ -380,17 +378,19 @@ class DboSybase extends DboSource {
 		}
 	}
 /**
- * Inserts multiple values into a join table
+ * Enter description here...
  *
- * @param string $table
- * @param string $fields
- * @param array $values
+ * @param unknown_type $schema
+ *  @return unknown
  */
-	function insertMulti($table, $fields, $values) {
-		$count = count($values);
-		for ($x = 0; $x < $count; $x++) {
-			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
-		}
+	function buildSchemaQuery($schema) {
+		$search = array('{AUTOINCREMENT}', '{PRIMARY}', '{UNSIGNED}', '{FULLTEXT}',
+						'{FULLTEXT_SYBASE}', '{BOOLEAN}', '{UTF_8}');
+		$replace = array('int(11) not null auto_increment', 'primary key', 'unsigned',
+						'FULLTEXT', 'FULLTEXT', 'enum (\'true\', \'false\') NOT NULL default \'true\'',
+						'/*!40100 CHARACTER SET utf8 COLLATE utf8_unicode_ci */');
+		$query = trim(r($search, $replace, $schema));
+		return $query;
 	}
 }
 ?>

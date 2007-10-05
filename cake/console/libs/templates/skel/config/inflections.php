@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: inflections.php 4407 2007-02-02 10:39:45Z phpnut $ */
+/* SVN FILE: $Id: inflections.php 5118 2007-05-18 17:19:53Z phpnut $ */
 /**
  * Custom Inflected Words.
  *
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.app.config
  * @since			CakePHP(tm) v 1.0.0.2312
- * @version			$Revision: 4407 $
+ * @version			$Revision: 5118 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-02-02 10:39:45 +0000 (Fri, 02 Feb 2007) $
+ * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**

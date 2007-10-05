@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: validation.php 5679 2007-09-21 00:42:34Z phpnut $ */
+/* SVN FILE: $Id: validation.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0.3830
- * @version			$Revision: 5679 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-21 01:42:34 +0100 (Fri, 21 Sep 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -126,7 +126,7 @@ class Validation extends Object {
 			$this->_extract($check);
 		}
 
-		if (empty($this->check) && $this->check != '0') {
+		if (empty($this->check)) {
 			return false;
 		}
 
@@ -708,15 +708,14 @@ class Validation extends Object {
 /**
  * Runs an user-defined validation.
  *
- * @param mixed $check value that will be validated in user-defined methods.
- * @param object $object class that holds validation method
- * @param string $method class method name for validation to run
- * @param array $args arguments to send to method
- * @return mixed user-defined class class method returns
+ * @param object $object Object that holds validation method
+ * @param string $method Method name for validation to run
+ * @param array $args Arguments to send to method
+ * @return mixed Whatever method returns
  * @access public
  */
-	function userDefined($check, $object, $method, $args = null) {
-		return call_user_func_array(array(&$object, $method), array($check,$args));
+	function userDefined($object, $method, $args) {
+		return call_user_func_array(array(&$object, $method), $args);
 	}
 
 /**

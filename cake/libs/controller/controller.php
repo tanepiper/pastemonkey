@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: controller.php 5702 2007-09-30 19:30:48Z gwoo $ */
+/* SVN FILE: $Id: controller.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Base controller class.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5702 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 20:30:48 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5422 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -274,6 +274,21 @@ class Controller extends Object {
  */
 	var $passedArgs = array();
 /**
+ * Set to true to enable named URL parameters (/controller/action/name:value).
+ * Or set an array of actions and default named args: array('action'=> array('name'=>'defaultValue'));
+ *
+ * @var mixed
+ */
+	var $namedArgs = true;
+/**
+ * The character that separates named arguments in URLs.
+ *
+ *  Example URL: /posts/view/title:first+post/category:general
+ *
+ * @var string
+ */
+	var $argSeparator = ':';
+/**
  * Constructor.
  *
  */
@@ -319,10 +334,11 @@ class Controller extends Object {
 		$component->init($this);
 	}
 /**
- * Loads Model classes based on the the uses property
- * see Controller::loadModel(); for more info
+ * Loads and instantiates models required by this controller.
+ * If Controller::persistModel; is true, controller will create cached model instances on first request,
+ * additional request will used cached models
  *
- * @return mixed true if models found and instance created, or cakeError if models not found.
+ * @return mixed true when single model found and instance created error returned if models not found.
  * @access public
  */
 	function constructClasses() {
@@ -334,65 +350,84 @@ class Controller extends Object {
 		} else {
 			$id = $this->passedArgs['0'];
 		}
-
-		if ($this->uses === false) {
-			$this->loadModel($this->modelClass, $id);
-		} elseif ($this->uses) {
-			$uses = is_array($this->uses) ? $this->uses : array($this->uses);
-			$this->modelClass = $uses[0];
-			foreach ($uses as $modelClass) {
-				$this->loadModel($modelClass);
-			}
-		}
-		return true;
-	}
-/**
- * Loads and instantiates models required by this controller.
- * If Controller::persistModel; is true, controller will create cached model instances on first request,
- * additional request will used cached models
- *
- * @return mixed true when single model found and instance created error returned if models not found.
- * @access public
- */
-	function loadModel($modelClass = null, $id = false) {
-		if($modelClass === null) {
-			$modelClass = $this->modelClass;
-		}
 		$cached = false;
 		$object = null;
 		$plugin = null;
+
 		if ($this->plugin) {
 			$plugin = $this->plugin . '.';
 		}
 
-		$modelKey = Inflector::underscore($modelClass);
-
-		if (!class_exists($modelClass)) {
-			loadModel($plugin . $modelClass);
+		if ($this->uses === false) {
+			if (!class_exists($this->modelClass)) {
+				loadModel($plugin . $this->modelClass);
+			}
 		}
 
-		if (class_exists($modelClass)) {
+		if (class_exists($this->modelClass) && ($this->uses === false)) {
 			if ($this->persistModel === true) {
-				$cached = $this->_persist($modelClass, null, $object);
+				$cached = $this->_persist($this->modelClass, null, $object);
 			}
 
 			if (($cached === false)) {
-				$model =& new $modelClass($id);
-				$this->modelNames[] = $modelClass;
-				$this->{$modelClass} =& $model;
+				$model =& new $this->modelClass($id);
+				$this->modelNames[] = $this->modelClass;
+				$this->{$this->modelClass} =& $model;
 
 				if ($this->persistModel === true) {
-					$this->_persist($modelClass, true, $model);
+					$this->_persist($this->modelClass, true, $model);
 					$registry = ClassRegistry::getInstance();
-					$this->_persist($modelClass . 'registry', true, $registry->__objects, 'registry');
+					$this->_persist($this->modelClass . 'registry', true, $registry->__objects, 'registry');
 				}
 			} else {
-				$this->_persist($modelClass . 'registry', true, $object, 'registry');
-				$this->_persist($modelClass, true, $object);
-				$this->modelNames[] = $modelClass;
+				$this->_persist($this->modelClass . 'registry', true, $object, 'registry');
+				$this->_persist($this->modelClass, true, $object);
+				$this->modelNames[] = $this->modelClass;
 			}
-		} else {
-			return $this->cakeError('missingModel', array(array('className' => $modelClass, 'webroot' => '', 'base' => $this->base)));
+			return true;
+		} elseif ($this->uses === false) {
+			return $this->cakeError('missingModel', array(array('className' => $this->modelClass, 'webroot' => '', 'base' => $this->base)));
+		}
+
+		if ($this->uses) {
+			$uses = is_array($this->uses) ? $this->uses : array($this->uses);
+			$this->modelClass = $uses[0];
+
+			foreach ($uses as $modelClass) {
+				$id = false;
+				$cached = false;
+				$object = null;
+				$modelKey = Inflector::underscore($modelClass);
+
+				if (!class_exists($modelClass)) {
+					loadModel($plugin . $modelClass);
+				}
+
+				if (class_exists($modelClass)) {
+					if ($this->persistModel === true) {
+						$cached = $this->_persist($modelClass, null, $object);
+					}
+
+					if (($cached === false)) {
+						$model =& new $modelClass($id);
+						$this->modelNames[] = $modelClass;
+						$this->{$modelClass} =& $model;
+
+						if ($this->persistModel === true) {
+							$this->_persist($modelClass, true, $model);
+							$registry = ClassRegistry::getInstance();
+							$this->_persist($modelClass . 'registry', true, $registry->__objects, 'registry');
+						}
+					} else {
+						$this->_persist($modelClass . 'registry', true, $object, 'registry');
+						$this->_persist($modelClass, true, $object);
+						$this->modelNames[] = $modelClass;
+					}
+				} else {
+					return $this->cakeError('missingModel', array(array('className' => $modelClass, 'webroot' => '', 'base' => $this->base)));
+				}
+			}
+			return true;
 		}
 	}
 /**
@@ -410,23 +445,6 @@ class Controller extends Object {
 
 		if (is_array($status)) {
 			extract($status, EXTR_OVERWRITE);
-		}
-
-		foreach ($this->components as $c) {
-			$path = preg_split('/\/|\./', $c);
-			$c = $path[count($path) - 1];
-			if (isset($this->{$c}) && is_object($this->{$c}) && is_callable(array($this->{$c}, 'beforeRedirect'))) {
-				if (!array_key_exists('enabled', get_object_vars($this->{$c})) || $this->{$c}->enabled == true) {
-					$resp = $this->{$c}->beforeRedirect($this, $url, $status, $exit);
-					if ($resp === false) {
-						return;
-					} elseif (is_array($resp) && isset($resp['url'])) {
-						extract($resp, EXTR_OVERWRITE);
-					} elseif ($resp !== null) {
-						$url = $resp;
-					}
-				}
-			}
 		}
 
 		if (function_exists('session_write_close')) {
@@ -619,10 +637,6 @@ class Controller extends Object {
 		}
 		$this->params['models'] = $this->modelNames;
 
-		if (Configure::read() > 2) {
-			$this->set('cakeDebug', $this);
-		}
-
 		$this->__viewClass =& new $viewClass($this);
 		if (!empty($this->modelNames)) {
 			$models = array();
@@ -657,8 +671,9 @@ class Controller extends Object {
  */
 	function referer($default = null, $local = false) {
 		$ref = env('HTTP_REFERER');
-		if (!empty($ref) && defined('FULL_BASE_URL')) {
-			$base = FULL_BASE_URL . $this->webroot;
+		$base = FULL_BASE_URL . $this->webroot;
+
+		if ($ref != null && defined('FULL_BASE_URL')) {
 			if (strpos($ref, $base) === 0) {
 				return substr($ref, strlen($base) - 1);
 			} elseif (!$local) {
@@ -938,68 +953,40 @@ class Controller extends Object {
 		if ($modelClass == null) {
 			$modelClass = $this->modelClass;
 		}
-		$fields = $this->{$modelClass}->schema();
-		foreach ($fields->value as $field => $value) {
-			if (in_array($value['type'], array('datetime', 'timestamp', 'date', 'time'))) {
-				$useNewDate = false;
-				$date = array();
-				$dates = array('Y'=>'_year', 'm'=>'_month', 'd'=>'_day');
-				foreach ($dates as $default => $var) {
-					if (isset($this->data[$modelClass][$field . $var])) {
-						if (!empty($this->data[$modelClass][$field . $var])) {
-							$date[$var] = $this->data[$modelClass][$field . $var];
-						}
-						$useNewDate = true;
-						unset($this->data[$modelClass][$field . $var]);
-					}
-				}
-				if (count($date) == 3 && in_array($value['type'], array('datetime', 'timestamp', 'date'))) {
-					$date = join('-', array_values($date));
+		foreach ($this->{$modelClass}->_tableInfo->value as $field) {
+			$useNewDate = false;
+			$dateFields = array('Y'=>'_year', 'm'=>'_month', 'd'=>'_day', 'H'=>'_hour', 'i'=>'_min', 's'=>'_sec');
+			foreach ($dateFields as $default => $var) {
+				if (isset($this->data[$modelClass][$field['name'] . $var])) {
+					${$var} = $this->data[$modelClass][$field['name'] . $var];
+					 unset($this->data[$modelClass][$field['name'] . $var]);
+					 $useNewDate = true;
 				} else {
-					$date = null;
-				}
-
-				if ($value['type'] != 'date') {
-					$time = array();
-					$times = array('H'=>'_hour', 'i'=>'_min', 's'=>'_sec');
-					foreach($times as $default => $var) {
-						if (isset($this->data[$modelClass][$field . $var])) {
-							if (!empty($this->data[$modelClass][$field . $var])) {
-								$time[$var] = $this->data[$modelClass][$field . $var];
-							} elseif ($this->data[$modelClass][$field . $var] === '0') {
-								$time[$var] = '00';
-							}
-							$useNewDate = true;
-							unset($this->data[$modelClass][$field . $var]);
-						}
-					}
-
-					$meridian = false;
-					if (isset($this->data[$modelClass][$field . '_meridian'])) {
-						$meridian = $this->data[$modelClass][$field . '_meridian'];
-						 unset($this->data[$modelClass][$field . '_meridian']);
-					}
-
-					if (isset($time['_hour']) && $time['_hour'] != 12 && 'pm' == $meridian) {
-						$time['_hour'] = $time['_hour'] + 12;
-					}
-					if (isset($time['_hour']) && $time['_hour'] == 12 && 'am' == $meridian) {
-						$time['_hour'] = '00';
-					}
-					if (count($time) > 1) {
-						$time = join(':', array_values($time));
-					}
-
-					if($date && $time) {
-						$date = $date . ' ' . $time;
-					} elseif (is_string($time)) {
-						$date = $time;
+					if ($var == 'year') {
+						${$var} = '0000';
+					} else {
+						${$var} = '00';
 					}
 				}
+			}
+			if ($_hour != 12 && (isset($this->data[$modelClass][$field['name'] . '_meridian']) && 'pm' == $this->data[$modelClass][$field['name'] . '_meridian'])) {
+				$_hour = $_hour + 12;
+			}
+			if ($_hour == 12 && (isset($this->data[$modelClass][$field['name'] . '_meridian']) && 'am' == $this->data[$modelClass][$field['name'] . '_meridian'])) {
+			     $_hour = '00';
+			}
+			unset($this->data[$modelClass][$field['name'] . '_meridian']);
 
-				if ($useNewDate && (isset($date) || isset($value['null']))) {
-					$this->data[$modelClass][$field] = $date;
-				}
+			$newDate = null;
+			if (in_array($field['type'], array('datetime', 'timestamp')) && $useNewDate) {
+				$newDate = "{$_year}-{$_month}-{$_day} {$_hour}:{$_min}:{$_sec}";
+			} elseif ('date' == $field['type'] && $useNewDate) {
+				$newDate = "{$_year}-{$_month}-{$_day}";
+			} elseif ('time' == $field['type'] && $useNewDate) {
+				$newDate = "{$_hour}:{$_min}:{$_sec}";
+			}
+			if ($newDate && !in_array($field['name'], array('created', 'updated', 'modified'))) {
+				$this->data[$modelClass][$field['name']] = $newDate;
 			}
 		}
 	}
@@ -1018,9 +1005,8 @@ class Controller extends Object {
 			$scope = $object;
 			$object = null;
 		}
-		$assoc = null;
 
-		if (is_string($object) && !strpos($object, '.')) {
+		if (is_string($object)) {
 			if (isset($this->{$object})) {
 				$object = $this->{$object};
 			} elseif (isset($this->{$this->modelClass}) && isset($this->{$this->modelClass}->{$object})) {
@@ -1034,11 +1020,6 @@ class Controller extends Object {
 					}
 				}
 			}
-		} elseif (is_string($object)) {
-			list($object, $assoc) = explode('.', $object);
-			if (isset($this->{$object})) {
-				$object = $this->{$object};
-			}
 		} elseif (empty($object) || $object == null) {
 			if (isset($this->{$this->modelClass})) {
 				$object = $this->{$this->modelClass};
@@ -1048,7 +1029,7 @@ class Controller extends Object {
 		}
 
 		if (!is_object($object)) {
-			trigger_error(sprintf(__("Controller::paginate() - can't find model %s in controller %sController", true), $object, $this->name), E_USER_WARNING);
+			// Error: can't find object
 			return array();
 		}
 		$options = am($this->params, $this->params['url'], $this->passedArgs);
@@ -1109,7 +1090,7 @@ class Controller extends Object {
 		} else {
 			$count = $object->findCount($conditions, $recursive);
 		}
-		$pageCount = intval(ceil($count / $limit));
+		$pageCount = ceil($count / $limit);
 
 		if ($page == 'last') {
 			$options['page'] = $page = $pageCount;

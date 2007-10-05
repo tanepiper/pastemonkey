@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: socket.test.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: socket.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5691 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('socket');
@@ -58,7 +58,7 @@ class SocketTest extends UnitTestCase {
 		$request = "GET / HTTP/1.1\r\nConnection: close\r\n\r\n";
 		$this->assertTrue($this->Socket->write($request));
 	}
-
+	
 	function tearDown() {
 		unset($this->Socket);
 	}

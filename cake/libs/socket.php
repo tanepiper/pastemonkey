@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: socket.php 5201 2007-05-26 19:33:55Z mariano.iglesias $ */
+/* SVN FILE: $Id: socket.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Cake Socket connection class.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5201 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-05-26 20:33:55 +0100 (Sat, 26 May 2007) $
+ * @version			$Revision: 5318 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('validation');

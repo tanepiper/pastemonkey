@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_db2.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: dbo_db2.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * IBM DB2 for DBO
  *
@@ -23,11 +23,12 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.10.5.1790
- * @version			$Revision: 5691 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+
 /**
  * IBM DB2 for DBO
  *
@@ -158,26 +159,21 @@ class DboDb2 extends DboSource {
 		// get result from db
 		$result = db2_exec($this->connection, $sql);
 
-		if(!is_bool($result)){
-			// build table/column map for this result
-			$map = array();
-			$num_fields = db2_num_fields($result);
-			$index = 0;
-			$j = 0;
-			$offset = 0;
+		// build table/column map for this result
+		$map = array();
+		$num_fields = db2_num_fields($result);
+		$index = 0;
+		$j = 0;
 
-			while ($j < $num_fields) {
-				$columnName = strtolower(db2_field_name($result, $j));
-				$tmp = strpos($sql, '.' . $columnName, $offset);
-				$tableName = substr($sql, $offset, ($tmp-$offset));
-				$tableName = substr($tableName, strrpos($tableName, ' ') + 1);
-				$map[$index++] = array($tableName, $columnName);
-				$j++;
-				$offset = strpos($sql, ' ', $tmp);
-			}
-
-			$this->_resultMap[$result] = $map;
+		while ($j < $num_fields) {
+			$columnName = strtolower(db2_field_name($result, $j));
+			$tableName = substr($sql, 0, strpos($sql, '.' . $columnName));
+			$tableName = substr($tableName, strrpos($tableName, ' ') + 1);
+			$map[$index++] = array($tableName, $columnName);
+			$j++;
 		}
+
+		$this->_resultMap[$result] = $map;
 
 		return $result;
 	}
@@ -220,8 +216,9 @@ class DboDb2 extends DboSource {
 		$result = db2_columns($this->connection, '', '', strtoupper($this->fullTableName($model)));
 
 		while (db2_fetch_row($result)) {
-			$fields[strtolower(db2_result($result, 'COLUMN_NAME'))] = array(
-				'type' => strtolower(db2_result($result, 'TYPE_NAME')),
+			$fields[] = array(
+				'name' => strtolower(db2_result($result, 'COLUMN_NAME')),
+				'type' => db2_result($result, 'TYPE_NAME'),
 				'null' => db2_result($result, 'NULLABLE'),
 				'default' => db2_result($result, 'COLUMN_DEF'));
 		}

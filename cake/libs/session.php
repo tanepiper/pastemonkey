@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: session.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: session.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Session class for Cake.
  *
@@ -24,16 +24,23 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v .0.10.0.1222
- * @version			$Revision: 5700 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5318 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Database name for cake sessions.
  *
  */
-uses('set');
+	if (!defined('CAKE_SESSION_TABLE')) {
+		 define('CAKE_SESSION_TABLE', 'cake_sessions');
+	}
+
+	if (CAKE_SESSION_SAVE === 'database') {
+		uses('model' . DS . 'connection_manager');
+	}
+	uses('set');
 /**
  * Session class for Cake.
  *
@@ -115,14 +122,6 @@ class CakeSession extends Object {
  * @access public
  */
 	function __construct($base = null, $start = true) {
-		if (!defined('CAKE_SESSION_TABLE')) {
-			 define('CAKE_SESSION_TABLE', 'cake_sessions');
-		}
-
-		if (CAKE_SESSION_SAVE === 'database' && !class_exists('ConnectionManager')) {
-			uses('model' . DS . 'connection_manager');
-		}
-
 		if (env('HTTP_USER_AGENT') != null) {
 			$this->_userAgent = md5(env('HTTP_USER_AGENT') . CAKE_SESSION_STRING);
 		} else {
@@ -133,7 +132,7 @@ class CakeSession extends Object {
 		if ($start === true) {
 			$this->host = env('HTTP_HOST');
 
-			if (empty($base) || strpos($base, '?' || strpos($base, 'index.php'))) {
+			if (empty($base) || strpos($base, '?')) {
 				$this->path = '/';
 			} else {
 				$this->path = $base;

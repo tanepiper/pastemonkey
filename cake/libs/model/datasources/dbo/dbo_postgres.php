@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_postgres.php 5603 2007-08-29 05:07:16Z phpnut $ */
+/* SVN FILE: $Id: dbo_postgres.php 5422 2007-07-09 05:23:06Z phpnut $ */
 
 /**
  * PostgreSQL layer for DBO.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.9.1.114
- * @version			$Revision: 5603 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-08-29 06:07:16 +0100 (Wed, 29 Aug 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -190,7 +190,8 @@ class DboPostgres extends DboSource {
 				} else {
 					$length = $this->length($c['type']);
 				}
-				$fields[$c['name']] = array(
+				$fields[] = array(
+					'name'    => $c['name'],
 					'type'    => $this->column($c['type']),
 					'null'    => ($c['null'] == 'NO' ? false : true),
 					'default' => $c['default'],
@@ -579,17 +580,58 @@ class DboPostgres extends DboSource {
 		return pg_client_encoding($this->connection);
 	}
 /**
- * Inserts multiple values into a join table
+ * Generate a PostgreSQL-native column schema string
  *
- * @param string $table
- * @param string $fields
- * @param array $values
+ * @param array $column An array structured like the following: array('name', 'type'[, options]),
+ *                      where options can be 'default', 'length', or 'key'.
+ * @return string
  */
-	function insertMulti($table, $fields, $values) {
-		$count = count($values);
-		for ($x = 0; $x < $count; $x++) {
-			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
+	function generateColumnSchema($column) {
+		$name = $type = $out = null;
+		$column = am(array('null' => true), $column);
+		list($name, $type) = $column;
+
+		if (empty($name) || empty($type)) {
+			trigger_error('Column name or type not defined in schema', E_USER_WARNING);
+			return null;
 		}
+		if (!isset($this->columns[$type])) {
+			trigger_error("Column type {$type} does not exist", E_USER_WARNING);
+			return null;
+		}
+		$out = "\t" . $this->name($name) . ' ';
+
+		if (!isset($column['key']) || $column['key'] != 'primary') {
+			$real = $this->columns[$type];
+			$out .= $real['name'];
+
+			if (isset($real['limit']) || isset($real['length']) || isset($column['limit']) || isset($column['length'])) {
+				if (isset($column['length'])) {
+					$length = $column['length'];
+				} elseif (isset($column['limit'])) {
+					$length = $column['limit'];
+				} elseif (isset($real['length'])) {
+					$length = $real['length'];
+				} else {
+					$length = $real['limit'];
+				}
+				$out .= '(' . $length . ')';
+			}
+		}
+
+		if (isset($column['key']) && $column['key'] == 'primary') {
+			$out .= $this->columns['primary_key']['name'];
+		} elseif (isset($column['default'])) {
+			$out .= ' DEFAULT ' . $this->value($column['default'], $type);
+		} elseif (isset($column['null']) && $column['null'] == true) {
+			$out .= ' DEFAULT NULL';
+		} elseif (isset($column['default']) && isset($column['null']) && $column['null'] == false) {
+			$out .= ' DEFAULT ' . $this->value($column['default'], $type) . ' NOT NULL';
+		} elseif (isset($column['null']) && $column['null'] == false) {
+			$out .= ' NOT NULL';
+		}
+		return $out;
 	}
 }
+
 ?>

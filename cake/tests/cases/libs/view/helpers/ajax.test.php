@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: ajax.test.php 5634 2007-09-14 02:21:52Z mariano.iglesias $ */
+/* SVN FILE: $Id: ajax.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.view.helpers
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5634 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-09-14 03:21:52 +0100 (Fri, 14 Sep 2007) $
+ * @version			$Revision: 5422 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 if (!defined('CAKEPHP_UNIT_TEST_EXECUTION')) {
@@ -130,74 +130,6 @@ class AjaxTest extends UnitTestCase {
 		$result = $this->Ajax->submit('Add', array('div' => false, 'url' => "/controller/action", 'indicator' => 'loading', 'loading' => "doSomething()", 'complete' => 'doSomethingElse() '));
 		$this->assertPattern('/onLoading:function\(request\) {doSomething\(\);\s+Element.show\(\'loading\'\);}/', $result);
 		$this->assertPattern('/onComplete:function\(request, json\) {doSomethingElse\(\) ;\s+Element.hide\(\'loading\'\);}/', $result);
-	}
-
-	function testLink() {
-		$result = $this->Ajax->link('Ajax Link', 'http://www.cakephp.org/downloads');
-		$this->assertPattern('/^<a[^<>]+>Ajax Link<\/a><script [^<>]+>[^<>]+<\/script>$/', $result);
-		$this->assertPattern('/^<a[^<>]+href="http:\/\/www.cakephp.org\/downloads"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+id="link\d+"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+onclick="\s*return false;"[^<>]*>/', $result);
-		$this->assertNoPattern('/<a[^<>]+[^href|id|onclick]=[^<>]*>/', $result);
-		$this->assertPattern('/<script[^<>]+type="text\/javascript"[^<>]*>/', $result);
-		$this->assertNoPattern('/<script[^<>]+[^type]=[^<>]*>/', $result);
-		$this->assertPattern('/Event.observe\(\'link\d+\',\s*\'click\',\s*function\(event\)\s*{.+},\s*false\);<\/script>$/', $result);
-		$this->assertPattern('/function\(event\)\s*{\s*new Ajax\.Request\(\'http:\/\/www.cakephp.org\/downloads\',\s*{asynchronous:true, evalScripts:true}\)\s*},\s*false\);/', $result);
-
-		$result = $this->Ajax->link('Ajax Link', 'http://www.cakephp.org/downloads', array('confirm' => 'Are you sure & positive?'));
-		$this->assertPattern('/^<a[^<>]+>Ajax Link<\/a><script [^<>]+>[^<>]+<\/script>$/', $result);
-		$this->assertPattern('/^<a[^<>]+href="http:\/\/www.cakephp.org\/downloads"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+id="link\d+"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+onclick="\s*return false;"[^<>]*>/', $result);
-		$this->assertNoPattern('/<a[^<>]+[^href|id|onclick]=[^<>]*>/', $result);
-		$this->assertPattern('/<script[^<>]+type="text\/javascript"[^<>]*>/', $result);
-		$this->assertNoPattern('/<script[^<>]+[^type]=[^<>]*>/', $result);
-		$this->assertPattern('/Event.observe\(\'link\d+\',\s*\'click\',\s*function\(event\)\s*{.+},\s*false\);<\/script>$/', $result);
-		$this->assertPattern('/function\(event\)\s*{\s*if \(confirm\(\'Are you sure & positive\?\'\)\) {\s*new Ajax\.Request\(\'http:\/\/www.cakephp.org\/downloads\',\s*{asynchronous:true, evalScripts:true}\);\s*}\s*else\s*{\s*return false;\s*}\s*},\s*false\);/', $result);
-
-		$result = $this->Ajax->link('Ajax Link', 'http://www.cakephp.org/downloads', array('update' => 'myDiv'));
-		$this->assertPattern('/^<a[^<>]+>Ajax Link<\/a><script [^<>]+>[^<>]+<\/script>$/', $result);
-		$this->assertPattern('/^<a[^<>]+href="http:\/\/www.cakephp.org\/downloads"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+id="link\d+"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+onclick="\s*return false;"[^<>]*>/', $result);
-		$this->assertNoPattern('/<a[^<>]+[^href|id|onclick]=[^<>]*>/', $result);
-		$this->assertPattern('/<script[^<>]+type="text\/javascript"[^<>]*>/', $result);
-		$this->assertNoPattern('/<script[^<>]+[^type]=[^<>]*>/', $result);
-		$this->assertPattern('/Event.observe\(\'link\d+\',\s*\'click\',\s*function\(event\)\s*{.+},\s*false\);<\/script>$/', $result);
-		$this->assertPattern('/function\(event\)\s*{\s*new Ajax\.Updater\(\'myDiv\',\s*\'http:\/\/www.cakephp.org\/downloads\',\s*{asynchronous:true, evalScripts:true, requestHeaders:\[\'X-Update\', \'myDiv\'\]}\)\s*},\s*false\);/', $result);
-
-		$result = $this->Ajax->link('Ajax Link', 'http://www.cakephp.org/downloads', array('update' => 'myDiv', 'id' => 'myLink'));
-		$this->assertPattern('/^<a[^<>]+>Ajax Link<\/a><script [^<>]+>[^<>]+<\/script>$/', $result);
-		$this->assertPattern('/^<a[^<>]+href="http:\/\/www.cakephp.org\/downloads"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+id="myLink"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+onclick="\s*return false;"[^<>]*>/', $result);
-		$this->assertNoPattern('/<a[^<>]+[^href|id|onclick]=[^<>]*>/', $result);
-		$this->assertPattern('/<script[^<>]+type="text\/javascript"[^<>]*>/', $result);
-		$this->assertNoPattern('/<script[^<>]+[^type]=[^<>]*>/', $result);
-		$this->assertPattern('/Event.observe\(\'myLink\',\s*\'click\',\s*function\(event\)\s*{.+},\s*false\);<\/script>$/', $result);
-		$this->assertPattern('/function\(event\)\s*{\s*new Ajax\.Updater\(\'myDiv\',\s*\'http:\/\/www.cakephp.org\/downloads\',\s*{asynchronous:true, evalScripts:true, requestHeaders:\[\'X-Update\', \'myDiv\'\]}\)\s*},\s*false\);/', $result);
-
-		$result = $this->Ajax->link('Ajax Link', 'http://www.cakephp.org/downloads', array('update' => 'myDiv', 'id' => 'myLink', 'complete' => 'myComplete();'));
-		$this->assertPattern('/^<a[^<>]+>Ajax Link<\/a><script [^<>]+>[^<>]+<\/script>$/', $result);
-		$this->assertPattern('/^<a[^<>]+href="http:\/\/www.cakephp.org\/downloads"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+id="myLink"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+onclick="\s*return false;"[^<>]*>/', $result);
-		$this->assertNoPattern('/<a[^<>]+[^href|id|onclick]=[^<>]*>/', $result);
-		$this->assertPattern('/<script[^<>]+type="text\/javascript"[^<>]*>/', $result);
-		$this->assertNoPattern('/<script[^<>]+[^type]=[^<>]*>/', $result);
-		$this->assertPattern('/Event.observe\(\'myLink\',\s*\'click\',\s*function\(event\)\s*{.+},\s*false\);<\/script>$/', $result);
-		$this->assertPattern('/function\(event\)\s*{\s*new Ajax\.Updater\(\'myDiv\',\s*\'http:\/\/www.cakephp.org\/downloads\',\s*{asynchronous:true, evalScripts:true, onComplete:function\(request, json\) {myComplete\(\);}, requestHeaders:\[\'X-Update\', \'myDiv\'\]}\)\s*},\s*false\);/', $result);
-
-		$result = $this->Ajax->link('Ajax Link', 'http://www.cakephp.org/downloads', array('update' => 'myDiv', 'id' => 'myLink', 'loading' => 'myLoading();', 'complete' => 'myComplete();'));
-		$this->assertPattern('/^<a[^<>]+>Ajax Link<\/a><script [^<>]+>[^<>]+<\/script>$/', $result);
-		$this->assertPattern('/^<a[^<>]+href="http:\/\/www.cakephp.org\/downloads"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+id="myLink"[^<>]*>/', $result);
-		$this->assertPattern('/^<a[^<>]+onclick="\s*return false;"[^<>]*>/', $result);
-		$this->assertNoPattern('/<a[^<>]+[^href|id|onclick]=[^<>]*>/', $result);
-		$this->assertPattern('/<script[^<>]+type="text\/javascript"[^<>]*>/', $result);
-		$this->assertNoPattern('/<script[^<>]+[^type]=[^<>]*>/', $result);
-		$this->assertPattern('/Event.observe\(\'myLink\',\s*\'click\',\s*function\(event\)\s*{.+},\s*false\);<\/script>$/', $result);
-		$this->assertPattern('/function\(event\)\s*{\s*new Ajax\.Updater\(\'myDiv\',\s*\'http:\/\/www.cakephp.org\/downloads\',\s*{asynchronous:true, evalScripts:true, onLoading:function\(request\) {myLoading\(\);}, onComplete:function\(request, json\) {myComplete\(\);}, requestHeaders:\[\'X-Update\', \'myDiv\'\]}\)\s*},\s*false\);/', $result);
 	}
 
 	function tearDown() {

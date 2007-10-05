@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: shell.php 5669 2007-09-18 04:16:04Z phpnut $ */
+/* SVN FILE: $Id: shell.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Base class for Shells
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5669 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 05:16:04 +0100 (Tue, 18 Sep 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 require_once CAKE . 'console' . DS . 'error.php';
@@ -325,13 +325,6 @@ class Shell extends Object {
  * @param boolean $newline If true, the outputs gets an added newline.
  */
 	function out($string, $newline = true) {
-		if(is_array($string)) {
-			$str = '';
-			foreach($string as $message) {
-				$str .= $message ."\n";
-			}
-			$string = $str;
-		}
 		return $this->Dispatch->stdout($string, $newline);
 	}
 /**
@@ -340,13 +333,6 @@ class Shell extends Object {
  * @param string $string Error text to output.
  */
 	function err($string) {
-		if(is_array($string)) {
-			$str = '';
-			foreach($string as $message) {
-				$str .= $message ."\n";
-			}
-			$string = $str;
-		}
 		return $this->Dispatch->stderr($string."\n");
 	}
 /**
@@ -398,7 +384,7 @@ class Shell extends Object {
  */
 	function createFile ($path, $contents) {
 		$path = str_replace(DS . DS, DS, $path);
-		$this->out("\n" . sprintf(__("Creating file %s", true), $path));
+		$this->out("\n".__(sprintf("Creating file %s", $path), true));
 		if (is_file($path) && $this->interactive === true) {
 			$key = $this->in(__("File exists, overwrite?", true). " {$path}",  array('y', 'n', 'q'), 'n');
 			if (low($key) == 'q') {
@@ -462,18 +448,16 @@ class Shell extends Object {
 		return str_replace(DS.DS, DS, $shortPath);
 	}
 /**
- * Checks for Configure::read('Routing.admin') and Forces user to input it if not enabled
+ * Checks for CAKE_ADMIN and Forces user to input it if not enabled
  *
  * @return the controller name
  */
 	function getAdmin() {
-		$admin = '';
-		$cakeAdmin = null;
-		$adminRoute = Configure::read('Routing.admin');
-		if (!empty($adminRoute)) {
-			$cakeAdmin = $adminRoute . '_';
+		$admin = null;
+		if (defined('CAKE_ADMIN')) {
+			$admin = CAKE_ADMIN.'_';
 		} else {
-			$this->out('You need to enable Configure::write(\'Routing.admin\',\'admin\') in /app/config/core.php to use admin routing.');
+			$this->out('You need to enable CAKE_ADMIN in /app/config/core.php to use admin routing.');
 			$this->out('What would you like the admin route to be?');
 			$this->out('Example: www.example.com/admin/controller');
 			while ($admin == '') {
@@ -481,13 +465,13 @@ class Shell extends Object {
 			}
 			if ($this->Project->cakeAdmin($admin) !== true) {
 				$this->out('Unable to write to /app/config/core.php.');
-				$this->out('You need to enable Configure::write(\'Routing.admin\',\'admin\') in /app/config/core.php to use admin routing.');
+				$this->out('You need to enable CAKE_ADMIN in /app/config/core.php to use admin routing.');
 				exit();
 			} else {
-				$cakeAdmin = $admin . '_';
+				$admin = $admin . '_';
 			}
 		}
-		return $cakeAdmin;
+		return $admin;
 	}
 /**
  * creates the proper pluralize controller for the url

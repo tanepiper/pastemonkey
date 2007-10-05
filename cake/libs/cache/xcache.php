@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: xcache.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: xcache.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Xcache storage engine for cache.
  *
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.cache
  * @since			CakePHP(tm) v 1.2.0.4947
- * @version			$Revision: 5700 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5318 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -34,32 +34,35 @@
  */
 class XcacheEngine extends CacheEngine {
 /**
- * settings
- * 		PHP_AUTH_USER = xcache.admin.user, default cake
- * 		PHP_AUTH_PW = xcache.admin.password, default cake
+ * Admin username (xcache.admin.user)
  *
- * @var array
- * @access public
+ * @var string
+ * @access private
  */
-	var $settings = array();
+	var $_php_auth_user = '';
 /**
- * Initialize the Cache Engine
+ * Plaintext password for basic auth (xcache.admin.pass)
+ *
+ * @var string
+ * @access private
+ */
+	var $_php_auth_pw = '';
+/**
+ * Set up the cache engine
  *
  * Called automatically by the cache frontend
- * To reinitialize the settings call Cache::engine('EngineName', [optional] settings = array());
  *
- * @param array $setting array of setting for the engine
- * @return boolean True if the engine has been successfully initialized, false if not
+ * @param array $params	Associative array of parameters for the engine
+ * @return boolean	True if the engine has been succesfully initialized, false if not
  * @access public
  */
-	function init($settings) {
-		parent::init($settings);
-		$defaults = array('PHP_AUTH_USER' => 'cake', 'PHP_AUTH_PW' => 'cake');
-		$this->settings = am($this->settings, $defaults, $settings);
+	function init($params) {
+		$this->_php_auth_user = $params['user'];
+		$this->_php_auth_pw = $params['password'];
 		return function_exists('xcache_info');
 	}
 /**
- * Write data for key into cache
+ * Write a value in the cache
  *
  * @param string $key Identifier for the data
  * @param mixed $value Data to be cached
@@ -67,11 +70,11 @@ class XcacheEngine extends CacheEngine {
  * @return boolean True if the data was succesfully cached, false on failure
  * @access public
  */
-	function write($key, &$value, $duration) {
+	function write($key, &$value, $duration = CACHE_DEFAULT_DURATION) {
 		return xcache_set($key, $value, $duration);
 	}
 /**
- * Read a key from the cache
+ * Read a value from the cache
  *
  * @param string $key Identifier for the data
  * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
@@ -84,7 +87,7 @@ class XcacheEngine extends CacheEngine {
 		return false;
 	}
 /**
- * Delete a key from the cache
+ * Delete a value from the cache
  *
  * @param string $key Identifier for the data
  * @return boolean True if the value was succesfully deleted, false if it didn't exist or couldn't be removed
@@ -94,36 +97,46 @@ class XcacheEngine extends CacheEngine {
 		return xcache_unset($key);
 	}
 /**
- * Delete all keys from the cache
+ * Delete all values from the cache
  *
  * @return boolean True if the cache was succesfully cleared, false otherwise
  * @access public
  */
 	function clear() {
 		$result = true;
-		$this->__auth();
+		$this->_phpAuth();
+
 		for ($i = 0, $max = xcache_count(XC_TYPE_VAR); $i < $max; $i++) {
 			if (!xcache_clear_cache(XC_TYPE_VAR, $i)) {
 				$result = false;
 				break;
 			}
 		}
-		$this->__auth(true);
+		$this->_phpAuth(true);
 		return $result;
 	}
 /**
- * Populates and reverses $_SERVER authentication values
+ * Return the settings for this cache engine
+ *
+ * @return array list of settings for this engine
+ * @access public
+ */
+	function settings() {
+		return array('class' => get_class($this));
+	}
+/**
  * Makes necessary changes (and reverting them back) in $_SERVER
  *
- * This has to be done because xcache_clear_cache() needs to pass Basic Http Auth
+ * This has to be done because xcache_clear_cache() needs pass Basic Auth
  * (see xcache.admin configuration settings)
  *
  * @param boolean	Revert changes
- * @access protected
+ * @access private
  */
-	function __auth($reverse = false) {
+	function _phpAuth($reverse = false) {
 		static $backup = array();
 		$keys = array('PHP_AUTH_USER', 'PHP_AUTH_PW');
+
 		foreach ($keys as $key) {
 			if ($reverse) {
 				if (isset($backup[$key])) {
@@ -137,8 +150,8 @@ class XcacheEngine extends CacheEngine {
 				if (!empty($value)) {
 					$backup[$key] = $value;
 				}
-				$varName = '__' . $key;
-				$_SERVER[$key] = $this->settings[$varName];
+				$varName = '_' . low($key);
+				$_SERVER[$key] = $this->{$varName};
 			}
 		}
 	}

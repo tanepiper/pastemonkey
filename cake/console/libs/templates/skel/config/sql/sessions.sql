@@ -1,4 +1,4 @@
-# $Id: sessions.sql 5031 2007-05-06 03:12:23Z phpnut $
+# $Id: sessions.sql 5118 2007-05-18 17:19:53Z phpnut $
 #
 # Copyright 2005-2007,	Cake Software Foundation, Inc.
 #								1785 E. Sahara Avenue, Suite 490-204

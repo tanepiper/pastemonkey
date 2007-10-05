@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: vendors.php 5313 2007-06-20 06:15:35Z phpnut $ */
+/* SVN FILE: $Id: vendors.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.app.webroot.js
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5313 $
+ * @version			$Revision: 5318 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-20 07:15:35 +0100 (Wed, 20 Jun 2007) $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**

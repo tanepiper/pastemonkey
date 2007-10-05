@@ -1,4 +1,4 @@
-# SVN FILE: $Id: default.pot 4407 2007-02-02 10:39:45Z phpnut $
+# SVN FILE: $Id: default.pot 4410 2007-02-02 13:31:21Z phpnut $
 # LANGUAGE translation of CakePHP Application
 # CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
 # Copyright 2006-2007, Cake Software Foundation, Inc.

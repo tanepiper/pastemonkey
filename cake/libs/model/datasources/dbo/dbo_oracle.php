@@ -1,7 +1,7 @@
 <?php
-/* SVN FILE: $Id: dbo_oracle.php 5563 2007-08-21 21:46:59Z gwoo $ */
+/* SVN FILE: $Id: dbo_oracle.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
- * Oracle layer for DBO.
+ * AdoDB layer for DBO.
  *
  * Long description for file
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP v 1.2.0.4041
- * @version			$Revision: 5563 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-21 22:46:59 +0100 (Tue, 21 Aug 2007) $
+ * @version			$Revision: 5422 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -73,10 +73,10 @@ class DboOracle extends DboSource {
 		'text' => array('name' => 'varchar2'),
 		'integer' => array('name' => 'numeric'),
 		'float' => array('name' => 'float'),
-		'datetime' => array('name' => 'date', 'format' => 'Y-m-d H:i:s'),
-		'timestamp' => array('name' => 'date', 'format' => 'Y-m-d H:i:s'),
-		'time' => array('name' => 'date', 'format' => 'Y-m-d H:i:s'),
-		'date' => array('name' => 'date', 'format' => 'Y-m-d H:i:s'),
+		'datetime' => array('name' => 'date'),
+		'timestamp' => array('name' => 'date'),
+		'time' => array('name' => 'date'),
+		'date' => array('name' => 'date'),
 		'binary' => array('name' => 'bytea'),
 		'boolean' => array('name' => 'boolean'),
 		'number' => array('name' => 'numeric'),
@@ -216,7 +216,7 @@ class DboOracle extends DboSource {
 		$fields = preg_split('/,\s+/', $fieldList);//explode(', ', $fieldList);
 		$lastTableName	= '';
 
-		foreach($fields as $key => $value) {
+		foreach ($fields as $key => $value) {
 			if ($value != 'COUNT(*) AS count') {
 				if (preg_match('/\s+(\w+(\.\w+)*)$/', $value, $matches)) {
 					$fields[$key]	= $matches[1];
@@ -235,7 +235,7 @@ class DboOracle extends DboSource {
 		}
 		$this->_map = array();
 
-		foreach($fields as $f) {
+		foreach ($fields as $f) {
 			$e = explode('.', $f);
 			if (count($e) > 1) {
 				$table = $e[0];
@@ -329,7 +329,7 @@ class DboOracle extends DboSource {
 		}
 		$resultRow = array();
 
-		foreach($this->_results[$this->_currentRow] as $index => $field) {
+		foreach ($this->_results[$this->_currentRow] as $index => $field) {
 			list($table, $column) = $this->_map[$index];
 
 			if (strpos($column, ' count')) {
@@ -396,7 +396,7 @@ class DboOracle extends DboSource {
 		}
 		$sources = array();
 
-		while($r = $this->fetchRow()) {
+		while ($r = $this->fetchRow()) {
 			$sources[] = $r[0]['name'];
 		}
 		parent::listSources($sources);
@@ -415,7 +415,7 @@ class DboOracle extends DboSource {
 		if ($cache != null) {
 			return $cache;
 		}
-		$sql = 'SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH FROM user_tab_columns WHERE table_name = \'';
+		$sql = 'SELECT COLUMN_NAME, DATA_TYPE FROM user_tab_columns WHERE table_name = \'';
 		$sql .= strtoupper($this->fullTableName($model)) . '\'';
 
 		if (!$this->execute($sql)) {
@@ -423,9 +423,9 @@ class DboOracle extends DboSource {
 		}
 		$fields = array();
 
-		for($i=0; $row = $this->fetchRow(); $i++) {
-			$fields[strtolower($row[0]['COLUMN_NAME'])] = array('type'=> $this->column($row[0]['DATA_TYPE']),
-			 													'length'=> $row[0]['DATA_LENGTH']);
+		for ($i=0; $row = $this->fetchRow(); $i++) {
+			$fields[$i]['name'] = strtolower($row[0]['COLUMN_NAME']);
+			$fields[$i]['type'] = $this->column($row[0]['DATA_TYPE']);
 		}
 		$this->__cacheDescription($this->fullTableName($model, false), $fields);
 		return $fields;
@@ -540,38 +540,20 @@ class DboOracle extends DboSource {
  * @return string Quoted and escaped
  * @access public
  */
-	function value($data, $column = null, $safe = false) {
-	    $parent = parent::value($data, $column, $safe);
-
-	    if ($parent != null) {
-			return $parent;
-		}
-
-		if ($data === null) {
-			return 'NULL';
-		}
-
-		if ($data === '') {
-			return  "''";
-		}
-
-		switch($column) {
+	function value($data, $column_type = null) {
+		switch($column_type) {
 			case 'date':
-				$data = date('Y-m-d H:i:s', strtotime($data));
-				$data = "TO_DATE('$data', 'YYYY-MM-DD HH24:MI:SS')";
-			    break;
-			case 'integer' :
-			case 'float' :
-			case null :
-				if (is_numeric($data)) {
-					break;
-				}
+				$date = date('Y-m-d H:i:s', strtotime($data));
+				return "TO_DATE('$date', 'YYYY-MM-DD HH24:MI:SS')";
+			break;
 			default:
-			    $data = str_replace("'", "''", $data);
-			    $data = "'$data'";
-			    break;
+				$data2 = str_replace("'", "''", $data);
+				if (is_numeric($data)) {
+					return $data2;
+				}
+				return "'".$data2."'";
+			break;
 		}
-		return $data;
 	}
 /**
  * Returns the ID generated from the previous INSERT operation.
@@ -588,7 +570,7 @@ class DboOracle extends DboSource {
 			return false;
 		}
 
-		while($row = $this->fetchRow()) {
+		while ($row = $this->fetchRow()) {
 			return $row[$sequence]['currval'];
 		}
 		return false;
@@ -615,19 +597,6 @@ class DboOracle extends DboSource {
  */
 	function lastAffected() {
 		return $this->_statementId ? ocirowcount($this->_statementId): false;
-	}
-/**
- * Inserts multiple values into a join table
- *
- * @param string $table
- * @param string $fields
- * @param array $values
- */
-	function insertMulti($table, $fields, $values) {
-		$count = count($values);
-		for ($x = 0; $x < $count; $x++) {
-			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
-		}
 	}
 }
 ?>

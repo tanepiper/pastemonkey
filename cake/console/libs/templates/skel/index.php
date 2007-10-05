@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: index.php 4407 2007-02-02 10:39:45Z phpnut $ */
+/* SVN FILE: $Id: index.php 5118 2007-05-18 17:19:53Z phpnut $ */
 /**
  * PHP versions 4 and 5
  *
@@ -17,9 +17,9 @@
  * @package			cake
  * @subpackage		cake.app
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 4407 $
+ * @version			$Revision: 5118 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-02-02 10:39:45 +0000 (Fri, 02 Feb 2007) $
+ * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 require 'webroot' . DIRECTORY_SEPARATOR . 'index.php';

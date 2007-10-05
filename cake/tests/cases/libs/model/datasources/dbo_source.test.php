@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_source.test.php 5598 2007-08-29 01:18:48Z phpnut $ */
+/* SVN FILE: $Id: dbo_source.test.php 5422 2007-07-09 05:23:06Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.model.datasources
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5598 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-08-29 02:18:48 +0100 (Wed, 29 Aug 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 if (!defined('CAKEPHP_UNIT_TEST_EXECUTION')) {
@@ -1393,20 +1393,6 @@ class DboSourceTest extends UnitTestCase {
 		$result = $this->db->conditions('DATEDIFF(NOW(),Article.published) < 1 && Article.live=1');
 		$expected = " WHERE DATEDIFF(NOW(),`Article`.`published`) < 1 && `Article`.`live`=1";
 		$this->assertEqual($result, $expected);
-
-		$result = $this->db->conditions('file = "index.html"');
-		$expected = ' WHERE file = "index.html"';
-		$this->assertEqual($result, $expected);
-
-		$result = $this->db->conditions("file = 'index.html'");
-		$expected = " WHERE file = 'index.html'";
-		$this->assertEqual($result, $expected);
-
-		$letter = $letter = 'd.a';
-		$conditions = array('Company.name' => 'like '.$letter.'%');
-		$result = $this->db->conditions($conditions);
-		$expected = " WHERE `Company`.`name` like  'd.a%'";
-		$this->assertEqual($result, $expected);
 	}
 
 	function testQuotesInStringConditions() {
@@ -1645,7 +1631,6 @@ class DboSourceTest extends UnitTestCase {
 		$result = $this->db->conditions($conditions);
 		$this->assertPattern('/^\s*WHERE\s+`Thread`.`project_id`\s*=\s*5\s+AND\s+`Thread`.`buyer_id`\s*=\s*14\s+AND\s+1\s*=\s*1\s+GROUP BY `Thread`.`project_id`$/', $result);
 	}
-
 	function testFieldParsing() {
 		$result = $this->db->fields($this->model, 'Vendor', "Vendor.id, COUNT(Model.vendor_id) AS `Vendor`.`count`");
 		$expected = array('`Vendor`.`id`', 'COUNT(`Model`.`vendor_id`) AS `Vendor`.`count`');
@@ -1721,10 +1706,6 @@ class DboSourceTest extends UnitTestCase {
 
 		$result = $this->db->fields($this->model, null, 'field1, field2, field3, count(*), name');
 		$expected = array('`TestModel`.`field1`', '`TestModel`.`field2`', '`TestModel`.`field3`', 'count(*)', '`TestModel`.`name`');
-		$this->assertEqual($result, $expected);
-
-		$result = $this->db->fields($this->model, null, array('dayofyear(now())'));
-		$expected = array('dayofyear(now())');
 		$this->assertEqual($result, $expected);
 	}
 
@@ -2031,10 +2012,7 @@ class DboSourceTest extends UnitTestCase {
 
 		$result = $this->db->order(array(array("title")));
 		$this->assertPattern('/^\s*ORDER BY\s+`title`\s+ASC\s*$/', $result);
-
-		$result = $this->db->order("Dealer.id = 7 desc, Dealer.id = 3 desc, Dealer.title asc");
-		$expected = " ORDER BY Dealer`.`id` = 7 desc,  Dealer`.`id` = 3 desc,  `Dealer`.`title` asc";
-		$this->assertEqual($result, $expected);
 	}
 }
+
 ?>

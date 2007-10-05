@@ -1,5 +1,5 @@
 ;<?php die() ?>
-; SVN FILE: $Id: acl.ini.php 5031 2007-05-06 03:12:23Z phpnut $
+; SVN FILE: $Id: acl.ini.php 5118 2007-05-18 17:19:53Z phpnut $
 ;/**
 ; * Short description for file.
 ; *
@@ -20,9 +20,9 @@
 ; * @package		cake
 ; * @subpackage	cake.app.config
 ; * @since			CakePHP(tm) v 0.10.0.1076
-; * @version		$Revision: 5031 $
+; * @version		$Revision: 5118 $
 ; * @modifiedby	$LastChangedBy: phpnut $
-; * @lastmodified	$Date: 2007-05-06 04:12:23 +0100 (Sun, 06 May 2007) $
+; * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
 ; * @license		http://www.opensource.org/licenses/mit-license.php The MIT License
 ; */
 

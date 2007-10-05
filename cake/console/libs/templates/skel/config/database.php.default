@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: database.php.default 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: database.php.default 5118 2007-05-18 17:19:53Z phpnut $ */
 /**
  * This is core configuration file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.app.config
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5691 $
+ * @version			$Revision: 5118 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -52,7 +52,7 @@
  * where 'x' is the name of the database.
  *
  * persistent => true / false
- * Determines whether or not the database should use a persistent connection
+ * Determines whether or not the database should use a persistent connection 
  *
  * connect =>
  * ADOdb set the connect to one of these

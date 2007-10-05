@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: ajax.php 5407 2007-07-08 18:06:44Z phpnut $ */
+/* SVN FILE: $Id: ajax.php 5422 2007-07-09 05:23:06Z phpnut $ */
 
 /**
  * Helper for AJAX operations.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5407 $
+ * @version			$Revision: 5422 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-08 19:06:44 +0100 (Sun, 08 Jul 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:23:06 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 

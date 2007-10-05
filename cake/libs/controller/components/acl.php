@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.php 5669 2007-09-18 04:16:04Z phpnut $ */
+/* SVN FILE: $Id: acl.php 5425 2007-07-09 05:57:03Z phpnut $ */
 /**
  * Access Control List factory class.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller.components
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5669 $
+ * @version			$Revision: 5425 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 05:16:04 +0100 (Tue, 18 Sep 2007) $
+ * @lastmodified	$Date: 2007-07-09 06:57:03 +0100 (Mon, 09 Jul 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -54,14 +54,14 @@ class AclComponent extends Object {
 	function &getACL() {
 		if ($this->_instance == null) {
 			$name = $this->name;
-			if (!class_exists($name)) {
-				if (loadComponent($name)) {
+			if(!class_exists($name)) {
+				if(loadComponent($name)) {
 					if (strpos($name, '.') !== false) {
 						list($plugin, $name) = explode('.', $name);
 					}
 					$name .= 'Component';
 				} else {
-					trigger_error(sprintf(__('Could not find %s.', true), $name), E_USER_WARNING);
+					trigger_error(__(sprintf('Could not find %s.', $name), true), E_USER_WARNING);
 				}
 			}
 			$this->_instance =& new $name();
@@ -282,16 +282,16 @@ class DB_ACL extends AclBase {
 		for ($i = count($aroPath) - 1; $i >= 0; $i--) {
 			$perms = $this->Aro->Permission->findAll(
 				array(
-					$this->Aro->Permission->name . '.aro_id' => $aroPath[$i][$this->Aro->name]['id'],
-					$this->Aro->Permission->name . '.aco_id' => $acoPath->extract('{n}.' . $this->Aco->name . '.id')
+					'Permission.aro_id' => $aroPath[$i]['Aro']['id'],
+					'Permission.aco_id' => $acoPath->extract('{n}.Aco.id')
 				),
-				null, array($this->Aco->name .'.lft' => 'desc'), null, null, 0
+				null, array('Aco.lft' => 'desc'), null, null, 0
 			);
 
 			if (empty($perms)) {
 				continue;
 			} else {
-				foreach (Set::extract($perms, '{n}.' . $this->Aro->Permission->name) as $perm) {
+				foreach (Set::extract($perms, '{n}.Permission') as $perm) {
 					if ($action == '*') {
 						// ARO must be cleared for ALL ACO actions
 						foreach ($permKeys as $key) {
@@ -335,7 +335,7 @@ class DB_ACL extends AclBase {
 		}
 
 		if (isset($perms[0])) {
-			$save = $perms[0][$this->Aro->Permission->name];
+			$save = $perms[0]['Permission'];
 		}
 
 		if ($actions == "*") {
@@ -365,7 +365,7 @@ class DB_ACL extends AclBase {
 		$save['aco_id'] = $perms['aco'];
 
 		if ($perms['link'] != null && count($perms['link']) > 0) {
-			$save['id'] = $perms['link'][0][$this->Aro->Permission->name]['id'];
+			$save['id'] = $perms['link'][0]['Permission']['id'];
 		}
 		$this->Aro->Permission->create($save);
 		return $this->Aro->Permission->save();
@@ -439,11 +439,11 @@ class DB_ACL extends AclBase {
 		}
 
 		return array(
-			'aro' => Set::extract($obj, 'Aro.0.'.$this->Aro->name.'.id'),
-			'aco'  => Set::extract($obj, 'Aco.0.'.$this->Aco->name.'.id'),
+			'aro' => Set::extract($obj, 'Aro.0.Aro.id'),
+			'aco'  => Set::extract($obj, 'Aco.0.Aco.id'),
 			'link' => $this->Aro->Permission->findAll(array(
-				$this->Aro->Permission->name . '.aro_id' => Set::extract($obj, 'Aro.0.'.$this->Aro->name.'.id'),
-				$this->Aro->Permission->name . '.aco_id' => Set::extract($obj, 'Aco.0.'.$this->Aco->name.'.id')
+				'Permission.aro_id' => Set::extract($obj, 'Aro.0.Aro.id'),
+				'Permission.aco_id' => Set::extract($obj, 'Aco.0.Aco.id')
 			))
 		);
 	}
@@ -585,11 +585,16 @@ class INI_ACL extends AclBase {
  * @return array
  */
 	function arrayTrim($array) {
-		foreach ($array as $key => $value) {
-			$array[$key] = trim($value);
+		foreach ($array as $element) {
+			$element = trim($element);
 		}
+
+		//Adding this element keeps array_search from returning 0:
+		//0 is the first key, which may be correct, but 0 is interpreted as false.
+		//Adding this element makes all the keys be positive integers.
 		array_unshift($array, "");
 		return $array;
 	}
 }
+
 ?>

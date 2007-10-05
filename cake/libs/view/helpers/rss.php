@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: rss.php 5670 2007-09-18 18:00:22Z phpnut $ */
+/* SVN FILE: $Id: rss.php 4410 2007-02-02 13:31:21Z phpnut $ */
 /**
  * RSS Helper class file.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5670 $
+ * @version			$Revision: 4410 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 19:00:22 +0100 (Tue, 18 Sep 2007) $
+ * @lastmodified	$Date: 2007-02-02 13:31:21 +0000 (Fri, 02 Feb 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -131,20 +131,12 @@ class RssHelper extends XmlHelper {
 		}
 		if (!isset($elements['link'])) {
 			$elements['link'] = '/';
-		}
-		if (!isset($elements['description'])) {
-			$elements['description'] = '';
-		}
+		} 
 		$elements['link'] = $this->url($elements['link'], true);
 
 		$elems = '';
 		foreach ($elements as $elem => $data) {
-			$attributes = array();
-			if (is_array($data) && isset($data['attrib']) && is_array($data['attrib'])) {
-				$attributes = $data['attrib'];
-				unset($data['attrib']);
-			}
-			$elems .= $this->elem($elem, $attributes, $data);
+			$elems .= $this->elem($elem, array(), $data);
 		}
 		return $this->elem('channel', $attrib, $elems . $this->__composeContent($content), !($content === null));
 	}
@@ -177,7 +169,7 @@ class RssHelper extends XmlHelper {
  * @param  array  $elements    The list of elements contained in this <item />
  * @return string An RSS <item /> element
  */
-	function item($att = array(), $elements = array()) {
+	function item($attrib = array(), $elements = array()) {
 		$content = null;
 		foreach ($elements as $key => $val) {
 
@@ -218,7 +210,7 @@ class RssHelper extends XmlHelper {
 					$attrib = $val;
 					$val = null;
 				break;
-			}
+			}			
 			if ($val != null) {
 				$val = h($val);
 			}
@@ -232,7 +224,8 @@ class RssHelper extends XmlHelper {
 		if (!empty($elements)) {
 			$content = join('', $elements);
 		}
-		return $this->output($this->elem('item', $att, $content, !($content === null)));
+		
+		return $this->output($this->elem('item', $attrib, $content, !($content === null)));
 	}
 /**
  * Converts a time in any format to an RSS time
@@ -245,4 +238,5 @@ class RssHelper extends XmlHelper {
 		return $this->Time->toRSS($time);
  	}
 }
+
 ?>

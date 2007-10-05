@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: datasource.php 5587 2007-08-27 03:15:11Z nate $ */
+/* SVN FILE: $Id: datasource.php 5318 2007-06-20 09:01:21Z phpnut $ */
 /**
  * DataSource base class
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources
  * @since			CakePHP(tm) v 0.10.5.1790
- * @version			$Revision: 5587 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-08-27 04:15:11 +0100 (Mon, 27 Aug 2007) $
+ * @version			$Revision: 5318 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-06-20 10:01:21 +0100 (Wed, 20 Jun 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -84,6 +84,12 @@ class DataSource extends Object {
  * @access public
  */
 	var $took = null;
+/**
+ * Enter description here...
+ *
+ * @var boolean
+ */
+	var $cacheSources = true;
 /**
  * Enter description here...
  *
@@ -178,12 +184,6 @@ class DataSource extends Object {
  */
 	var $_transactionStarted = false;
 /**
- * Enter description here...
- *
- * @var boolean
- */
-       var $cacheSources = true;
-/**
  * Constructor.
  */
 	function __construct() {
@@ -191,146 +191,6 @@ class DataSource extends Object {
 		if (func_num_args() > 0) {
 			$this->setConfig(func_get_arg(0));
 		}
-	}
-/**
- * Caches/returns cached results for child instances
- *
- * @return array
- */
-	function listSources($data = null) {
-		if ($this->cacheSources === false) {
-			return null;
-		}
-		if ($this->_sources != null) {
-			return $this->_sources;
-		}
-
-		if (Configure::read() > 0) {
-			$expires = "+30 seconds";
-		} else {
-			$expires = "+999 days";
-		}
-
-		if ($data != null) {
-			$data = serialize($data);
-		}
-		$filename = ConnectionManager::getSourceName($this) . '_' . preg_replace("/[^A-Za-z0-9_-]/", "_", $this->config['database']) . '_list';
-		$new = cache('models' . DS . $filename, $data, $expires);
-
-		if ($new != null) {
-			$new = unserialize($new);
-			$this->_sources = $new;
-		}
-		return $new;
-	}
-/**
- * Convenience method for DboSource::listSources().  Returns source names in lowercase.
- *
- * @return array
- */
-	function sources() {
-		$return = array_map('strtolower', $this->listSources());
-		return $return;
-	}
-/**
- * Returns a Model description (metadata) or null if none found.
- *
- * @param Model $model
- * @return mixed
- */
-	function describe($model) {
-		if ($this->cacheSources === false) {
-			return null;
-		}
-		if (isset($this->__descriptions[$model->tablePrefix . $model->table])) {
-			return $this->__descriptions[$model->tablePrefix . $model->table];
-		}
-		$cache = $this->__cacheDescription($model->tablePrefix . $model->table);
-
-		if ($cache !== null) {
-			$this->__descriptions[$model->tablePrefix . $model->table] =& $cache;
-			return $cache;
-		}
-		return null;
-	}
-/**
- * Converts column types to basic types
- *
- * @param string $real Real  column type (i.e. "varchar(255)")
- * @return string Abstract column type (i.e. "string")
- */
-	function column($real) {
-		return false;
-	}
-/**
- * To-be-overridden in subclasses.
- *
- * @param unknown_type $model
- * @param unknown_type $fields
- * @param unknown_type $values
- * @return unknown
- */
-	function create(&$model, $fields = null, $values = null) {
-		return false;
-	}
-/**
- * To-be-overridden in subclasses.
- *
- * @param unknown_type $model
- * @param unknown_type $queryData
- * @return unknown
- */
-	function read(&$model, $queryData = array()) {
-		return false;
-	}
-/**
- * To-be-overridden in subclasses.
- *
- * @param unknown_type $model
- * @param unknown_type $fields
- * @param unknown_type $values
- * @return unknown
- */
-	function update(&$model, $fields = null, $values = null) {
-		return false;
-	}
-/**
- * To-be-overridden in subclasses.
- *
- * @param unknown_type $model
- * @param unknown_type $id
- */
-	function delete(&$model, $id = null) {
-		if ($id == null) {
-			$id = $model->id;
-		}
-	}
-/**
- * Returns the ID generated from the previous INSERT operation.
- *
- * @param unknown_type $source
- * @return in
- */
-	function lastInsertId($source = null) {
-		return false;
-	}
-/**
- * Returns the ID generated from the previous INSERT operation.
- *
- * @param unknown_type $source
- * @return in
- */
-	function lastNumRows($source = null) {
-		return false;
-	}
-/**
- * Returns the ID generated from the previous INSERT operation.
- *
- * @param unknown_type $source
- * @return in
- */
-	function lastAffected($source = null) {
-		return false;
 	}
 /**
  * Returns true if the DataSource supports the given interface (method)
@@ -388,6 +248,116 @@ class DataSource extends Object {
 			$new = unserialize($new);
 		}
 		return $new;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @return string
+ */
+	function conditions($conditions) {
+		return $conditions;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param unknown_type $name
+ * @return unknown
+ */
+	function name($name) {
+		return $name;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param unknown_type $value
+ * @return unknown
+ */
+	function value($value) {
+		return $value;
+	}
+/**
+ * Returns a Model description (metadata) or null if none found.
+ *
+ * @param Model $model
+ * @return mixed
+ */
+	function describe($model) {
+		if ($this->cacheSources === false) {
+			return null;
+		}
+
+		if (isset($this->__descriptions[$model->tablePrefix.$model->table])) {
+			return $this->__descriptions[$model->tablePrefix.$model->table];
+		}
+		$cache = $this->__cacheDescription($model->tablePrefix.$model->table);
+
+		if ($cache !== null) {
+			$this->__descriptions[$model->tablePrefix.$model->table] =& $cache;
+			return $cache;
+		}
+		return null;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param unknown_type $model
+ * @param unknown_type $fields
+ * @param unknown_type $values
+ * @return unknown
+ */
+	function create(&$model, $fields = null, $values = null) {
+		return false;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param unknown_type $model
+ * @param unknown_type $queryData
+ * @return unknown
+ */
+	function read(&$model, $queryData = array()) {
+		return false;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param unknown_type $model
+ * @param unknown_type $fields
+ * @param unknown_type $values
+ * @return unknown
+ */
+	function update(&$model, $fields = null, $values = null) {
+		return false;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param unknown_type $model
+ * @param unknown_type $id
+ */
+	function delete(&$model, $id = null) {
+		if ($id == null) {
+			$id = $model->id;
+		}
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param mixed $fields
+ * @return mixed
+ */
+	function fields($fields) {
+		return $fields;
+	}
+/**
+ * To-be-overridden in subclasses.
+ *
+ * @param Model $model
+ * @param unknown_type $fields
+ * @return unknown
+ */
+	function getColumnType(&$model, $fields) {
+		return false;
 	}
 /**
  * Enter description here...
