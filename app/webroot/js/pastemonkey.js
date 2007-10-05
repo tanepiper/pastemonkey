@@ -90,13 +90,13 @@ $pastemonkey(document).ready(function() {
 
 	$pastemonkey.ajaxSetup({timeout: 10000});
 	
-/*	$pastemonkey('#content').ajaxStart(function(){
+	$pastemonkey('#content').ajaxStart(function(){
 		$pastemonkey.blockUI();
 	});
 	$pastemonkey('#content').ajaxStop(function(){
 		$pastemonkey.unblockUI();
 	});
-*/
+
 	$pastemonkey('#recaptcha_div').livequery(function(){
 		var self = this;
 		if (typeof self != 'undefined') {
