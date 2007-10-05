@@ -42,26 +42,16 @@ class PastesController extends AppController {
 			$this->Session->write('author_name', $this->data['Paste']['author']);
 			$this->Session->write('remember_me', $this->data['Paste']['remember_me']);
 			
-//			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
-//				$captcha = $this->_checkCaptcha($this->captchaPrivateKey, $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
-//				if ($captcha['result']) {
-					if ($this->Paste->save($this->data)) {
-						if ($this->params['isAjax']) {
+			if ($this->Paste->save($this->data)) {
+				if ($this->params['isAjax']) {
 						
-						} else {
-							$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
-							$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
-						}	
-					} else {
-						$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
-					}
-//				} else {
-//					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You have entered the ReCaptcha incorrectly.', true) . '<br />' .  __('Please, try again.', true), 'default', array('sev'=>'warning'));
-//					$this->set('error',  $captcha['error']);
-//				}
-//			} else {
-//				$this->Session->setFlash('<strong>' . __('Fatal Error', true) . '</strong><br />' . __('Captcha library has failed to load.', true) . '<br />' . __('Please refresh the page', true) . '<br />' . __('If failure continues, please contact the system administator', true), 'default', array('sev'=>'fatal'));
-//			}
+				} else {
+					$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
+					$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
+				}	
+			} else {
+				$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
+			}
 		}
 		
 		if (isset($name)) {
@@ -80,7 +70,6 @@ class PastesController extends AppController {
 
 		$this->set('languages', $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language'));
 		$this->set('expiry_types',$this->expiry_types);
-		$this->set('error', null);
 		$this->Paste->_purge();
 	}
 	
@@ -101,27 +90,17 @@ class PastesController extends AppController {
 			
 			$this->Session->write('author_name', $this->data['Paste']['author']);
 			$this->Session->write('remember_me', $this->data['Paste']['remember_me']);
-			
-//			if (isset($this->params['form']['recaptcha_challenge_field']) && isset($this->params['form']['recaptcha_response_field'])) {
-//				$captcha = $this->_checkCaptcha($this->captchaPrivateKey, $_SERVER["REMOTE_ADDR"], $this->params['form']['recaptcha_challenge_field'],$this->params['form']['recaptcha_response_field']);
-//				if ($captcha['result']) {
-					if ($this->Paste->save($this->data)) {
-						if ($this->params['isAjax']) {
+
+			if ($this->Paste->save($this->data)) {
+				if ($this->params['isAjax']) {
 						
-						} else {
-							$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
-							$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
-						}	
-					} else {
-						$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
-					}
-//				} else {
-//					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You have entered the ReCaptcha incorrectly.', true) . '<br />' .  __('Please, try again.', true), 'default', array('sev'=>'warning'));
-//					$this->set('error',  $captcha['error']);
-//				}
-//			} else {
-//				$this->Session->setFlash('<strong>' . __('Fatal Error', true) . '</strong><br />' . __('Captcha library has failed to load.', true) . '<br />' . __('Please refresh the page', true) . '<br />' . __('If failure continues, please contact the system administator', true), 'default', array('sev'=>'fatal'));
-//			}
+				} else {
+					$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
+					$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
+				}	
+			} else {
+				$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
+			}
 		}
 		
 		if (isset($name)) {
@@ -144,7 +123,6 @@ class PastesController extends AppController {
 		
 		$this->set('languages', $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language'));
 		$this->set('expiry_types',$this->expiry_types);
-		$this->set('error', null);
 		$this->set('this_id', $id);
 		$this->Paste->_purge();
 	}

@@ -24,9 +24,5 @@
 			<?php e($form->input('private', array('type'=>'checkbox', 'label'=>'Make this paste private?')));?>
 		</fieldset>
 	
-		<fieldset id="captchField">
-			<legend><?php __('Captcha');?></legend>
-			<?php e($recaptcha->render('6Lf3dAAAAAAAANFCQ7r0Nn3mcOfc4UYPyzvRkZ6v', $error));?>
-		</fieldset>
 	<?php e($form->end(__('Add New Paste', true), array('class'=>'submit-paste')));?>
 </div>
