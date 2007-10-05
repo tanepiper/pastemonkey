@@ -1,10 +1,11 @@
 <?php
-/* SVN FILE: $Id: app_controller.php 5118 2007-05-18 17:19:53Z phpnut $ */
+/* SVN FILE: $Id: app_model.php 5118 2007-05-18 17:19:53Z phpnut $ */
+
 /**
- * Short description for file.
+ * Application model for Cake.
  *
- * This file is application-wide controller file. You can put all
- * application-wide controller-related methods here.
+ * This file is application-wide model file. You can put all
+ * application-wide model-related methods here.
  *
  * PHP versions 4 and 5
  *
@@ -27,27 +28,16 @@
  * @lastmodified	$Date: 2007-05-18 18:19:53 +0100 (Fri, 18 May 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+
 /**
- * Short description for class.
+ * Application model for Cake.
  *
- * Add your application-wide methods in the class below, your controllers
+ * Add your application-wide methods in the class below, your models
  * will inherit them.
  *
  * @package		cake
  * @subpackage	cake.app
  */
-class AppController extends Controller {
-	var $helpers = array('Html', 'Form', 'Javascript', 'Time', 'Text', 'Diff', 'Geshi', 'Pastemonkey',
-						 'Recaptcha');
-	var $components = array('Session','RequestHandler','Conf');
-	
-	var $captchaPrivateKey = '';
-	
-	function beforeFilter()
-	{
-		$this->layout = "default";
-  		$this->Conf->startup(&$this);
-		$this->set('pm_sitename', $this->Conf->get('app.sitename','Paste Monkey', true, true)); 
-		$this->set('pm_siteurl', $this->Conf->get('app.siteurl','http://pastemonkey.org', true, true)); 
-	}	
+class AppModel extends Model{
 }
+?>

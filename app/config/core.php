@@ -54,7 +54,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 0);
+	define('DEBUG', 2);
 /**
  * Turn off or enable cache checking application-wide.
  *
@@ -63,13 +63,11 @@
  * controller-wide by setting var $cacheAction = true, or in each action
  * using $this->cacheAction = true.
  */
- 	Configure::write('cache_check', true);
-	define('CACHE_CHECK', true);
+	define('CACHE_CHECK', false);
 /**
  * Defines the default error type when using the log() function. Used for
  * differentiating error logging and debugging. Currently PHP supports LOG_DEBUG.
  */
- 	Configure::write('log_error', 2);
 	define('LOG_ERROR', 2);
 /**
  * The preferred session handling method. Valid values:
@@ -84,7 +82,6 @@
  * To use database sessions, execute the SQL file found at /app/config/sql/sessions.sql.
  *
  */
- 	Configure::write('cake_session_save', 'database');
 	define('CAKE_SESSION_SAVE', 'database');
 /**
  * The name of the table used to store CakePHP database sessions.
@@ -93,17 +90,14 @@
  *
  * The table name set here should *not* include any table prefix defined elsewhere.
  */
- 	Configure::write('cake_session_table', 'cake_sessions');
 	define('CAKE_SESSION_TABLE', 'cake_sessions');
 /**
  * A random string used in session management.
  */
- 	Configure::write('cake_session_string', 'a34DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
-	define('CAKE_SESSION_STRING', 'a34DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
+define('CAKE_SESSION_STRING', '797d7f25f393bc7a6fd07eaad0217c0a58015690');
 /**
  * The name of CakePHP's session cookie.
  */
- 	Configure::write('cake_session_cookie', 'CAKEPHP');
 	define('CAKE_SESSION_COOKIE', 'CAKEPHP');
 /**
  * The level of CakePHP session security. The session timeout time defined
@@ -117,13 +111,11 @@
  * CakePHP session IDs are also regenerated between requests if
  * CAKE_SECURITY is set to 'high'.
  */
- 	Configure::write('cake_security', 'high');
 	define('CAKE_SECURITY', 'high');
 /**
  * Session time out time (in seconds).
  * Actual value depends on CAKE_SECURITY setting.
  */
- 	Configure::write('cake_session_timeout', '120');
 	define('CAKE_SESSION_TIMEOUT', '120');
 /**
  * Uncomment the define below to use CakePHP admin routes.
@@ -136,22 +128,23 @@
  */
 //	define('CAKE_ADMIN', 'admin');
 /**
+ *  Enable or disable CakePHP webservices routing. Set to 'off' or 'on'.
+ */
+	define('WEBSERVICES', 'off');
+/**
  * Compress CSS output by removing comments, whitespace, repeating tags, etc.
  * This requires a/var/cache directory to be writable by the web server for caching.
  *
  * To use, prefix the CSS link URL with '/ccss/' instead of '/css/' or use Controller::cssTag().
  */
- 	Configure::write('compress_css', false);
 	define('COMPRESS_CSS', false);
 /**
  * If set to false, sessions are not automatically started.
  */
- 	Configure::write('auto_session', true);
 	define('AUTO_SESSION', true);
 /**
  * The max size of file allowed for MD5 hashes (in bytes).
  */
- 	Configure::write('max_md5size', (5 * 1024) * 1024);
 	define('MAX_MD5SIZE', (5 * 1024) * 1024);
 /**
  * The classname, filename, (and database) used in CakePHP's
