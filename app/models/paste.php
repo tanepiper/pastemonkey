@@ -65,6 +65,12 @@ class Paste extends AppModel {
 		}
 	}
 */	
+
+	function beforeSave() {
+		$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
+		return true;
+	}
+
 	function beforeRender() {
 	}
 	
@@ -83,6 +89,15 @@ class Paste extends AppModel {
 		foreach ($remove as $paste) {
 			$this->delete($paste['Paste']['id']);
 		}
+	}
+	
+	function _generateDate($expiry_type) {
+		if ($expiry_type == 'never') {
+			$output = null;
+		} else {
+			$output = date('Y-m-d H:i:s', strtotime($expiry_type));
+		}
+		return $output;
 	}
 }
 ?>

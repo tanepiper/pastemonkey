@@ -36,9 +36,10 @@
 	Router::connect('/', array('controller' => 'pastes', 'action' => 'add'));
 	Router::connect('/add/*', array('controller' => 'pastes', 'action' => 'add'));
 	Router::connect('/paste/*', array('controller' => 'pastes', 'action' => 'view'));
-	Router::connect('/img/:size/*', array('controller' => 'images', 'action' => 'view'), array('size' => '[0-9]*x[0-9]*'));
-	Router::connect('/files/*', array('controller' => 'images', 'action' => 'view', 'size' => 'original'));
-	Router::connect('/img/*', array('controller' => 'images', 'action' => 'view', 'size' => 'default'));
+	Router::connect('/news', array('controller' => 'pinboards', 'action' => 'index'));
+	//Router::connect('/img/:size/*', array('controller' => 'images', 'action' => 'view'), array('size' => '[0-9]*x[0-9]*'));
+	//Router::connect('/files/*', array('controller' => 'images', 'action' => 'view', 'size' => 'original'));
+	//Router::connect('/img/*', array('controller' => 'images', 'action' => 'view', 'size' => 'default'));
 /**
  * Then we connect url '/test' to our test controller. This is helpfull in
  * developement.

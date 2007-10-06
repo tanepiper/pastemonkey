@@ -165,12 +165,18 @@ div#extra .buttons p {
 	float:left;
 	margin-right:10px;
 }
+
+fieldset {
+	padding: 10px;
+}
+
 label {
 	display:block;
 }
 
 textarea {
 	width:99%;
+	height:250px;
 	background: #cce5ff;
 }
 
@@ -257,3 +263,41 @@ div#content .viewPaste .viewPaste-infoArea .viewPaste-infoArea-downloadLinks img
 	border:0;
 	text-align:center;
 }
+
+div#content div#flashMessage {
+	margin: 0 auto;
+	position: absolute;
+	top: 10px;
+	left: 500px;
+}
+
+div#content .error-message {
+	border: 2px solid #000;
+	background: #f00 url('/img/dialog-error.png') no-repeat left center;
+	padding: 10px 10px 10px 30px;
+	height: 40px;
+	color: #fff;
+	margin: 0 auto;
+}
+
+div#content #paste-fieldset {
+	width: 60%;
+	float:left;
+}
+
+div#content #note-fieldset {
+	width: 25%;
+	float:left;
+	margin-left: 5%;
+}
+
+div#content #details-fieldset {
+	width: 33%;
+	float: left;
+}
+
+div#content #options-fieldset {
+	width: 33%;
+	float:left;
+	margin-left: 5%;
+} 

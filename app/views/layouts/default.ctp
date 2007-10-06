@@ -17,22 +17,18 @@
 		<div id="container">
 			<div id="header">
 				<h1><a href="/"><?php e($html->image('edit-paste.png'));?> <?php e($html->image('face-monkey.png'));?> (beta)</a></h1>
-				<div class="loading" style="display:none"><?php e($html->image('ajax-loader.gif'));?> <?php __('Loading');?></div>
-				</div>
+			</div>
 			<div id="wrapper">
 				<div id="content">
-					<?php
-					if ($session->check('Message.flash')):
-							$session->flash();
-					endif;
-					?>
-				<?php echo $content_for_layout;?>
+					<?php echo $content_for_layout;?>
 				</div>
 			</div>
 			<div id="navigation">
 				<?php e($this->element('navigation'));?>
 				<?php e($this->element('search'));?>
-				<?php e($this->element('latest'));?>
+				<div id="ajaxLatest">
+					<?php e($this->element('latest'));?>
+				</div>
 				<?php e($this->element('donate'));?>
 				<?php e($this->element('googleads'));?>
 			</div>

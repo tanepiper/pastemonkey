@@ -1,3 +1,5 @@
+<?php e($this->element('notify'));?>
+
 <div class="viewPaste">
 	<h2><?php __('View Paste');?></h2>
 	<div>

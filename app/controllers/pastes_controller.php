@@ -12,7 +12,9 @@ class PastesController extends AppController {
 
 	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' , 'Paste.private', 'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language', 'Language.class'),'limit'=>5, 'order'=>array('Paste.created'=>'DESC'));
 
-	var $expiry_types = array('1 hour'=>'Hour', '1 day'=>'Day','1 week'=>'Week','1 month'=>'Month','never'=>'Never');
+	var $expiry_types = array('1 hour'=>'1 Hour', '1 day'=>'1 Day','1 week'=>'1 Week','1 month'=>'1 Month','never'=>'Never');
+
+	var $simple_spam = array('no'=>'No', 'yes'=>'Yes');
 
 	function index() {
 		$this->cacheAction = '1 hour';
@@ -36,21 +38,17 @@ class PastesController extends AppController {
 			$this->cleanUpFields();
 			$this->Paste->create();
 			
-			/* Generate Sudo Fields*/
-			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
-			
 			$this->Session->write('author_name', $this->data['Paste']['author']);
 			$this->Session->write('remember_me', $this->data['Paste']['remember_me']);
-			
-			if ($this->Paste->save($this->data)) {
-				if ($this->params['isAjax']) {
-						
-				} else {
+			if ($this->data['Paste']['i_am_human'] == 'yes') {
+				if ($this->Paste->save($this->data)) {
 					$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
-					$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
-				}	
+					$this->redirect(array('controller'=>'pastes', 'action'=>'view', $this->Paste->getLastInsertID()), null, true);
+				} else {
+					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
+				}
 			} else {
-				$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
+				$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You haven\'t confirmed you are human.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
 			}
 		}
 		
@@ -70,6 +68,7 @@ class PastesController extends AppController {
 
 		$this->set('languages', $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language'));
 		$this->set('expiry_types',$this->expiry_types);
+		$this->set('i_am_human', $this->simple_spam);
 		$this->Paste->_purge();
 	}
 	
@@ -85,21 +84,21 @@ class PastesController extends AppController {
 			$this->Paste->create();
 			
 			/* Generate Sudo Fields*/
-			$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
+			
 			$this->data['Paste']['parent_id'] = $id;
 			
 			$this->Session->write('author_name', $this->data['Paste']['author']);
 			$this->Session->write('remember_me', $this->data['Paste']['remember_me']);
-
-			if ($this->Paste->save($this->data)) {
-				if ($this->params['isAjax']) {
-						
-				} else {
+			
+			if ($this->data['Paste']['i_am_human'] == 'yes') {
+				if ($this->Paste->save($this->data)) {
 					$this->Session->setFlash('<strong>' . __('Notice', true) . '</strong><br />' . __('Your paste has been saved.', true), 'default', array('sev'=>'notice'));
-					$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);
-				}	
+					$this->redirect(array('action'=>'view', $this->Paste->getLastInsertID()), null, true);	
+				} else {
+					$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
+				}
 			} else {
-				$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('The paste could not be saved.', true) . '<br />' .  __('Please check all fields required are entered.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
+				$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('You haven\'t confirmed you are human.', true) . '<br />' . __('Please, try again.', true), 'default', array('sev'=>'warning'));
 			}
 		}
 		
@@ -124,6 +123,7 @@ class PastesController extends AppController {
 		$this->set('languages', $this->Paste->Language->generateList(null,null,null,'{n}.Language.id','{n}.Language.language'));
 		$this->set('expiry_types',$this->expiry_types);
 		$this->set('this_id', $id);
+		$this->set('i_am_human', $this->simple_spam);
 		$this->Paste->_purge();
 	}
 
@@ -203,27 +203,6 @@ class PastesController extends AppController {
 	}
 	
 	/* Private Functions */
-	function _generateDate($expiry_type) {
-		if ($expiry_type == 'never') {
-			$output = null;
-		} else {
-			$output = date('Y-m-d H:i:s', strtotime($expiry_type));
-		}
-		return $output;
-	}
 	
-	function _checkCaptcha ($privateKey, $remote, $challange, $response) {
-		vendor('recaptchalib');
-		$validate = recaptcha_check_answer ($privateKey, $remote, $challange, $response);
-		$output = array();
-		if ($validate->is_valid) {
-			$output['result'] = true;
-			$output['Error'] = null;
-		} else {
-			$output['result'] = false;
-			$output['Error'] = $validate->error;
-		}
-		return $output;
-	}
 }
 ?>

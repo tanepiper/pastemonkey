@@ -40,7 +40,6 @@
 		<li><a href="http://cakephp.org">CakePHP</a> - The magic glue that holds everything together</li>
 		<li><a href="http://geshi.sf.net">GeSHi</a> - The Syntax Highlighting library for PHP, what does the highlighting magic.</li>
 		<li>Diff Generator Library - Developed by Daniel Unterberger and Nils Knappmeier to generate Diff files from edits.</li>
-		<li><a href="http://recaptcha.net">ReCaptcha</a> - Library for spam captcha, check out the project aims.</li>
 		<li><a href="http://openid.net">OpenID</a> - Easily sign up for an account using your OpenID.</li>
 	</ul>
 	<h4>Client-side Stuff</h4>
@@ -50,5 +49,9 @@
 		<li><a href="http://ui.jquery.com">jQuery UI</a> - The jQuery UI Library.</li>
 		<li><a href="">jQuery Autocomplete</a> - The library used for Tag Autocomplete.</li>
 		<li><a href="http://bradleysepos.com/projects/jquery/clipboard/">jQuery Copy to Clipboard</a> - A plugin by Bradley Sepos to handle copying to clipboard.</li>
+	</ul>
+	<h4>User Interface</h4>
+	<ul>
+		<li><a href="#">Tango Icons</a> - A nice GPL Icon Library for Gnome.</li>
 	</ul>
 </div>
