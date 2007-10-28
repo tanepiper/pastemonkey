@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: connection_manager.php 5513 2007-08-11 21:52:23Z nate $ */
+/* SVN FILE: $Id: connection_manager.php 5857 2007-10-22 16:09:35Z phpnut $ */
 
 /**
  * Short description for file.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model
  * @since			CakePHP(tm) v 0.10.x.1402
- * @version			$Revision: 5513 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-08-11 22:52:23 +0100 (Sat, 11 Aug 2007) $
+ * @version			$Revision: 5857 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -243,7 +243,7 @@ class ConnectionManager extends Object {
  *
  */
 	function __destruct() {
-		if (CAKE_SESSION_SAVE == 'database' && function_exists('session_write_close')) {
+		if (Configure::read('Session.save') == 'database' && function_exists('session_write_close')) {
 			session_write_close();
 		}
 	}

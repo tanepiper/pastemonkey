@@ -19,7 +19,7 @@ class PastemonkeyHelper extends TimeHelper {
 		return $output;
 	}
 	
-	function curPageURL($trim = false) {
+	function curPageURL($overide = null, $trim = false) {
   		$pageURL = 'http';
  		if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
   		$pageURL .= "://";

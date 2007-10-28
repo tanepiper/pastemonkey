@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: number_tree_fixture.php 5573 2007-08-23 22:38:04Z gwoo $ */
+/* SVN FILE: $Id: number_tree_fixture.php 5806 2007-10-19 21:43:48Z phpnut $ */
 /**
  * Tree behavior class.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.fixtures
  * @since			CakePHP(tm) v 1.2.0.5331
- * @version			$Revision: 5573 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-23 23:38:04 +0100 (Thu, 23 Aug 2007) $
+ * @version			$Revision: 5806 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-19 22:43:48 +0100 (Fri, 19 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 /**

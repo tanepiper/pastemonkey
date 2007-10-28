@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.php 4964 2007-05-01 02:44:00Z phpnut $ */
+/* SVN FILE: $Id: acl.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * ACL behavior class.
  *
@@ -21,14 +21,11 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.behaviors
  * @since			CakePHP v 1.2.0.4487
- * @version			$Revision: 4964 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-05-01 03:44:00 +0100 (Tue, 01 May 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-if (!defined('ACL_DATABASE')) {
-	define('ACL_DATABASE', 'default');
-}
 /**
  * Short description for file
  *
@@ -50,7 +47,6 @@ class AclBehavior extends ModelBehavior {
  * Sets up the configuation for the model, and loads ACL models if they haven't been already
  *
  * @param mixed $config
- * @return void
  */
 	function setup(&$model, $config = array()) {
 		if (is_string($config)) {
@@ -87,7 +83,6 @@ class AclBehavior extends ModelBehavior {
  * Creates a new ARO/ACO node bound to this record
  *
  * @param boolean $created True if this is a new record
- * @return void
  */
 	function afterSave(&$model, $created) {
 		if ($created) {
@@ -110,7 +105,6 @@ class AclBehavior extends ModelBehavior {
 /**
  * Destroys the ARO/ACO node bound to the deleted record
  *
- * @return void
  */
 	function afterDelete(&$model) {
 		$type = $this->__typeMaps[low($this->settings[$model->name]['type'])];

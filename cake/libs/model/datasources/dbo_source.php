@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_source.php 5642 2007-09-15 20:34:27Z phpnut $ */
+/* SVN FILE: $Id: dbo_source.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5642 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-15 21:34:27 +0100 (Sat, 15 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('set');
@@ -351,9 +351,12 @@ class DboSource extends DataSource {
 		}
 		$data = $this->startQuote . str_replace('.', $this->endQuote . '.' . $this->startQuote, $data) . $this->endQuote;
 		$data = str_replace($this->startQuote . $this->startQuote, $this->startQuote, $data);
-		$oddMatches = substr_count($data, $this->endQuote);
-		if ($oddMatches % 2 == 1) {
-			$data = trim($data, $this->endQuote);
+
+		if (!empty($this->endQuote) && $this->endQuote == $this->startQuote) {
+			$oddMatches = substr_count($data, $this->endQuote);
+			if ($oddMatches % 2 == 1) {
+				$data = trim($data, $this->endQuote);
+			}
 		}
 		return str_replace($this->endQuote . $this->endQuote, $this->endQuote, $data);
 	}
@@ -384,7 +387,7 @@ class DboSource extends DataSource {
 		}
 
 		if (php_sapi_name() != 'cli') {
-			print ("<table class=\"cakeSqlLog\" id=\"cakeSqlLog_" . preg_replace('/[^A-Za-z0-9_]/', '_', uniqid(time(), true)) . "\" summary=\"Cake SQL Log\" cellspacing=\"0\" border = \"0\">\n<caption>{$this->_queriesCnt} {$text} took {$this->_queriesTime} ms</caption>\n");
+			print ("<table class=\"cake-sql-log\" id=\"cakeSqlLog_" . preg_replace('/[^A-Za-z0-9_]/', '_', uniqid(time(), true)) . "\" summary=\"Cake SQL Log\" cellspacing=\"0\" border = \"0\">\n<caption>{$this->_queriesCnt} {$text} took {$this->_queriesTime} ms</caption>\n");
 			print ("<thead>\n<tr><th>Nr</th><th>Query</th><th>Error</th><th>Affected</th><th>Num. rows</th><th>Took (ms)</th></tr>\n</thead>\n<tbody>\n");
 
 			foreach ($log as $k => $i) {
@@ -526,6 +529,10 @@ class DboSource extends DataSource {
 		$array = array();
 		$linkedModels = array();
 		$this->__bypass = false;
+
+		if ($recursive === null && isset($queryData['recursive'])) {
+			$recursive = $queryData['recursive'];
+		}
 
 		if (!is_null($recursive)) {
 			$_recursive = $model->recursive;
@@ -1570,7 +1577,7 @@ class DboSource extends DataSource {
 					$data = $this->name($key) . " = " . $this->value($value, 'boolean');
 				} elseif ($value === '') {
 					$data = $this->name($key) . " = ''";
-				} elseif (preg_match('/^([a-z]+\\([a-z0-9]*\\)\\x20+|(?:' . join('\\x20)|(?:', $this->__sqlOps) . '\\x20)|<[>=]?(?![^>]+>)\\x20?|[>=!]{1,3}(?!<)\\x20?)?(.*)/i', $value, $match)) {
+				} elseif (preg_match('/^([a-z]+\\([a-z0-9]*\\)\\x20+|(?:' . join('\\x20)|(?:', $this->__sqlOps) . '\\x20)|<[>=]?(?![^>]+>)\\x20?|[>=!]{1,3}(?!<)\\x20?)?(.*)/is', $value, $match)) {
 					if (preg_match('/(\\x20[\\w]*\\x20)/', $key, $regs)) {
 						$clause = $regs['1'];
 						$key = preg_replace('/' . $regs['1'] . '/', '', $key);
@@ -1657,8 +1664,8 @@ class DboSource extends DataSource {
 /**
  * Returns a limit statement in the correct format for the particular database.
  *
- * @param int $limit Limit of results returned
- * @param int $offset Offset from which to start results
+ * @param integer $limit Limit of results returned
+ * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
  */
 	function limit($limit, $offset = null) {
@@ -1828,7 +1835,6 @@ class DboSource extends DataSource {
 			$null = null;
 			$this->rollback($null);
 		}
-		$this->close();
 		parent::__destruct();
 	}
 /**

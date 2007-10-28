@@ -1,37 +1,52 @@
 <?php e($this->element('notify'));?>
-<div class="pasteAdd">
-	<?php e($form->create('Paste', array('type'=>'file')));?>
-		<fieldset id="paste-fieldset">
- 			<legend id="paste-legend"><?php __('Add');?> <?php __('Paste');?></legend>
-			<?php
-				e($form->input('paste'));
-			?>
+<div class="newpaste">
+	<?php e($form->create('Paste'));?>
+	<?php e($form->input('parent_id', array('type'=>'hidden')));?>
+	<div class="box">
+		<h2><?php __('Enter');?> <?php __('Paste');?></h2>
+		<div class="inner">
+		<p>
+			<strong>To highlight lines in your code, put <em>!!!</em> within the line.</strong>
+		</p>
+		<fieldset>
+			<div class="textarea">
+				<div><a href="#" rel="PastePaste" class="increase"> + </a> <a href="#" rel="PastePaste" class="decrease"> - </a></div>
+				<?php e($form->input('paste'));?>
+			</div>
+			<div class="columns">
+				<div class="column large">
+					<?php e($form->input('language_id', array('value'=>$overide_lang)));?>
+					<label for="PasteExpireType">Expires in</label>
+					<?php e($form->select('expire_type', $expiry_types, null, null, false));?>				
+				</div>
+				<div class="column large">
+					<?php e($form->input('author', array('value'=>$name))); ?>
+					<?php e($form->input('remember_me', array('type'=>'checkbox', 'value'=>$remember_me))); ?>
+				</div>
+			</div>
 		</fieldset>
-		
-		<fieldset id="note-fieldset">
- 			<legend id="note-legend"><?php __('Paste');?> <?php __('Note');?></legend>
-			<?php
-				e($form->input('note'));
-			?>
-		</fieldset>
-		<br style="clear:both;" />
-		<fieldset id="details-fieldset">
-			<legend id="details-legend"><?php __('Paste');?> <?php __('Details');?></legend>
-			<?php
-				e($form->input('tags', array('type'=>'text')));
-				e($form->input('parent_id', array('type'=>'hidden')));
-				e($form->input('language_id'));
-				e($form->input('author', array('value'=>$name)));
-				e($form->input('remember_me', array('type'=>'checkbox', 'value'=>$remember_me)));
-				e($form->input('i_am_human', array('label'=>'Are you a human?', 'options'=>$i_am_human)));
-			?>
-		</fieldset>
-	
-		<fieldset id="options-fieldset">
-			<legend id="options-label"><?php __('Paste');?> <?php __('Expiry');?></legend>
-			<?php e($form->select('expire_type', $expiry_types, null, null, false));?>
-			<?php e($form->input('private', array('type'=>'checkbox', 'label'=>'Make this paste private?')));?>
-		</fieldset>
-		<br style="clear:both;" />
+		</div>
+		</div>
+
+		<div class="box">
+		<h2><?php __('Additional');?> <?php __('Info');?></h2>
+		<div class="inner">
+			<fieldset>
+				<div class="textarea">
+					<div><a href="#" rel="PasteNote" class="increase"> + </a> <a href="#" rel="PasteNote" class="decrease"> - </a></div>
+					<?php e($form->input('note')); ?>
+				</div>
+				<div class="columns">
+					<div class="column large">
+						<?php e($form->input('tags', array('type'=>'text')));?>
+					</div>
+					<div class="column large">
+						<?php e($form->input('private', array('type'=>'checkbox', 'label'=>'Make this paste private?')));?>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+		</div>
+	<?php e($form->input('i_am_a_human', array('type'=>'hidden')));?>
 	<?php e($form->end(__('Add New Paste', true), array('class'=>'submit-paste')));?>
 </div>

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: string.php 5695 2007-09-26 15:10:21Z phpnut $ */
+/* SVN FILE: $Id: string.php 5858 2007-10-22 16:11:12Z phpnut $ */
 /**
  * String handling methods.
  *
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0.5551
- * @version			$Revision: 5695 $
+ * @version			$Revision: 5858 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-26 16:10:21 +0100 (Wed, 26 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -124,7 +124,7 @@ class String extends Object {
  *
  * @param multi-byte string $string
  * @return array
- * @access publice
+ * @access public
  * @static
  */
 	function utf8($string) {
@@ -197,7 +197,7 @@ class String extends Object {
  * @param multi-byte string $haystack
  * @param multi-byte string $needle
  * @param integer $offset
- * @return integer or false
+ * @return int|boolean
  * @access public
  * @static
  */
@@ -236,7 +236,7 @@ class String extends Object {
  * @param multi-byte string $haystack
  * @param multi-byte string $needle
  * @param integer $offset
- * @return integer or false
+ * @return int|boolean
  * @access public
  * @static
  */

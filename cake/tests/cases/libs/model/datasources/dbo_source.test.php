@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_source.test.php 5598 2007-08-29 01:18:48Z phpnut $ */
+/* SVN FILE: $Id: dbo_source.test.php 5776 2007-10-17 12:51:17Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.model.datasources
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5598 $
+ * @version			$Revision: 5776 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-08-29 02:18:48 +0100 (Wed, 29 Aug 2007) $
+ * @lastmodified	$Date: 2007-10-17 13:51:17 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 if (!defined('CAKEPHP_UNIT_TEST_EXECUTION')) {
@@ -1628,6 +1628,15 @@ class DboSourceTest extends UnitTestCase {
 		$result = $this->db->conditions($conditions);
 		$expected = " WHERE NOT ((`Listing`.`expiration` BETWEEN  '1' AND '100')) AND ((`Listing`.`title` LIKE  '%term%') OR (`Listing`.`description` LIKE  '%term%')) AND ((`Listing`.`title` LIKE  '%term_2%') OR (`Listing`.`description` LIKE  '%term_2%'))";
 		$this->assertEqual($result, $expected);
+
+		$result = $this->db->conditions(array('MD5(CONCAT(Reg.email,Reg.id))' => 'blah'));
+		$expected = " WHERE MD5(CONCAT(`Reg`.`email`,`Reg`.`id`))  =  'blah'";
+		$this->assertEqual($result, $expected);
+
+		$conditions = array('id' => array(2, 5, 6, 9, 12, 45, 78, 43, 76));
+		$result = $this->db->conditions($conditions);
+		$expected = " WHERE `id` IN (2, 5, 6, 9, 12, 45, 78, 43, 76) ";
+		$this->assertEqual($result, $expected);
 	}
 
 	function testMixedConditionsParsing() {
@@ -2035,6 +2044,12 @@ class DboSourceTest extends UnitTestCase {
 		$result = $this->db->order("Dealer.id = 7 desc, Dealer.id = 3 desc, Dealer.title asc");
 		$expected = " ORDER BY Dealer`.`id` = 7 desc,  Dealer`.`id` = 3 desc,  `Dealer`.`title` asc";
 		$this->assertEqual($result, $expected);
+
+		$result = $this->db->order(array("Page.name"=>"='test' DESC"));
+		$this->assertPattern("/^\s*ORDER BY\s+`Page`\.`name`\s*='test'\s+DESC\s*$/", $result);
+
+		$result = $this->db->order("Page.name = 'view' DESC");
+		$this->assertPattern("/^\s*ORDER BY\s+`Page`\.`name`\s*=\s*'view'\s+DESC\s*$/", $result);
 	}
 }
 ?>

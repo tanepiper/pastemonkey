@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: auth.test.php 5683 2007-09-21 01:57:27Z phpnut $ */
+/* SVN FILE: $Id: auth.test.php 5768 2007-10-16 09:05:25Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,103 +21,15 @@
  * @package			cake
  * @subpackage		cake.cake.tests.cases.libs.controller.components
  * @since			CakePHP(tm) v 1.2.0.5347
- * @version			$Revision: 5683 $
+ * @version			$Revision: 5768 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-21 02:57:27 +0100 (Fri, 21 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-16 10:05:25 +0100 (Tue, 16 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('controller' . DS . 'components' . DS .'auth', 'controller' . DS . 'components' . DS .'acl');
 
 uses('controller'.DS.'components'.DS.'acl', 'model'.DS.'db_acl');
-
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
-if(!class_exists('aclnodetestbase')) {
-	class AclNodeTestBase extends AclNode {
-		var $useDbConfig = 'test_suite';
-		var $cacheSources = false;
-	}
-}
-
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
-if(!class_exists('arotest')) {
-	class AroTest extends AclNodeTestBase {
-		var $name = 'AroTest';
-		var $useTable = 'aros';
-		var $hasAndBelongsToMany = array('AcoTest' => array('with' => 'PermissionTest'));
-	}
-}
-
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
-if(!class_exists('acotest')) {
-	class AcoTest extends AclNodeTestBase {
-		var $name = 'AcoTest';
-		var $useTable = 'acos';
-		var $hasAndBelongsToMany = array('AroTest' => array('with' => 'PermissionTest'));
-	}
-}
-
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
-if(!class_exists('permissiontest')) {
-	class PermissionTest extends CakeTestModel {
-		var $name = 'PermissionTest';
-		var $useTable = 'aros_acos';
-		var $cacheQueries = false;
-		var $belongsTo = array('AroTest' => array('foreignKey' => 'aro_id'),
-								'AcoTest' => array('foreignKey' => 'aco_id')
-								);
-		var $actsAs = null;
-	}
-}
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
-if(!class_exists('acoactiontest')) {
-	class AcoActionTest extends CakeTestModel {
-		var $name = 'AcoActionTest';
-		var $useTable = 'aco_actions';
-		var $belongsTo = array('AcoTest' => array('foreignKey' => 'aco_id'));
-	}
-}
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
-if(!class_exists('db_acl_test')) {
-	class DB_ACL_TEST extends DB_ACL {
-
-		function __construct() {
-			$this->Aro =& new AroTest();
-			$this->Aro->Permission =& new PermissionTest();
-			$this->Aco =& new AcoTest();
-			$this->Aro->Permission =& new PermissionTest();
-		}
-	}
-}
+Configure::write('Security.salt', 'JfIxfs2guVoUubWDYhG93b0qyJfIxfs2guwvniR2G0FgaC9mi');
 /**
 * Short description for class.
 *
@@ -195,7 +107,7 @@ class AuthTest extends CakeTestCase {
 
 	var $fixtures = array('core.auth_user', 'core.aro', 'core.aco', 'core.aros_aco', 'core.aco_action');
 
-	function setUp() {
+	function startTest() {
 		$this->Controller =& new AuthTestController();
 		restore_error_handler();
 		@$this->Controller->_initComponents();
@@ -213,7 +125,7 @@ class AuthTest extends CakeTestCase {
 		$this->AuthUser =& new AuthUser();
 		$user['id'] = 1;
 		$user['username'] = 'mariano';
-		$user['password'] = Security::hash(CAKE_SESSION_STRING . 'cake');
+		$user['password'] = Security::hash(Configure::read('Security.salt') . 'cake');
 		$this->AuthUser->save($user, false);
 
 		$authUser = $this->AuthUser->find();
@@ -295,7 +207,6 @@ class AuthTest extends CakeTestCase {
 		$this->Controller->params['action'] = 'add';
 
 		$this->Controller->Acl->name = 'DB_ACL_TEST';
-		$this->Controller->Acl->startup($this->Controller);
 
 		$this->Controller->Acl->Aro->id = null;
 		$this->Controller->Acl->Aro->create(array('alias'=>'Roles'));
@@ -343,7 +254,11 @@ class AuthTest extends CakeTestCase {
 	}
 
 	function testLoginRedirect() {
-		$backup = $_SERVER['HTTP_REFERER'];
+		if (isset($_SERVER['HTTP_REFERER'])) {
+			$backup = $_SERVER['HTTP_REFERER'];
+		} else {
+			$backup = null;
+		}
 
 		$_SERVER['HTTP_REFERER'] = false;
 
@@ -395,7 +310,7 @@ class AuthTest extends CakeTestCase {
 		$this->AuthUser =& new AuthUser();
 		$user['id'] = 1;
 		$user['username'] = 'mariano';
-		$user['password'] = Security::hash(CAKE_SESSION_STRING . 'cake');
+		$user['password'] = Security::hash(Configure::read('Security.salt') . 'cake');
 		$this->AuthUser->save($user, false);
 
 		$authUser = $this->AuthUser->find();

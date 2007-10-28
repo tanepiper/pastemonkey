@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: sanitize.test.php 5641 2007-09-15 20:28:46Z phpnut $ */
+/* SVN FILE: $Id: sanitize.test.php 5885 2007-10-24 11:31:32Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.5428
- * @version			$Revision: 5641 $
+ * @version			$Revision: 5885 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-15 21:28:46 +0100 (Sat, 15 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-24 12:31:32 +0100 (Wed, 24 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('sanitize');
@@ -50,6 +50,15 @@ class SanitizeTest extends UnitTestCase {
 
 		$resultNumeric = Sanitize::escape('#1234.23', 'default');
 		$this->assertEqual($resultNumeric, '#1234.23');
+
+		$resultNull = Sanitize::escape(null, 'default');
+		$this->assertEqual($resultNull, null);
+
+		$resultNull = Sanitize::escape(false, 'default');
+		$this->assertEqual($resultNull, false);
+
+		$resultNull = Sanitize::escape(true, 'default');
+		$this->assertEqual($resultNull, true);
 	}
 
 	function testClean() {
@@ -76,6 +85,16 @@ class SanitizeTest extends UnitTestCase {
 		$string = 'test & "quote" \'other\' ;.$ symbol.' . "\r" . 'another line';
 		$expected = 'test & "quote" \'other\' ;.$ symbol.' . "\r" . 'another line';
 		$result = Sanitize::clean($string, array('encode' => false, 'escape' => false, 'carriage' => false));
+		$this->assertEqual($result, $expected);
+
+		$array = array(array('test & "quote" \'other\' ;.$ symbol.' . "\r" . 'another line'));
+		$expected = array(array('test &amp; &quot;quote&quot; &#39;other&#39; ;.$ symbol.another line'));
+		$result = Sanitize::clean($array);
+		$this->assertEqual($result, $expected);
+
+		$array = array(array('test & "quote" \'other\' ;.$ \\$ symbol.' . "\r" . 'another line'));
+		$expected = array(array('test & "quote" \'other\' ;.$ $ symbol.another line'));
+		$result = Sanitize::clean($array, array('encode' => false, 'escape' => false));
 		$this->assertEqual($result, $expected);
 	}
 }

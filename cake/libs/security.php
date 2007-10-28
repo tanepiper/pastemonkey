@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: security.php 5687 2007-09-24 09:56:25Z gwoo $ */
+/* SVN FILE: $Id: security.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v .0.10.0.1233
- * @version			$Revision: 5687 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-24 10:56:25 +0100 (Mon, 24 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -34,7 +34,15 @@
  * @package		cake
  * @subpackage	cake.cake.libs
  */
-class Security extends Object{
+class Security extends Object {
+
+/**
+ * Default hash method
+ *
+ * @var string
+ * @access public
+ */
+	var $hashType = null;
 /**
   * Singleton implementation to get object instance.
   *
@@ -52,13 +60,13 @@ class Security extends Object{
 /**
   * Get allowed minutes of inactivity based on security level.
   *
-  * @return int Allowed inactivity in minutes
+  * @return integer Allowed inactivity in minutes
   * @access public
   * @static
   */
 	function inactiveMins() {
 		$_this =& Security::getInstance();
-		switch(CAKE_SECURITY) {
+		switch(Configure::read('Security.level')) {
 			case 'high':
 				return 10;
 			break;
@@ -106,10 +114,14 @@ class Security extends Object{
  * @access public
  * @static
  */
-	function hash($string, $type = 'sha1') {
+	function hash($string, $type = null) {
 		$_this =& Security::getInstance();
+		if (empty($type)) {
+			$type = $_this->hashType;
+		}
 		$type = strtolower($type);
-		if ($type == 'sha1') {
+
+		if ($type == 'sha1' || $type == null) {
 			if (function_exists('sha1')) {
 				$return = sha1($string);
 				return $return;
@@ -131,6 +143,19 @@ class Security extends Object{
 			$return = md5($string);
 			return $return;
 		}
+	}
+/**
+ * Sets the default hash method for the Security object.  This affects all objects using
+ * Security::hash().
+ *
+ * @param string $hash Method to use (sha1/sha256/md5)
+ * @access public
+ * @static
+ * @see Security::hash()
+ */
+	function setHash($hash) {
+		$_this =& Security::getInstance();
+		$_this->hashType = $hash;
 	}
 /**
  * Encripts/Decrypts a text using the given key.

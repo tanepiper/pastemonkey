@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: session.test.php 5428 2007-07-09 17:02:55Z phpnut $ */
+/* SVN FILE: $Id: session.test.php 5770 2007-10-17 00:40:47Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5428 $
+ * @version			$Revision: 5770 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 18:02:55 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-10-17 01:40:47 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('session');
@@ -86,6 +86,18 @@ class SessionTest extends UnitTestCase {
 
 		$this->Session->write('SessionTestCase', null);
 		$this->assertEqual($this->Session->read('SessionTestCase'), null);
+	}
+
+	function testCheckUserAgentFalse() {
+		Configure::write('Session.checkAgent', false);
+		$this->Session->_userAgent = md5('http://randomdomainname.com' . Configure::read('Security.salt'));
+		$this->assertTrue($this->Session->valid());
+	}
+
+	function testCheckUserAgentTrue() {
+		Configure::write('Session.checkAgent', true);
+		$this->Session->_userAgent = md5('http://randomdomainname.com' . Configure::read('Security.salt'));
+		$this->assertFalse($this->Session->valid());
 	}
 
 	function tearDown() {

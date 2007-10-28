@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: ajax.php 5407 2007-07-08 18:06:44Z phpnut $ */
+/* SVN FILE: $Id: ajax.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 
 /**
  * Helper for AJAX operations.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5407 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-08 19:06:44 +0100 (Sun, 08 Jul 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -193,7 +193,7 @@ class AjaxHelper extends AppHelper {
 			$htmlOptions['onclick'] = '';
 		}
 
-		$htmlOptions['onclick'] .= ' return false;';
+		$htmlOptions['onclick'] .= ' event.returnValue = false; return false;';
 		$return = $this->Html->link($title, $href, $htmlOptions, null, $escapeTitle);
 		$script = $this->Javascript->event("'{$htmlOptions['id']}'", "click", $this->remoteFunction($options));
 
@@ -249,7 +249,7 @@ class AjaxHelper extends AppHelper {
 
 		if (isset($options['confirm'])) {
 			$func = "if (confirm('" . $this->Javascript->escapeString($options['confirm'])
-				. "')) { $func; } else { return false; }";
+				. "')) { $func; } else { event.returnValue = false; return false; }";
 		}
 		return $func;
 	}
@@ -305,7 +305,7 @@ class AjaxHelper extends AppHelper {
 			array(
 				'id'		=> 'form' . intval(rand()),
 				'action'	=> $action,
-				'onsubmit'	=> "return false;",
+				'onsubmit'	=> "event.returnValue = false; return false;",
 				'type'		=> $type
 			),
 			$this->__getHtmlOptions($options)
@@ -344,7 +344,7 @@ class AjaxHelper extends AppHelper {
 			$htmlOptions['id'] = 'submit' . intval(rand());
 		}
 
-		$htmlOptions['onclick'] = "return false;";
+		$htmlOptions['onclick'] = "event.returnValue = false; return false;";
 		return $this->Form->submit($title, $htmlOptions)
 			. $this->Javascript->event('"' . $htmlOptions['id'] . '"', 'click', $this->remoteFunction($options));
 	}

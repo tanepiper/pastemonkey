@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: session.php 5657 2007-09-16 19:05:31Z phpnut $ */
+/* SVN FILE: $Id: session.php 5851 2007-10-22 05:52:20Z mariano.iglesias $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.1.7.3328
- * @version			$Revision: 5657 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-16 20:05:31 +0100 (Sun, 16 Sep 2007) $
+ * @version			$Revision: 5851 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 06:52:20 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -57,14 +57,14 @@ class SessionHelper extends CakeSession {
  * @param string $base
  */
 	function __construct($base = null) {
-		if (!defined('AUTO_SESSION') || AUTO_SESSION === true) {
+		if (Configure::read('Session.start') === true) {
 			parent::__construct($base, false);
 		} else {
 			$this->__active = false;
 		}
 	}
 /**
- * Turn sessions on if AUTO_SESSION is set to false in core.php
+ * Turn sessions on if 'Session.start' is set to false in core.php
  *
  * @param string $base
  */
@@ -94,7 +94,7 @@ class SessionHelper extends CakeSession {
  * In your view: $session->check('Controller.sessKey');
  *
  * @param string $name
- * @return boolean
+ * @return bool
  * @access public
  */
 	function check($name) {
@@ -153,7 +153,7 @@ class SessionHelper extends CakeSession {
 /**
  * Used to check is a session is valid in a view
  *
- * @return boolean
+ * @return bool
  * @access public
  */
 	function valid() {
@@ -165,7 +165,7 @@ class SessionHelper extends CakeSession {
  * Override CakeSession::write().
  * This method should not be used in a view
  *
- * @return boolean
+ * @return bool
  * @access public
  */
 	function write() {

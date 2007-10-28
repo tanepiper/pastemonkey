@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: schema.php 5669 2007-09-18 04:16:04Z phpnut $ */
+/* SVN FILE: $Id: schema.php 5851 2007-10-22 05:52:20Z mariano.iglesias $ */
 /**
  * Command-line database management utility to automate programmer chores.
  *
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs
  * @since			CakePHP(tm) v 1.2.0.5550
- * @version			$Revision: 5669 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 05:16:04 +0100 (Tue, 18 Sep 2007) $
+ * @version			$Revision: 5851 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 06:52:20 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('file', 'model' . DS . 'schema');
@@ -39,7 +39,6 @@ class SchemaShell extends Shell {
  * Override initialize
  *
  * @access public
- * @return void
  */
 	function initialize() {
 		$this->out('Cake Schema Shell');
@@ -49,7 +48,6 @@ class SchemaShell extends Shell {
  * Override startup
  *
  * @access public
- * @return void
  */
 	function startup() {
 		$settings = am(array('path'=> CONFIGS .'sql'), $this->params);
@@ -59,7 +57,6 @@ class SchemaShell extends Shell {
  * Override main
  *
  * @access public
- * @return void
  */
 	function main() {
 		$this->help();
@@ -69,7 +66,6 @@ class SchemaShell extends Shell {
  * path to read as second arg
  *
  * @access public
- * @return void
  */
 	function view() {
 		$File = new File($this->Schema->path . DS .'schema.php');
@@ -86,7 +82,6 @@ class SchemaShell extends Shell {
  * accepts a connection as first arg or path to save as second arg
  *
  * @access public
- * @return void
  */
 	function generate() {
 		$this->out('Generating Schema...');
@@ -105,7 +100,6 @@ class SchemaShell extends Shell {
  * or it will output sql
  *
  * @access public
- * @return void
  */
 	function dump() {
 		$write = false;
@@ -140,11 +134,9 @@ class SchemaShell extends Shell {
  * Create database from Schema object
  *
  * @access public
- * @return void
  */
 	function create() {
 		$Schema = $this->Schema->load();
-
 		$table = null;
 		$event = array_keys($Schema->tables);
 		if(isset($this->args[0])) {
@@ -182,10 +174,8 @@ class SchemaShell extends Shell {
  * Update database with Schema object
  *
  * @access public
- * @return void
  */
 	function update() {
-
 		$this->out('Comparing Database to Schema...');
 		$Old = $this->Schema->read();
 		$Schema = $this->Schema->load();
@@ -227,7 +217,7 @@ class SchemaShell extends Shell {
 /**
  * Displays help contents
  *
- * @return void
+ * @access public
  */
 	function help() {
 		$this->out('The Schema Shell generates a schema object from the database and updates the database from the schema.');

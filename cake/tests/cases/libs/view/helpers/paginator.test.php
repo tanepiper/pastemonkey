@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: paginator.test.php 5653 2007-09-16 18:32:02Z nate $ */
+/* SVN FILE: $Id: paginator.test.php 5887 2007-10-24 15:09:40Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.view.helpers
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5653 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-16 19:32:02 +0100 (Sun, 16 Sep 2007) $
+ * @version			$Revision: 5887 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-10-24 16:09:40 +0100 (Wed, 24 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 require_once CAKE.'app_helper.php';
@@ -81,12 +81,20 @@ class PaginatorTest extends UnitTestCase {
 		$this->Paginator->params['paging']['Article']['nextPage'] = true;
 	}
 
+	function testDisabledLink() {
+		$this->Paginator->params['paging']['Article']['nextPage'] = false;
+		$this->Paginator->params['paging']['Article']['page'] = 1;
+		$result = $this->Paginator->next('Next', array(), true);
+		$expected = '<div>Next</div>';
+		$this->assertEqual($result, $expected);
+	}
+
 	function testSortLinks() {
 		Router::reload();
 		Router::parse('/');
 		Router::setRequestInfo(array(
-			array ('plugin' => null, 'controller' => 'accounts', 'action' => 'index', 'pass' => array(), 'form' => array(), 'url' => array('url' => 'accounts/', 'mod_rewrite' => 'true'), 'bare' => 0),
-			array ('plugin' => null, 'controller' => null, 'action' => null, 'base' => '/officespace', 'here' => '/officespace/accounts/', 'webroot' => '/officespace/', 'passedArgs' => array())
+			array('plugin' => null, 'controller' => 'accounts', 'action' => 'index', 'pass' => array(), 'form' => array(), 'url' => array('url' => 'accounts/', 'mod_rewrite' => 'true'), 'bare' => 0),
+			array('plugin' => null, 'controller' => null, 'action' => null, 'base' => '/officespace', 'here' => '/officespace/accounts/', 'webroot' => '/officespace/', 'passedArgs' => array())
 		));
 		$this->Paginator->options(array('url' => array('param')));
 		$result = $this->Paginator->sort('title');
@@ -98,6 +106,19 @@ class PaginatorTest extends UnitTestCase {
 		$result = $this->Paginator->numbers(array('modulus'=> '2', 'url'=> array('controller'=>'projects', 'action'=>'sort'),'update'=>'list'));
 		$this->assertPattern('/\/projects\/sort\/page:2/', $result);
 		$this->assertPattern('/<script type="text\/javascript">Event.observe/', $result);
+	}
+	
+	function testSortAdminLinks() {
+		Router::reload();
+		Configure::write('Routing.admin', 'admin');
+		Router::setRequestInfo(array(
+			array('plugin' => null, 'controller' => 'test', 'action' => 'admin_index', 'pass' => array(), 'prefix' => 'admin', 'admin' => true, 'form' => array(), 'url' => array('url' => 'admin/test'), 'bare' => 0, 'webservices' => null),
+			array ( 'plugin' => null, 'controller' => null, 'action' => null, 'base' => '', 'here' => '/admin/test', 'webroot' => '/')
+		));
+		Router::parse('/');
+		$this->Paginator->options(array('url' => array('param')));
+		$result = $this->Paginator->sort('title');
+		$this->assertPattern('/\/admin\/test\/index\/param\/page:1\/sort:title\/direction:asc"\s*>Title<\/a>$/', $result);
 	}
 
 	function testUrlGeneration() {

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: db_acl.test.php 5588 2007-08-27 03:16:49Z nate $ */
+/* SVN FILE: $Id: db_acl.test.php 5776 2007-10-17 12:51:17Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.controller.components.dbacl.models
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5588 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-08-27 04:16:49 +0100 (Mon, 27 Aug 2007) $
+ * @version			$Revision: 5776 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-17 13:51:17 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 if (!defined('CAKEPHP_UNIT_TEST_EXECUTION')) {
@@ -129,7 +129,9 @@ if(!class_exists('db_acl_test')) {
 	class AclNodeTest extends CakeTestCase {
 		var $fixtures = array('core.aro', 'core.aco', 'core.aros_aco', 'core.aco_action');
 
-		function testNodeNesting() {
+		function startTest() {
+			Configure::write('Acl.classname', 'DB_ACL_TEST');
+			Configure::write('Acl.database', 'test_suite');
 		}
 
 		function testNode(){
@@ -158,14 +160,10 @@ if(!class_exists('db_acl_test')) {
 			$expected = array(8, 7, 6, 1);
 			$this->assertEqual($result, $expected);
 
-			//action3 is an action with no ACO entry
-			//the default returned ACOs should be its parents
 			$result = Set::extract($aco->node('Controller2/action3'), '{n}.AcoTest.id');
 			$expected = array(6, 1);
 			$this->assertEqual($result, $expected);
 
-			//action3 and record5 have none ACO entry
-			//the default returned ACOs should be their parents ACO
 			$result = Set::extract($aco->node('Controller2/action3/record5'), '{n}.AcoTest.id');
 			$expected = array(6, 1);
 			$this->assertEqual($result, $expected);

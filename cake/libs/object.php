@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: object.php 5383 2007-07-06 17:08:44Z phpnut $ */
+/* SVN FILE: $Id: object.php 5858 2007-10-22 16:11:12Z phpnut $ */
 /**
  * Object class, allowing __construct and __destruct in PHP4.
  *
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5383 $
+ * @version			$Revision: 5858 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-06 18:08:44 +0100 (Fri, 06 Jul 2007) $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -115,7 +115,7 @@ class Object {
  * API for logging events.
  *
  * @param string $msg Log message
- * @param int $type Error type constant. Defined in app/config/core.php.
+ * @param integer $type Error type constant. Defined in app/config/core.php.
  * @access public
  */
 	function log($msg, $type = LOG_ERROR) {
@@ -236,7 +236,11 @@ class Object {
 			case 'registry':
 				$vars = unserialize(${$name});
 				foreach ($vars['0'] as $key => $value) {
-					loadModel(Inflector::classify($key));
+					if(strpos($key, '_behavior')) {
+						loadBehavior(Inflector::classify(str_replace('_behavior', '', $key)));
+					} else {
+						loadModel(Inflector::classify($key));
+					}
 				}
 				unset($vars);
 				$vars = unserialize(${$name});

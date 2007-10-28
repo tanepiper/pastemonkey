@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: helper.php 5319 2007-06-21 06:47:57Z phpnut $ */
+/* SVN FILE: $Id: helper.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 
 /**
  * Backend for helpers.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5319 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-06-21 07:47:57 +0100 (Thu, 21 Jun 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -314,8 +314,10 @@ class Helper extends Overloadable {
 
 		$parts = preg_split('/\/|\./', $tagValue);
 		$view->association = null;
+
 		if (count($parts) == 1) {
 			$view->field = $parts[0];
+		//} elseif (count($parts) == 2 && !ClassRegistry::isKeySet($parts[0]) && !ClassRegistry::isKeySet($parts[0])) {
 		} elseif (count($parts) == 2 && is_numeric($parts[0])) {
 			$view->modelId = $parts[0];
 			$view->field = $parts[1];
@@ -422,12 +424,12 @@ class Helper extends Overloadable {
 		}
 
 		switch($field) {
-			case 'method':
 			case '_method':
 				$name = $field;
 			break;
 			default:
-				$name = array_filter(array($this->model(), $this->field(), $this->modelID()));
+				//$name = array_filter(array($this->model(), $this->field(), $this->modelID()));
+				$name = array_filter(array($this->model(), $this->field()));
 				if ($this->modelID() === 0) {
 					$name[] = $this->modelID();
 				}
@@ -467,12 +469,13 @@ class Helper extends Overloadable {
 		}
 
 		$result = null;
+
 		if (isset($this->data[$this->model()][$this->field()])) {
 			$result = $this->data[$this->model()][$this->field()];
 		} elseif (isset($this->data[$this->field()]) && is_array($this->data[$this->field()])) {
 			if (ClassRegistry::isKeySet($this->field())) {
-				$key =& ClassRegistry::getObject($this->field());
-				$result = $this->__selectedArray($this->data[$this->field()], $key->primaryKey);
+				$model =& ClassRegistry::getObject($this->field());
+				$result = $this->__selectedArray($this->data[$this->field()], $model->primaryKey);
 			}
 		}
 
@@ -506,7 +509,6 @@ class Helper extends Overloadable {
 		if ($this->tagIsInvalid()) {
 			$options = $this->addClass($options, 'form-error');
 		}
-		unset($options['name']); // Temporary
 		return $options;
 	}
 /**
@@ -557,28 +559,24 @@ class Helper extends Overloadable {
 /**
  * Before render callback.  Overridden in subclasses.
  *
- * @return void
  */
 	function beforeRender() {
 	}
 /**
  * After render callback.  Overridden in subclasses.
  *
- * @return void
  */
 	function afterRender() {
 	}
 /**
  * Before layout callback.  Overridden in subclasses.
  *
- * @return void
  */
 	function beforeLayout() {
 	}
 /**
  * After layout callback.  Overridden in subclasses.
  *
- * @return void
  */
 	function afterLayout() {
 	}
@@ -611,7 +609,6 @@ class Helper extends Overloadable {
 /**
  * Resets the vars used by Helper::clean() to null
  *
- * @return void
  * @access private
  */
 	function __reset() {
@@ -621,7 +618,6 @@ class Helper extends Overloadable {
 /**
  * Removes harmful content from output
  *
- * @return void
  * @access private
  */
 	function __clean() {

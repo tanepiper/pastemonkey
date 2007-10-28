@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: translate.php 5669 2007-09-18 04:16:04Z phpnut $ */
+/* SVN FILE: $Id: translate.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.behaviors
  * @since			CakePHP(tm) v 1.2.0.4525
- * @version			$Revision: 5669 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 05:16:04 +0100 (Tue, 18 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -170,10 +170,6 @@ class TranslateBehavior extends ModelBehavior {
  * Callback
  */
 	function afterFind(&$model, $results, $primary) {
-		if (!empty($this->runtime[$model->name]['count'])) {
-			unset($this->runtime[$model->name]['count']);
-			return $results;
-		}
 		$this->runtime[$model->name]['fields'] = array();
 		$locale = $this->_getLocale($model);
 
@@ -276,6 +272,9 @@ class TranslateBehavior extends ModelBehavior {
  */
 	function _getLocale(&$model) {
 		if (!isset($model->locale) || is_null($model->locale)) {
+			if (!class_exists('I18n')) {
+				uses('i18n');
+			}
 			$I18n =& I18n::getInstance();
 			$model->locale = $I18n->l10n->locale;
 		}
@@ -321,8 +320,8 @@ class TranslateBehavior extends ModelBehavior {
  *
  * @param object instance of model
  * @param mixed string with field, or array(field1, field2=>AssocName, field3), or null for bind all original translations
- * @param boolead $reset
- * @return boolean
+ * @param boolean $reset
+ * @return bool
  */
 	function bindTranslation(&$model, $fields = null, $reset = true) {
 		if (empty($fields)) {
@@ -396,7 +395,7 @@ class TranslateBehavior extends ModelBehavior {
  *
  * @param object instance of model
  * @param mixed string with field, or array(field1, field2=>AssocName, field3), or null for unbind all original translations
- * @return boolean
+ * @return bool
  */
 	function unbindTranslation(&$model, $fields = null) {
 		if (empty($fields)) {

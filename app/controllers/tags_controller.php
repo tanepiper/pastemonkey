@@ -70,5 +70,13 @@ class TagsController extends AppController {
 		$this->set('items', $this->Tag->findAll(array('Tag.tag'=>'LIKE ' . $search . '%')));
 	
 	}
+	
+	function tagcloud() {   
+		$tagcloud = $this->Tag->tagcloud();
+		if(isset($this->params['requested'])) {
+			return $tagcloud;
+		}
+		$this->set('tagcloud',$tagcloud);
+	}
 }
 ?>

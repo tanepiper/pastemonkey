@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: test.php 5547 2007-08-18 21:24:42Z gwoo $ */
+/* SVN FILE: $Id: test.php 5777 2007-10-17 12:56:14Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,13 +21,13 @@
  * @package			cake
  * @subpackage		cake.cake.tests.libs
  * @since			CakePHP(tm) v 1.2.0.4433
- * @version			$Revision: 5547 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-18 22:24:42 +0100 (Sat, 18 Aug 2007) $
+ * @version			$Revision: 5777 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-17 13:56:14 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 error_reporting(E_ALL);
-set_time_limit(600);
+set_time_limit(0);
 ini_set('memory_limit','128M');
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
@@ -132,7 +132,7 @@ if (!vendor('simpletest' . DS . 'reporter')) {
 						$show = '?show=cases';
 					}
 				}
-				echo "<p><a href='" . $_SERVER['PHP_SELF'] . $show . "'>Run more tests</a></p>\n";
+				echo "<p><a href='" . RUN_TEST_LINK . $show . "'>Run more tests</a></p>\n";
 			break;
 		}
 	}
@@ -181,7 +181,7 @@ if (!vendor('simpletest' . DS . 'reporter')) {
 		switch (CAKE_TEST_OUTPUT) {
 			case CAKE_TEST_OUTPUT_HTML:
 				$baseUrl = BASE;
-				$characterSet = 'ISO-8859-1';
+				$characterSet = 'charset=utf-8';
 				include CAKE . 'tests' . DS . 'lib' . DS . 'header.php';
 			break;
 			case CAKE_TEST_OUTPUT_TEXT:
@@ -212,6 +212,7 @@ if (!vendor('simpletest' . DS . 'reporter')) {
 
 	CakePHPTestHeader();
 	CakePHPTestSuiteHeader();
+	define('RUN_TEST_LINK', $_SERVER['PHP_SELF']);
 
 	if (isset($_GET['group'])) {
 		if ('all' == $_GET['group']) {

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: paginator.php 5653 2007-09-16 18:32:02Z nate $ */
+/* SVN FILE: $Id: paginator.php 5857 2007-10-22 16:09:35Z phpnut $ */
 /**
  * Pagination Helper class file.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5653 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-16 19:32:02 +0100 (Sun, 16 Sep 2007) $
+ * @version			$Revision: 5857 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -87,7 +87,6 @@ class PaginatorHelper extends AppHelper {
  *
  * @param  mixed $options Default options for pagination links. If a string is supplied - it
  *                        is used as the DOM id element to update. See #options for list of keys.
- * @return void
  */
 	function options($options = array()) {
 		if (is_string($options)) {
@@ -178,7 +177,6 @@ class PaginatorHelper extends AppHelper {
 		} else {
 			return 'asc';
 		}
-		return null;
 	}
 /**
  * Generates a "previous" link for a set of paged records
@@ -306,7 +304,7 @@ class PaginatorHelper extends AppHelper {
 /**
  * Returns true if the given result set is not at the first page
  *
- * @param  string $model Optional model name.  Uses the default if none is specified.
+ * @param string $model Optional model name.  Uses the default if none is specified.
  * @return boolean True if the result set is not at the first page.
  */
 	function hasPrev($model = null) {
@@ -315,7 +313,7 @@ class PaginatorHelper extends AppHelper {
 /**
  * Returns true if the given result set is not at the last page
  *
- * @param  string $model Optional model name.  Uses the default if none is specified.
+ * @param string $model Optional model name.  Uses the default if none is specified.
  * @return boolean True if the result set is not at the last page.
  */
 	function hasNext($model = null) {

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: database.php.default 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: database.php.default 5815 2007-10-20 10:14:30Z phpnut $ */
 /**
  * This is core configuration file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.app.config
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5691 $
+ * @version			$Revision: 5815 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-20 11:14:30 +0100 (Sat, 20 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -70,26 +70,29 @@
  *
  */
 class DATABASE_CONFIG {
-
 	var $default = array(
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
+		'port' => '',
 		'login' => 'user',
 		'password' => 'password',
-		'database' => 'project_name',
-		'prefix' => ''
+		'database' => 'database_name',
+		'schema' => '',
+		'prefix' => '',
+		'encoding' => ''
 	);
-
 	var $test = array(
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
+		'port' => '',
 		'login' => 'user',
 		'password' => 'password',
-		'database' => 'project_name-test',
-		'prefix' => ''
+		'database' => 'test_database_name',
+		'schema' => '',
+		'prefix' => '',
+		'encoding' => ''
 	);
 }
-
 ?>

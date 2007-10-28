@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: bake.php 5640 2007-09-15 20:23:30Z phpnut $ */
+/* SVN FILE: $Id: bake.php 5851 2007-10-22 05:52:20Z mariano.iglesias $ */
 /**
  * Command-line code generation utility to automate programmer chores.
  *
@@ -23,9 +23,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5640 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-15 21:23:30 +0100 (Sat, 15 Sep 2007) $
+ * @version			$Revision: 5851 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 06:52:20 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -35,9 +35,18 @@
  * @subpackage	cake.cake.console.libs
  */
 class BakeShell extends Shell {
-
+/**
+ * Contains tasks to load and instantiate
+ *
+ * @var array
+ * @access public
+ */
 	var $tasks = array('Project', 'DbConfig', 'Model', 'Controller', 'View');
-
+/**
+ * Override main() to handle action
+ *
+ * @access public
+ */
 	function main() {
 
 		if (!is_dir(CONFIGS)) {
@@ -55,9 +64,10 @@ class BakeShell extends Shell {
 		$this->out('[M]odel');
 		$this->out('[V]iew');
 		$this->out('[C]ontroller');
+		$this->out('[P]roject');
 		$this->out('[Q]uit');
 
-		$classToBake = strtoupper($this->in('What would you like to Bake?', array('D', 'M', 'V', 'C', 'Q')));
+		$classToBake = strtoupper($this->in('What would you like to Bake?', array('D', 'M', 'V', 'C', 'P', 'Q')));
 		switch($classToBake) {
 			case 'D':
 				$this->DbConfig->execute();
@@ -71,6 +81,9 @@ class BakeShell extends Shell {
 			case 'C':
 				$this->Controller->execute();
 				break;
+			case 'P':
+				$this->Project->execute();
+				break;
 			case 'Q':
 				exit(0);
 				break;
@@ -83,7 +96,7 @@ class BakeShell extends Shell {
 /**
  * Displays help contents
  *
- * @return void
+ * @access public
  */
 	function help() {
 		$this->out('CakePHP Bake:');

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: debugger.php 5646 2007-09-16 01:36:30Z phpnut $ */
+/* SVN FILE: $Id: debugger.php 5858 2007-10-22 16:11:12Z phpnut $ */
 /**
  * Framework debugging and PHP error-handling class
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.4560
- * @version			$Revision: 5646 $
+ * @version			$Revision: 5858 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-16 02:36:30 +0100 (Sun, 16 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -92,10 +92,10 @@ class Debugger extends Object {
 /**
  * Overrides PHP's default error handling
  *
- * @param int $code Code of error
+ * @param integer $code Code of error
  * @param string $description Error description
  * @param string $file File on which error occurred
- * @param int $line Line that triggered the error
+ * @param integer $line Line that triggered the error
  * @param array $context Context
  * @return boolean true if error was handled
  * @access public
@@ -298,8 +298,8 @@ class Debugger extends Object {
  * Grabs an excerpt from a file and highlights a given line of code
  *
  * @param string $file Absolute path to a PHP file
- * @param int $line Line number to highlight
- * @param int $context Number of lines of context to extract above and below $line
+ * @param integer $line Line number to highlight
+ * @param integer $context Number of lines of context to extract above and below $line
  * @return array Set of lines highlighted
  * @access protected
  */
@@ -420,8 +420,8 @@ class Debugger extends Object {
  * @access public
  */
 	function checkSessionKey() {
-		if (CAKE_SESSION_STRING == 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi') {
-			trigger_error(__('Please change the value of CAKE_SESSION_STRING in app/config/core.php to a salt value specific to your application', true), E_USER_NOTICE);
+		if (Configure::read('Security.salt') == 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi') {
+			trigger_error(__('Please change the value of \'Security.salt\' in app/config/core.php to a salt value specific to your application', true), E_USER_NOTICE);
 		}
 	}
 /**

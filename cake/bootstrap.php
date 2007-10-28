@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: bootstrap.php 5703 2007-09-30 20:07:10Z gwoo $ */
+/* SVN FILE: $Id: bootstrap.php 5856 2007-10-22 16:04:04Z gwoo $ */
 /**
  * Basic Cake functionality.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5703 $
+ * @version			$Revision: 5856 $
  * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 21:07:10 +0100 (Sun, 30 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-22 17:04:04 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 if (!defined('PHP5')) {
@@ -43,25 +43,22 @@ if (!defined('SERVER_IIS') && php_sapi_name() == 'isapi') {
 		require LIBS . 'inflector.php';
 		require LIBS . 'configure.php';
 	}
-
 	require LIBS . 'cache.php';
+
+	Configure::getInstance();
+
+	if(Configure::read('Cache.disable') !== true) {
+		$cache = Cache::settings();
+		if(empty($cache)) {
+			trigger_error('Cache not configured. Please use Cache::config(); in APP/config/core.php', E_USER_WARNING);
+			Cache::config('default', array('engine' => 'File'));
+		}
+	}
+
 	require LIBS . 'session.php';
 	require LIBS . 'security.php';
 	require LIBS . 'string.php';
 
-	if (isset($cakeCache)) {
-		$cache = 'File';
-		if (isset($cakeCache[0])) {
-			$cache = $cakeCache[0];
-		}
-		$settings = array();
-		if (isset($cakeCache[1])) {
-			$settings = $cakeCache[1];
-		}
-		Cache::engine($cache, $settings);
-	} else {
-		Cache::engine();
-	}
 
 	Configure::store(null, 'class.paths');
 	Configure::load('class.paths');

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: model.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: model.php 5858 2007-10-22 16:11:12Z phpnut $ */
 /**
  * Database Storage engine for cache
  *
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.cache
  * @since			CakePHP(tm) v 1.2.0.4933
- * @version			$Revision: 5700 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5858 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -56,7 +56,7 @@ class ModelEngine extends CacheEngine {
  *
  * @param array $setting array of setting for the engine
  * @return boolean True if the engine has been successfully initialized, false if not
- * @return boolean True if the engine has been succesfully initialized, false if not
+ * @access public
  */
 	function init($settings) {
 		parent::init($settings);
@@ -69,9 +69,7 @@ class ModelEngine extends CacheEngine {
 		}
 	}
 /**
- * Garbage collection
- *
- * Permanently remove all expired and deleted data
+ * Garbage collection. Permanently remove all expired and deleted data
  *
  * @access public
  */
@@ -83,7 +81,7 @@ class ModelEngine extends CacheEngine {
  *
  * @param string $key Identifier for the data
  * @param mixed $data Data to be cached
- * @param mixed $duration How long to cache the data, in seconds
+ * @param integer $duration How long to cache the data, in seconds
  * @return boolean True if the data was succesfully cached, false on failure
  * @access public
  */

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: rss.php 5670 2007-09-18 18:00:22Z phpnut $ */
+/* SVN FILE: $Id: rss.php 5765 2007-10-16 00:44:37Z gwoo $ */
 /**
  * RSS Helper class file.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5670 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 19:00:22 +0100 (Tue, 18 Sep 2007) $
+ * @version			$Revision: 5765 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-10-16 01:44:37 +0100 (Tue, 16 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -179,8 +179,12 @@ class RssHelper extends XmlHelper {
  */
 	function item($att = array(), $elements = array()) {
 		$content = null;
-		foreach ($elements as $key => $val) {
 
+		if (isset($elements['link']) && !isset($elements['guid'])) {
+			$elements['guid'] = $elements['link'];
+		}
+
+		foreach ($elements as $key => $val) {
 			$attrib = array();
 			switch ($key) {
 				case 'pubDate' :
@@ -223,10 +227,6 @@ class RssHelper extends XmlHelper {
 				$val = h($val);
 			}
 			$elements[$key] = $this->elem($key, $attrib, $val);
-		}
-
-		if (isset($elements['link']) && !isset($elements['guid'])) {
-			$elements['guid'] = $elements['link'];
 		}
 
 		if (!empty($elements)) {

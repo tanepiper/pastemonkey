@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: datasource.php 5587 2007-08-27 03:15:11Z nate $ */
+/* SVN FILE: $Id: datasource.php 5857 2007-10-22 16:09:35Z phpnut $ */
 /**
  * DataSource base class
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources
  * @since			CakePHP(tm) v 0.10.5.1790
- * @version			$Revision: 5587 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-08-27 04:15:11 +0100 (Mon, 27 Aug 2007) $
+ * @version			$Revision: 5857 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -349,7 +349,6 @@ class DataSource extends Object {
  * Sets the configuration for the DataSource
  *
  * @param array $config The configuration array
- * @return void
  */
 	function setConfig($config) {
 		if (is_array($this->_baseConfig)) {
@@ -364,7 +363,6 @@ class DataSource extends Object {
  *
  * @param string $object The name of the object (model) to cache
  * @param mixed $data The description of the model, usually a string or array
- * @return void
  */
 	function __cacheDescription($object, $data = null) {
 		if ($this->cacheSources === false) {

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_oracle.php 5563 2007-08-21 21:46:59Z gwoo $ */
+/* SVN FILE: $Id: dbo_oracle.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Oracle layer for DBO.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP v 1.2.0.4041
- * @version			$Revision: 5563 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-21 22:46:59 +0100 (Tue, 21 Aug 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -162,7 +162,7 @@ class DboOracle extends DboSource {
  * Sets the encoding language of the session
  *
  * @param string $lang language constant
- * @return boolean
+ * @return bool
  */
 	function setEncoding($lang) {
 		if (!$this->execute('ALTER SESSION SET NLS_LANGUAGE='.$lang)) {
@@ -250,8 +250,8 @@ class DboOracle extends DboSource {
 /**
  * Modify a SQL query to limit (and offset) the result set
  *
- * @param int $limit Maximum number of rows to return
- * @param int $offset Row to begin returning
+ * @param integer $limit Maximum number of rows to return
+ * @param integer $offset Row to begin returning
  * @return modified SQL Query
  * @access public
  */
@@ -263,7 +263,7 @@ class DboOracle extends DboSource {
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
- * @return int Number of rows in resultset
+ * @return integer Number of rows in resultset
  * @access public
  */
 	function lastNumRows() {
@@ -345,7 +345,7 @@ class DboOracle extends DboSource {
  * Checks to see if a named sequence exists
  *
  * @param string $sequence
- * @return boolean
+ * @return bool
  * @access public
  */
 	function sequenceExists($sequence) {
@@ -359,7 +359,7 @@ class DboOracle extends DboSource {
  * Creates a database sequence
  *
  * @param string $sequence
- * @return boolean
+ * @return bool
  * @access public
  */
 	function createSequence($sequence) {
@@ -577,7 +577,7 @@ class DboOracle extends DboSource {
  * Returns the ID generated from the previous INSERT operation.
  *
  * @param string
- * @return int
+ * @return integer
  * @access public
  */
 	function lastInsertId($source) {

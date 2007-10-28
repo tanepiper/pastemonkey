@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: db_acl.php 5588 2007-08-27 03:16:49Z nate $ */
+/* SVN FILE: $Id: db_acl.php 5776 2007-10-17 12:51:17Z phpnut $ */
 /**
  * This is core configuration file.
  *
@@ -21,17 +21,14 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5588 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-08-27 04:16:49 +0100 (Mon, 27 Aug 2007) $
+ * @version			$Revision: 5776 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-17 13:51:17 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Set database config if not defined.
  */
-if (!defined('ACL_DATABASE')) {
-	define('ACL_DATABASE', 'default');
-}
 /**
  * Load Model and AppModel
  */
@@ -46,8 +43,6 @@ loadModel();
  * @subpackage	cake.cake.libs.model
  */
 class AclNode extends AppModel {
-
-	var $useDbConfig = ACL_DATABASE;
 /**
  * Explicitly disable in-memory query caching for ACL models
  *
@@ -60,6 +55,17 @@ class AclNode extends AppModel {
  * @var mixed
  */
 	var $actsAs = array('Tree' => 'nested');
+/**
+ * Constructor
+ *
+ */
+	function __construct() {
+		$config = Configure::read('Acl.database');
+		if(isset($config)) {
+			$this->useDbConfig = $config;
+		}
+		parent::__construct();
+	}
 /**
  * Retrieves the Aro/Aco node for this model
  *
@@ -85,23 +91,36 @@ class AclNode extends AppModel {
 			$start = $path[0];
 			unset($path[0]);
 
-			$i = 0;
-			$cond = "WHERE ({$type}.lft <= {$type}{$i}.lft AND {$type}.rght >= {$type}{$i}.rght) ";
-			$query  = "SELECT {$type}.id, {$type}.parent_id, {$type}.model, {$type}.foreign_key, {$type}.alias FROM {$prefix}{$table} {$db->alias} {$type} ";
-			$query .=  "LEFT JOIN {$prefix}{$table} {$db->alias} {$type}0 ";
-			$query .= "ON {$type}0.alias = " . $db->value($start) . " ";
-
+			$queryData = array('conditions' => array(
+											$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
+											$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")),
+									'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
+									'joins' => array(array('table' => $db->name($prefix . $table),
+											'alias' => "{$type}0",
+											'type' => 'LEFT',
+											'conditions' => array("{$type}0.alias" => $start))),
+									'order' => $db->name("{$type}.lft") . ' DESC');
 			foreach ($path as $i => $alias) {
 				$j = $i - 1;
-				$cond  .="OR ";
-				$query .= "LEFT JOIN {$prefix}{$table} {$db->alias} {$type}{$i} ";
-				$query .= "ON {$type}{$i}.lft > {$type}{$j}.lft AND {$type}{$i}.rght < {$type}{$j}.rght ";
-				$query .= "AND {$type}{$i}.alias = " . $db->value($alias) . " ";
-				$cond  .="({$type}.lft <= {$type}{$i}.lft AND {$type}.rght >= {$type}{$i}.rght ) ";
+
+				array_push($queryData['joins'], array(
+								'table' => $db->name($prefix . $table),
+								'alias' => "{$type}{$i}",
+								'type'  => 'LEFT',
+								'conditions' => array(
+										$db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft"),
+										$db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght"),
+										$db->name("{$type}{$i}.alias") . ' = ' . $db->value($alias))));
+
+				$queryData['conditions'] = array('or' => array(
+				$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght"),
+				$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght")));
 			}
-			$result = $this->query("{$query} {$cond} ORDER BY {$type}.lft DESC", $this->cacheQueries);
+			$result = $db->read($this, $queryData, -1);
+
 		} elseif (is_object($ref) && is_a($ref, 'Model')) {
 			$ref = array('model' => $ref->name, 'foreign_key' => $ref->id);
+
 		} elseif (is_array($ref) && !(isset($ref['model']) && isset($ref['foreign_key']))) {
 			$name = key($ref);
 			if (!ClassRegistry::isKeySet($name)) {
@@ -133,10 +152,16 @@ class AclNode extends AppModel {
 					$ref["{$type}0.{$key}"] = $val;
 				}
 			}
-			$query  = "SELECT {$type}.id, {$type}.parent_id, {$type}.model, {$type}.foreign_key, {$type}.alias FROM {$prefix}{$table} {$db->alias} {$type} ";
-			$query .=  "LEFT JOIN {$prefix}{$table} {$db->alias} {$type}0 ";
-			$query .= "ON {$type}.lft <= {$type}0.lft AND {$type}.rght >= {$type}0.rght ";
-			$result = $this->query("{$query} " . $db->conditions($ref) ." ORDER BY {$type}.lft DESC", $this->cacheQueries);
+			$queryData = array('conditions'	=> $ref,
+									'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
+									'joins' => array(array('table' => $db->name($prefix . $table),
+									'alias' => "{$type}0",
+									'type' => 'LEFT',
+									'conditions' => array(
+									$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
+									$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")))),
+									'order' => $db->name("{$type}.lft") . ' DESC');
+			$result = $db->read($this, $queryData, -1);
 
 			if (!$result) {
 				trigger_error("AclNode::node() - Couldn't find {$type} node identified by \"" . print_r($ref, true) . "\"", E_USER_WARNING);
@@ -218,8 +243,6 @@ class Aro extends AclNode {
  * @subpackage	cake.cake.libs.model
  */
 class Permission extends AppModel {
-
-	var $useDbConfig = ACL_DATABASE;
 /**
  * Enter description here...
  *
@@ -250,5 +273,16 @@ class Permission extends AppModel {
  * @var unknown_type
  */
 	 var $actsAs = null;
+/**
+ * Constructor
+ *
+ */
+	function __construct() {
+		$config = Configure::read('Acl.database');
+		if(isset($config)) {
+			$this->useDbConfig = $config;
+		}
+		parent::__construct();
+	}
 }
 ?>

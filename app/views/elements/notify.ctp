@@ -1,5 +1,3 @@
-	<?php
-					if ($session->check('Message.flash')):
-							$session->flash();
-					endif;
-					?>
+<?php if ($session->check('Message.flash')): ?>
+		<?php $session->flash();?>
+<?php endif; ?>

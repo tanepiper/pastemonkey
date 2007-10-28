@@ -1,6 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_mssql.php 5563 2007-08-21 21:46:59Z gwoo $ */
-
+/* SVN FILE: $Id: dbo_mssql.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * MS SQL layer for DBO
  *
@@ -22,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.10.5.1790
- * @version			$Revision: 5563 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-21 22:46:59 +0100 (Tue, 21 Aug 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -100,13 +99,15 @@ class DboMssql extends DboSource {
  * @param array $config Configuration data from app/config/databases.php
  * @return boolean True if connected successfully, false on error
  */
-	function __construct($config) {
-		if (!function_exists('mssql_min_message_severity')) {
-			trigger_error("PHP SQL Server interface is not installed, cannot continue.  For troubleshooting information, see http://php.net/mssql/", E_USER_ERROR);
+	function __construct($config, $autoConnect = true) {
+		if ($autoConnect) {
+			if (!function_exists('mssql_min_message_severity')) {
+				trigger_error("PHP SQL Server interface is not installed, cannot continue.  For troubleshooting information, see http://php.net/mssql/", E_USER_WARNING);
+			}
+			mssql_min_message_severity(15);
+			mssql_min_error_severity(2);
 		}
-		mssql_min_message_severity(15);
-		mssql_min_error_severity(2);
-		return parent::__construct($config);
+		return parent::__construct($config, $autoConnect);
 	}
 /**
  * Connects to the database using options in the given configuration array.
@@ -248,6 +249,10 @@ class DboMssql extends DboSource {
 				}
 			break;
 		}
+
+		if (in_array($column, array('integer', 'float')) && is_numeric($data)) {
+			return $data;
+		}
 		return "'" . $data . "'";
 	}
 /**
@@ -364,7 +369,7 @@ class DboMssql extends DboSource {
  * Returns number of affected rows in previous database operation. If no previous operation exists,
  * this returns false.
  *
- * @return int Number of affected rows
+ * @return integer Number of affected rows
  */
 	function lastAffected() {
 		if ($this->_result) {
@@ -376,7 +381,7 @@ class DboMssql extends DboSource {
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
- * @return int Number of rows in resultset
+ * @return integer Number of rows in resultset
  */
 	function lastNumRows() {
 		if ($this->_result) {
@@ -397,8 +402,8 @@ class DboMssql extends DboSource {
 /**
  * Returns a limit statement in the correct format for the particular database.
  *
- * @param int $limit Limit of results returned
- * @param int $offset Offset from which to start results
+ * @param integer $limit Limit of results returned
+ * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
  */
 	function limit($limit, $offset = null) {

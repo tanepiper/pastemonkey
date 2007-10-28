@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: inflector.php 5382 2007-07-06 07:06:06Z phpnut $ */
+/* SVN FILE: $Id: inflector.php 5712 2007-10-04 02:17:40Z phpnut $ */
 /**
  * Pluralize and singularize English words.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5382 $
+ * @version			$Revision: 5712 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-06 08:06:06 +0100 (Fri, 06 Jul 2007) $
+ * @lastmodified	$Date: 2007-10-04 03:17:40 +0100 (Thu, 04 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -411,8 +411,20 @@ class Inflector extends Object {
 		$variable = preg_replace('/\\w/', $replace, $string, 1);
 		return $variable;
 	}
+/**
+ * Returns a string with all spaces converted to $replacement and non word characters removed.
+ *
+ * @param string $string
+ * @param string $replacement
+ * @return string
+ * @access public
+ * @static
+ */
+	function slug($string, $replacement = '_') {
+		$string = preg_replace(array('/[^\w\s]/', '/\\s+/') , array(' ', $replacement), $string);
+		return $string;
+	}
 }
-
 /**
  * Enclose a string for preg matching.
  *

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: validation.php 5679 2007-09-21 00:42:34Z phpnut $ */
+/* SVN FILE: $Id: validation.php 5901 2007-10-25 03:55:41Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0.3830
- * @version			$Revision: 5679 $
+ * @version			$Revision: 5901 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-21 01:42:34 +0100 (Fri, 21 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-25 04:55:41 +0100 (Thu, 25 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -143,8 +143,8 @@ class Validation extends Object {
  * Returns true is string matches value min, max, or between min and max,
  *
  * @param string $check Value to check for length
- * @param int $min Minimum value in range (inclusive)
- * @param int $max Maximum value in range (inclusive)
+ * @param integer $min Minimum value in range (inclusive)
+ * @param integer $max Maximum value in range (inclusive)
  * @return boolean Success
  * @access public
  */
@@ -270,8 +270,8 @@ class Validation extends Object {
  * @param string $operator Can be either a word or operand
  * 								is greater >, is less <, greater or equal >=
  * 								less or equal <=, is less <, equal to ==, not equal !=
- * @param int $check2 only needed if $check1 is a string
- * @return boolean
+ * @param integer $check2 only needed if $check1 is a string
+ * @return bool
  * @access public
  */
 	function comparison($check1, $operator = null, $check2 = null) {
@@ -460,10 +460,8 @@ class Validation extends Object {
 				return true;
 			}
 		}
-
 		return false;
 	}
-
 /**
  * Check that value is exactly $comparedTo.
  *
@@ -475,7 +473,6 @@ class Validation extends Object {
 	function equalTo($check, $comparedTo) {
 
 	}
-
 /**
  * Check that value is a file.
  *
@@ -510,7 +507,7 @@ class Validation extends Object {
  * Checks whether the length of a string is greater or equal to a minimal length.
  *
  * @param string $check The string to test
- * @param int $min The minimal string length
+ * @param integer $min The minimal string length
  * @return boolean Success
  * @access public
  */
@@ -522,7 +519,7 @@ class Validation extends Object {
  * Checks whether the length of a string is smaller or equal to a maximal length..
  *
  * @param string $check The string to test
- * @param int $max The maximal string length
+ * @param integer $max The maximal string length
  * @return boolean Success
  * @access public
  */
@@ -530,7 +527,6 @@ class Validation extends Object {
 		$length = strlen($check);
 		return ($length <= $max);
 	}
-
 /**
  * Checks that a value is a monetary amount.
  *
@@ -551,7 +547,6 @@ class Validation extends Object {
     	}
     	return $this->_check();
     }
-
 /**
  * Validate a multiple select.
  *
@@ -566,13 +561,12 @@ class Validation extends Object {
     	//Validate a select against a list of restriced indexes.
     	//Validate a multiple-select for the quantity selected.
 	}
-
 /**
  * Validate that a number is in specified range.
  *
  * @param string $check Value to check
- * @param int $lower Lower limit
- * @param int $upper Upper limit
+ * @param integer $lower Lower limit
+ * @param integer $upper Upper limit
  * @access public
  * @todo Implement
  */
@@ -584,7 +578,6 @@ class Validation extends Object {
 
 		}
 	}
-
 /**
  * Checks if a value is numeric.
  *
@@ -595,7 +588,6 @@ class Validation extends Object {
 	function numeric($check) {
 		return is_numeric($check);
 	}
-
 /**
  * Check that a value is a valid phone number.
  *
@@ -623,7 +615,6 @@ class Validation extends Object {
 		}
 		return $this->_check();
 	}
-
 /**
  * Checks that a given value is a valid postal code.
  *
@@ -657,7 +648,6 @@ class Validation extends Object {
 		}
 		return $this->_check();
 	}
-
 /**
  * Checks that a value is a valid Social Security Number.
  *
@@ -691,7 +681,6 @@ class Validation extends Object {
 		}
 		return $this->_check();
 	}
-
 /**
  * Checks that a value is a valid URL.
  *
@@ -701,10 +690,11 @@ class Validation extends Object {
  */
 	function url($check) {
 		$this->check = $check;
-		$this->regex = '/\\A(?:(https?|ftps?|file|news|gopher):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,\'@?^=%&:;\/~\\+#]*[\\w\\-\\@?^=%&\/~\\+#])?)\\z/i';
-		return $this->_check();
+		$this->regex = '/^(?:(?:https?|ftps?|file|news|gopher):\\/\\/)?(?:(?:(?:25[0-5]|2[0-4]\d|(?:(?:1\d)?|[1-9]?)\d)\.){3}(?:25[0-5]|2[0-4]\d|(?:(?:1\d)?|[1-9]?)\d)'
+							. '|(?:[0-9a-z]{1}[0-9a-z\\-]*\\.)*(?:[0-9a-z]{1}[0-9a-z\\-]{0,56})\\.(?:[a-z]{2,6}|[a-z]{2}\\.[a-z]{2,6})'
+							. '(?::[0-9]{1,4})?)(?:\\/?|\\/[\\w\\-\\.,\'@?^=%&:;\/~\\+#]*[\\w\\-\\@?^=%&\/~\\+#])$/i';
+        return $this->_check();
 	}
-
 /**
  * Runs an user-defined validation.
  *
@@ -718,7 +708,6 @@ class Validation extends Object {
 	function userDefined($check, $object, $method, $args = null) {
 		return call_user_func_array(array(&$object, $method), array($check,$args));
 	}
-
 /**
  * Runs a regular expression match.
  *
@@ -734,7 +723,6 @@ class Validation extends Object {
 			return false;
 		}
 	}
-
 /**
  * Get the values to use when value sent to validation method is
  * an array.
@@ -795,7 +783,6 @@ class Validation extends Object {
 		}
 		return true;
 	}
-
 /**
  * Reset internal variables for another validation run.
  *

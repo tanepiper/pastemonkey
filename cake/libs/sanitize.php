@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: sanitize.php 5641 2007-09-15 20:28:46Z phpnut $ */
+/* SVN FILE: $Id: sanitize.php 5885 2007-10-24 11:31:32Z phpnut $ */
 /**
  * Washes strings from unwanted noise.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5641 $
+ * @version			$Revision: 5885 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-15 21:28:46 +0100 (Sat, 15 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-24 12:31:32 +0100 (Wed, 24 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -72,7 +72,7 @@ class Sanitize{
  */
 	function escape($string, $connection = 'default') {
 		$db =& ConnectionManager::getDataSource($connection);
-		if (is_numeric($string)) {
+		if (is_numeric($string)  || $string === null) {
 			return $string;
 		}
 		$string = substr($db->value($string), 1);
@@ -199,7 +199,7 @@ class Sanitize{
 
 		if (is_array($data)) {
 			foreach ($data as $key => $val) {
-				$data[$key] = Sanitize::clean($val, $options['connection']);
+				$data[$key] = Sanitize::clean($val, $options);
 			}
 			return $data;
 		} else {

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: number.php 5570 2007-08-22 17:33:46Z gwoo $ */
+/* SVN FILE: $Id: number.php 5858 2007-10-22 16:11:12Z phpnut $ */
 
 /**
  * Number Helper.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5570 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-22 18:33:46 +0100 (Wed, 22 Aug 2007) $
+ * @version			$Revision: 5858 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.php 5616 2007-09-04 13:53:13Z nate $ */
+/* SVN FILE: $Id: acl.php 5858 2007-10-22 16:11:12Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5616 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-04 14:53:13 +0100 (Tue, 04 Sep 2007) $
+ * @version			$Revision: 5858 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses ('controller'.DS.'components'.DS.'acl', 'model'.DS.'db_acl');
@@ -40,8 +40,7 @@ class AclShell extends Shell {
  * @var object
  * @access public
  */
-	var $acl;
-/**
+	var $Acl;
 /**
  * Contains arguments parsed from the command line.
  *
@@ -75,14 +74,14 @@ class AclShell extends Shell {
 			$this->dataSource = $this->params['datasource'];
 		}
 
-		if (ACL_CLASSNAME != 'DB_ACL') {
+		if (Configure::read('Acl.classname') != 'DB_ACL') {
 			$out = "--------------------------------------------------\n";
 			$out .= __("Error: Your current Cake configuration is set to", true) . "\n";
 			$out .= __("an ACL implementation other than DB. Please change", true) . "\n";
 			$out .= __("your core config to reflect your decision to use", true) . "\n";
 			$out .= __("DB_ACL before attempting to use this script", true) . ".\n";
 			$out .= "--------------------------------------------------\n";
-			$out .= sprintf(__("Current ACL Classname: %s", true), ACL_CLASSNAME) . "\n";
+			$out .= sprintf(__("Current ACL Classname: %s", true), Configure::read('Acl.classname')) . "\n";
 			$out .= "--------------------------------------------------\n";
 			$this->err($out);
 			exit();
@@ -238,6 +237,7 @@ class AclShell extends Shell {
 		//add existence checks for nodes involved
 		$aro = ife(is_numeric($this->args[0]), intval($this->args[0]), $this->args[0]);
 		$aco = ife(is_numeric($this->args[1]), intval($this->args[1]), $this->args[1]);
+
 		if ($this->Acl->allow($aro, $aco, $this->args[2])) {
 			$this->out(__("Permission granted.", true), true);
 		}
@@ -284,7 +284,11 @@ class AclShell extends Shell {
 		}
 		$nodes = $this->Acl->{$class}->findAll($conditions, null, 'lft ASC');
 		if (empty($nodes)) {
-			$this->error(sprintf(__("%s not found", true), $this->args[1]), __("No tree returned.", true));
+			if(isset($this->args[1])) {
+				$this->error(sprintf(__("%s not found", true), $this->args[1]), __("No tree returned.", true));
+			} elseif (isset($this->args[0])) {
+				$this->error(sprintf(__("%s not found", true), $this->args[0]), __("No tree returned.", true));
+			}
 		}
 		$this->out($class . " tree:");
 		$this->hr();
@@ -364,7 +368,6 @@ class AclShell extends Shell {
 
 		$this->out("\n" . __("Done.", true), true);
 	}
-
 /**
  * Show help screen.
  *
@@ -449,7 +452,7 @@ class AclShell extends Shell {
  * Checks that given node exists
  *
  * @param string $type Node type (ARO/ACO)
- * @param int $id Node id
+ * @param integer $id Node id
  * @return boolean Success
  * @access public
  */

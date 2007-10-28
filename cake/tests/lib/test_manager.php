@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: test_manager.php 5460 2007-07-25 04:38:28Z phpnut $ */
+/* SVN FILE: $Id: test_manager.php 5768 2007-10-16 09:05:25Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.tests.lib
  * @since			CakePHP(tm) v 1.2.0.4433
- * @version			$Revision: 5460 $
+ * @version			$Revision: 5768 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-25 05:38:28 +0100 (Wed, 25 Jul 2007) $
+ * @lastmodified	$Date: 2007-10-16 10:05:25 +0100 (Tue, 16 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 define ('CORE_TEST_CASES', dirname(dirname(__FILE__)) . DS . 'cases');
@@ -49,7 +49,7 @@ class TestManager {
 	}
 
 	function _installSimpleTest() {
-		vendor('simpletest'.DS.'unit_tester', 'simpletest'.DS.'web_tester', 'simpletest'.DS.'mock_objects');
+		vendor('simpletest'.DS.'unit_tester', 'simpletest'.DS.'mock_objects', 'simpletest'.DS.'web_tester');
 		require_once(LIB_TESTS . 'cake_web_test_case.php');
 		require_once(LIB_TESTS . 'cake_test_case.php');
 	}
@@ -74,7 +74,7 @@ class TestManager {
 		foreach ($testCases as $testCase) {
 			$test->addTestFile($testCase);
 		}
-		$test->run($reporter);
+		return $test->run($reporter);
 	}
 
 	function runTestCase($testCaseFile, &$reporter) {
@@ -90,7 +90,7 @@ class TestManager {
 		}
 		$test =& new GroupTest("Individual test case: " . $testCaseFile);
 		$test->addTestFile($testCaseFileWithPath);
-		$test->run($reporter);
+		return $test->run($reporter);
 	}
 
 	function runGroupTest($groupTestName, $groupTestDirectory, &$reporter) {
@@ -104,7 +104,6 @@ class TestManager {
 
 		require_once $filePath;
 		$test =& new GroupTest($groupTestName . ' group test');
-
 		foreach ($manager->_getGroupTestClassNames($filePath) as $groupTest) {
 			$testCase = new $groupTest();
 			$test->addTestCase($testCase);
@@ -112,7 +111,7 @@ class TestManager {
 				$test->_label = $testCase->label;
 			}
 		}
-		$test->run($reporter);
+		return $test->run($reporter);
 	}
 
 	function addTestCasesFromDirectory(&$groupTest, $directory = '.') {

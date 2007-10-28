@@ -59,6 +59,11 @@ class LanguagesController extends AppController {
 			$this->redirect(array('action'=>'index'), null, true);
 		}
 	}*/
+	
+	function find(){
+		$search = $this->params['url']['q'];
+		$this->set('languages', $this->Language->findAll(array('Language.language'=>'LIKE ' . $search . '%')));
+	}
 
 }
 ?>

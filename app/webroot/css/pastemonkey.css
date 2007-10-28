@@ -1,6 +1,14 @@
-html,body{margin:0;padding:0; background:#F0F0F0;}
-body{font: 90% arial,sans-serif}
-p{margin:0 10px 10px}
+html, body {
+  margin:0;
+  padding:0;
+  background:#FFF;
+}
+body {
+  font: 90% Verdana, Helvetica, Arial,sans-serif
+}
+p {
+  margin:0 10px 10px;
+}
 
 a {
 	color: #FFCC44;
@@ -43,6 +51,40 @@ div#header .loading {
 	margin:0 auto;
 	padding:0;
 }
+
+div#header #primary-nav {
+	position:absolute;
+	top:30px;
+	left: 300px;
+}
+
+div#header #primary-nav li {
+	display:inline;
+}
+
+div#header #primary-nav .nav-link {
+	width:150px;
+	height:20px;
+	text-align:center;
+	font-size: 80%;
+	background: #000 url('/img/tab.png') no-repeat;
+	color:#000;
+	float:left;
+	margin-right:20px;
+	opacity: 0.9;
+}
+
+div#header #primary-nav .nav-link:hover {
+	opacity: 1.0;
+}
+
+div#header #primary-nav .active {
+	font-size: 90%;
+	color:#000;
+	font-weight:bolder;
+	opacity:1.0;
+}
+
 div#content {}
 div#content p{line-height:1.4}
 div#content a {color:#539FCF}
@@ -53,6 +95,17 @@ div#content .pastes .geshi-output ol {
 	height: 150px;
 	overflow: hidden;
 	border:1px solid #000;
+}
+
+div#content .viewPaste viewPaste-geshiOutput-note {
+	margin: 10px auto;
+	width: 95%;
+}
+
+
+div#content .viewPaste .viewPaste-geshiOutput {
+	margin: 10px auto;
+	width: 95%;
 }
 
 div#content .viewPaste .viewPaste-geshiOutput ol {
@@ -92,38 +145,6 @@ div#content .openid_url {
 }
 
 
-.fatal {
-	border:2px solid #000;
-	background: #fff url('/img/dialog-warning.png') no-repeat center left;
-	padding-left: 50px;
-	min-height:50px;
-	vertical-align:middle;
-}
-
-.error {
-	border:2px solid #000;
-	background: #fff url('/img/dialog-error.png') no-repeat center left;
-	padding-left: 50px;
-	min-height:50px;
-	vertical-align:middle;
-}
-
-.warning {
-	border:2px solid #000;
-	background: #fff url('/img/emblem-important.png') no-repeat center left;
-	padding-left: 50px;
-	min-height:50px;
-	vertical-align:middle;
-}
-
-.notice {
-	border:2px solid #000;
-	background: #fff url('/img/dialog-information.png') no-repeat center left;
-	padding-left: 50px;
-	min-height:50px;
-	vertical-align:middle;
-}
-
 
 div#wrapper{float:left;width:100%}
 div#content{margin-left:200px; padding:20px;}
@@ -133,24 +154,29 @@ div#navigation #primary-nav {
 	padding:0;
 }
 
-div#navigation .nav-link {
-	background: #fc4;
-	border: 2px solid #fff;
-	margin-bottom:3px;
-	color:#000;
-	display:block;
-}
-
 div#navigation #search, div#navigation #donate {
 	background: #D9CEB2;
 	color: #000;
-	margin-bottom: 20px;
+	margin:10px auto;
+	width: 90%;
+	padding:5px;
+	border: 1px solid #000;
+}
+
+div#navigation #search #PasteSearchTerm {
+	background: #fff url('/img/gtk-find.png') no-repeat;
+	padding-left: 20px;
+	width: 80%;
 }
 
 div#navigation #latest-pastes {
 	background:#90A8C0;
 	padding:5px;
 	color: #000;
+	margin:10px auto;
+	width: 90%;
+	padding:5px;
+	border: 1px solid #000;
 }
 
 div#navigation #latest-pastes a {
@@ -177,7 +203,10 @@ label {
 textarea {
 	width:99%;
 	height:250px;
-	background: #cce5ff;
+}
+
+textarea#PasteNote {
+	height:75px;
 }
 
 table {
@@ -192,17 +221,33 @@ div#content .ajax-new-paste {
 	background: #444;
 }
 
-div#content .paging .paging-prev {
- float: left;
+div#content .paging .paging-prev div, div#content .paging .paging-next div {
+  display: inline;
 }
 
-div#content .paging .paging-numbers {
- float: left;
+div#content .paging .paging-numbers a,
+div#content .paging .paging-prev div, 
+div#content .paging .paging-next div,
+div#content .paging .paging-prev a, 
+div#content .paging .paging-next a  {
+  border: 1px solid #ddd;
+  padding: 5px;
+  background-color: #efefef;
+}
+
+div#content .paging .disabled {
+  background-color: #ccc;
+  color: #aaa;
 }
 
 div#content .paging .paging-next {
-	float:right;
 }
+
+div #content .paging {
+  text-align:center;
+}
+
+
 
 #latest-pastes {
 	font-size:70%;
@@ -271,6 +316,13 @@ div#content div#flashMessage {
 	left: 500px;
 }
 
+div#conent div#flashMessage #closeFlash {
+	position:relative;
+	top: 0;
+	right: 0;
+	float:right;
+}
+
 div#content .error-message {
 	border: 2px solid #000;
 	background: #f00 url('/img/dialog-error.png') no-repeat left center;
@@ -300,4 +352,100 @@ div#content #options-fieldset {
 	width: 33%;
 	float:left;
 	margin-left: 5%;
-} 
+}
+
+.pm-message {
+  background:#fff;
+  border:1px solid #333;
+  padding:1px;
+  position:absolute;
+  width:298px;
+  top: 50px;
+  left:500px;
+  font-size:10px;
+}
+.pm-message .pm-message-left {
+  position:absolute;
+  bottom:1px;
+  top:1px;
+  width:50px;
+  background: #fff url('../img/icon_bg.gif') top left repeat-y;
+  padding:0px; margin:0px;
+  
+}
+.pm-message .pm-message-left div.pm-message-icon {
+  position:relative;
+  top:-2px;
+  left: -1px;
+  height:48px;
+  width:48px;
+  background-repeat:no-repeat;
+}
+.pm-message-body {
+  margin-left:60px;
+  padding: 5px;
+  padding-left: 0;
+  padding-bottom:12px;
+}
+.pm-message-message strong {
+  margin:12px 4px 6px 0;
+  font-size:1.3em;
+  font-family:sans-serif;
+}
+.pm-message-message p {
+  margin:0px 0 0px 6px; padding:0px;
+  line-height:1.2em;
+  font-size:1.2em;
+}
+
+.pm-message .pm-message-left-notice {
+  background-color: #94CE60;
+}
+.pm-message .pm-message-icon-notice {
+  background: url('/img/dialog-information.png') no-repeat center left;
+}
+
+.pm-message .pm-message-left-warning {
+  background-color: #ff6600;
+}
+.pm-message .pm-message-icon-warning {
+	background: url('/img/dialog-warning.png') no-repeat center left;
+}
+
+.pm-message .pm-message-left-error {
+  background-color: #f00;
+}
+.pm-message .pm-message-icon-error {
+	background: url('/img/dialog-error.png') no-repeat center left;
+}
+/*
+.warning {
+	border:2px solid #000;
+	background: #fff url('/img/emblem-important.png') no-repeat center left;
+	padding-left: 50px;
+	min-height:50px;
+	vertical-align:middle;
+}
+
+.notice {
+	border:2px solid #000;
+	background: #fff url('/img/dialog-information.png') no-repeat center left;
+	padding-left: 50px;
+	min-height:50px;
+	vertical-align:middle;
+}
+*/
+
+div#content .pasteAdd #paste-form-area {
+	border:1px solid #000;
+}
+
+div#content .pasteAdd #paste-form-area h2 {
+	margin:0;
+	background:#fc0;
+	border-bottom:1px solid #000;
+}
+
+div#content .pasteAdd #paste-extra-area {
+	
+}

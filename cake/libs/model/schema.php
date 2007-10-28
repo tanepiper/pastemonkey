@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: schema.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: schema.php 5851 2007-10-22 05:52:20Z mariano.iglesias $ */
 /**
  * Schema database management for CakePHP.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0.5550
- * @version			$Revision: 5691 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @version			$Revision: 5851 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 06:52:20 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 if (!class_exists('connectionmanager')) {
@@ -100,7 +100,7 @@ class CakeSchema extends Object {
  *
  * @param array $events schema object properties
  * @access public
- * @return boolean
+ * @return bool
  */
 	function before($event = array()) {
 		return true;
@@ -110,7 +110,6 @@ class CakeSchema extends Object {
  *
  * @param array $events schema object properties
  * @access public
- * @return void
  */
 	function after($event = array()) {
 	}

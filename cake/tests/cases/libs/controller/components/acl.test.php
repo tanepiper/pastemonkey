@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.test.php 5563 2007-08-21 21:46:59Z gwoo $ */
+/* SVN FILE: $Id: acl.test.php 5776 2007-10-17 12:51:17Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,34 +21,24 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.controller.components
  * @since			CakePHP(tm) v 1.2.0.5435
- * @version			$Revision: 5563 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-21 22:46:59 +0100 (Tue, 21 Aug 2007) $
+ * @version			$Revision: 5776 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-17 13:51:17 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
+if (!defined('CAKEPHP_UNIT_TEST_EXECUTION')) {
+	define('CAKEPHP_UNIT_TEST_EXECUTION', 1);
+}
 uses('controller' . DS . 'components' . DS .'acl');
 
 uses('controller'.DS.'components'.DS.'acl', 'model'.DS.'db_acl');
 
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
 if(!class_exists('aclnodetestbase')) {
 	class AclNodeTestBase extends AclNode {
 		var $useDbConfig = 'test_suite';
 		var $cacheSources = false;
 	}
 }
-
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
 if(!class_exists('arotest')) {
 	class AroTest extends AclNodeTestBase {
 		var $name = 'AroTest';
@@ -56,13 +46,6 @@ if(!class_exists('arotest')) {
 		var $hasAndBelongsToMany = array('AcoTest' => array('with' => 'PermissionTest'));
 	}
 }
-
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
 if(!class_exists('acotest')) {
 	class AcoTest extends AclNodeTestBase {
 		var $name = 'AcoTest';
@@ -70,13 +53,6 @@ if(!class_exists('acotest')) {
 		var $hasAndBelongsToMany = array('AroTest' => array('with' => 'PermissionTest'));
 	}
 }
-
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
 if(!class_exists('permissiontest')) {
 	class PermissionTest extends CakeTestModel {
 		var $name = 'PermissionTest';
@@ -88,12 +64,6 @@ if(!class_exists('permissiontest')) {
 		var $actsAs = null;
 	}
 }
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
 if(!class_exists('acoactiontest')) {
 	class AcoActionTest extends CakeTestModel {
 		var $name = 'AcoActionTest';
@@ -101,12 +71,6 @@ if(!class_exists('acoactiontest')) {
 		var $belongsTo = array('AcoTest' => array('foreignKey' => 'aco_id'));
 	}
 }
-/**
-* Short description for class.
-*
-* @package		cake.tests
-* @subpackage	cake.tests.cases.libs.controller.components
-*/
 if(!class_exists('db_acl_test')) {
 	class DB_ACL_TEST extends DB_ACL {
 
@@ -125,126 +89,144 @@ if(!class_exists('db_acl_test')) {
  * @subpackage cake.tests.cases.libs.controller.components
  */
 class AclComponentTest extends CakeTestCase {
-	var $name = 'AclComponent';
 
 	var $fixtures = array('core.aro', 'core.aco', 'core.aros_aco', 'core.aco_action');
-
-	function skip() {
-		$this->skipif (true, 'AclComponentTest almost implemented');
-	}
-
-	function setUp() {
+	function startTest() {
+		Configure::write('Acl.classname', 'DB_ACL_TEST');
+		Configure::write('Acl.database', 'test_suite');
 		$this->Acl =& new AclComponent();
 	}
 
-	function testInitDbAcl() {
-		$this->Acl->name = 'DB_ACL_TEST';
-		$controller = null;
-		$this->Acl->startup($controller);
-
-		$this->Acl->Aro->id = null;
-		$this->Acl->Aro->create(array('alias'=>'Roles'));
+	function testAclCreate() {
+		$this->Acl->Aro->create(array('alias'=>'Global'));
 		$result = $this->Acl->Aro->save();
 		$this->assertTrue($result);
 
-		$this->Acl->Aro->create(array('alias'=>'Admin'));
+		$parent = $this->Acl->Aro->id;
+
+		$this->Acl->Aro->create(array('parent_id' => $parent, 'alias'=>'Account'));
 		$result = $this->Acl->Aro->save();
 		$this->assertTrue($result);
 
-		$this->Acl->Aro->create(array('model'=>'AuthUser', 'foreign_key'=>'1', 'alias'=> 'mariano'));
+		$this->Acl->Aro->create(array('parent_id' => $parent, 'alias'=>'Manager'));
 		$result = $this->Acl->Aro->save();
 		$this->assertTrue($result);
 
-		$this->Acl->Aro->setParent(1, 2);
-		$this->Acl->Aro->setParent(2, 3);
+		$parent = $this->Acl->Aro->id;
 
-		$this->Acl->Aco->create(array('alias'=>'Root'));
+		$this->Acl->Aro->create(array('parent_id' => $parent, 'alias'=>'Secretary'));
+		$result = $this->Acl->Aro->save();
+		$this->assertTrue($result);
+
+		$this->Acl->Aco->create(array('alias'=>'Reports'));
 		$result = $this->Acl->Aco->save();
 		$this->assertTrue($result);
 
-		$this->Acl->Aco->create(array('alias'=>'AuthTest'));
+		$report = $this->Acl->Aco->id;
+
+		$this->Acl->Aco->create(array('parent_id' => $report, 'alias'=>'Accounts'));
 		$result = $this->Acl->Aco->save();
 		$this->assertTrue($result);
 
-		$this->Acl->Aco->setParent(1, 2);
+		$account = $this->Acl->Aco->id;
 
+		$this->Acl->Aco->create(array('parent_id' => $account, 'alias'=>'Contacts'));
+		$result = $this->Acl->Aco->save();
+		$this->assertTrue($result);
+
+		$this->Acl->Aco->create(array('parent_id' => $report, 'alias'=>'Messages'));
+		$result = $this->Acl->Aco->save();
+		$this->assertTrue($result);
+
+		$this->Acl->Aco->create(array('parent_id' => $account, 'alias'=>'MonthView'));
+		$result = $this->Acl->Aco->save();
+		$this->assertTrue($result);
+
+		$this->Acl->Aco->create(array('parent_id' => $account, 'alias'=>'Links'));
+		$result = $this->Acl->Aco->save();
+		$this->assertTrue($result);
+
+		$this->Acl->Aco->create(array('parent_id' => $account, 'alias'=>'Numbers'));
+		$result = $this->Acl->Aco->save();
+		$this->assertTrue($result);
+
+		$this->Acl->Aco->create(array('parent_id' => $report, 'alias'=>'QuickStats'));
+		$result = $this->Acl->Aco->save();
+		$this->assertTrue($result);
+
+		$this->Acl->Aco->create(array('parent_id' => $report, 'alias'=>'Bills'));
+		$result = $this->Acl->Aco->save();
+		$this->assertTrue($result);
 	}
 
 	function testDbAclAllow() {
-		$this->Acl->name = 'DB_ACL_TEST';
-		$controller = null;
-		$this->Acl->startup($controller);
-
-		$result = $this->Acl->allow('Roles/Admin', 'Root');
+		$result = $this->Acl->allow('Manager','Reports',array('read','delete','update'));
 		$this->assertTrue($result);
 
-		$result = $this->Acl->allow('Roles/Admin', 'Root/AuthTest');
+		$result = $this->Acl->allow('Secretary','Links',array('create'));
 		$this->assertTrue($result);
-
 	}
 
 	function testDbAclCheck() {
-		$this->Acl->name = 'DB_ACL_TEST';
-		$controller = null;
-		$this->Acl->startup($controller);
 
-		$aro = null;
-		$aco = null;
-		$action = "*";
+		$result = $this->Acl->check('Secretary','Links','read');
+		$this->assertTrue($result);
 
-		$result = $this->Acl->check('Roles/Admin', 'Root', $action);
+		$result = $this->Acl->check('Secretary','Links','delete');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Secretary','Links','update');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Secretary','Links','create');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Secretary','Links','*');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Secretary','Links','create');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Manager','Links','read');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Manager','Links','delete');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Manager','Links','create');
 		$this->assertFalse($result);
+
+		$result = $this->Acl->check('Account','Links','read');
+		$this->assertFalse($result);
+
+		$result = $this->Acl->allow('Global','Reports', 'read');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Account','Links','create');
+		$this->assertFalse($result);
+
+		$result = $this->Acl->check('Account','Links','update');
+		$this->assertFalse($result);
+
+		$result = $this->Acl->check('Account','Links','delete');
+		$this->assertFalse($result);
+
+		$result = $this->Acl->allow('Global','Reports');
+		$this->assertTrue($result);
+
+		$result = $this->Acl->check('Account','Links','read');
+		$this->assertTrue($result);
 	}
-
-
 
 	function testDbAclDeny() {
-		$this->Acl->name = 'DB_ACL_TEST';
-		$controller = null;
-		$this->Acl->startup($controller);
+		$this->Acl->deny('Secretary','Links',array('delete'));
 
-		$result = $this->Acl->deny('Roles/Admin', 'Root/AuthTest', $action);
-		$this->assertTrue($result);
-
-		$result = $this->Acl->check('Roles/Admin', 'Root/AuthTest', $action);
+		$result = $this->Acl->check('Secretary','Links','delete');
 		$this->assertFalse($result);
-
 	}
 
-	function testDbAclInherit() {
-		$this->Acl->name = 'DB_ACL_TEST';
-		$controller = null;
-		$this->Acl->startup($controller);
-
-		$result = $this->Acl->inherit('Roles/Admin', 'Root/AuthTest', $action);
-		$this->assertTrue($result);
-
-	}
-	function testDbAclGrant() {
-		$this->Acl->name = 'DB_ACL_TEST';
-		$controller = null;
-		$this->Acl->startup($controller);
-
-		$aro = null;
-		$aco = null;
-		$action = "*";
-
-		$result = $this->Acl->grant($aro, $aco, $action);
-		$this->assertTrue($result);
-
-	}
-	function testDbAclRevoke() {
-		$this->Acl->name = 'DB_ACL_TEST';
-		$controller = null;
-		$this->Acl->startup($controller);
-
-		$aro = null;
-		$aco = null;
-		$action = "*";
-
-		$result = $this->Acl->revoke($aro, $aco, $action);
-		$this->assertTrue($result);
-
+	function after() {
+		parent::after('end');
 	}
 
 	function tearDown() {

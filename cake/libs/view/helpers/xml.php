@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: xml.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: xml.php 5857 2007-10-22 16:09:35Z phpnut $ */
 /**
  * XML Helper class file.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5691 $
+ * @version			$Revision: 5857 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('set');
@@ -118,7 +118,6 @@ class XmlHelper extends AppHelper {
  * Removes a namespace added in addNs()
  *
  * @param  string  $name The namespace name or URI
- * @return void
  */
 	function removeNs($name) {
 		if (in_array($name, array_keys($this->__namespaces))) {
@@ -236,7 +235,6 @@ class XmlHelper extends AppHelper {
 		} else {
 			return $content;
 		}
-		return false;
 	}
 /**
  * Serializes a model resultset into XML

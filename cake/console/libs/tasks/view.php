@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: view.php 5589 2007-08-27 20:54:11Z gwoo $ */
+/* SVN FILE: $Id: view.php 5857 2007-10-22 16:09:35Z phpnut $ */
 /**
  * The View Tasks handles creating and updating view files.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs.tasks
  * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5589 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-27 21:54:11 +0100 (Mon, 27 Aug 2007) $
+ * @version			$Revision: 5857 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('controller'.DS.'controller');
@@ -38,42 +38,48 @@ class ViewTask extends Shell {
  * Tasks to be loaded by this Task
  *
  * @var array
+ * @access public
  */
 	var $tasks = array('Project', 'Controller');
 /**
- * name of the controller being used
+ * Name of the controller being used
  *
  * @var string
+ * @access public
  */
 	var $controllerName = null;
 /**
- * path to controller to put views
+ * Path to controller to put views
  *
  * @var string
+ * @access public
  */
 	var $controllerPath = null;
 /**
- * the template file to use
+ * The template file to use
  *
  * @var string
+ * @access public
  */
 	var $template = null;
 /**
  * Actions to use for scaffolding
  *
  * @var array
+ * @access public
  */
 	var $scaffoldActions = array('index', 'view', 'add', 'edit');
 /**
  * Override initialize
  *
- * @return void
+ * @access public
  */
-	function initialize() {}
+	function initialize() {
+	}
 /**
  * Execution method always used for tasks
  *
- * @return void
+ * @access public
  */
 	function execute() {
 		if (empty($this->args)) {
@@ -131,7 +137,6 @@ class ViewTask extends Shell {
  * Handles interactive baking
  *
  * @access private
- * @return void
  */
 	function __interactive() {
 		$this->hr();
@@ -211,8 +216,8 @@ class ViewTask extends Shell {
  *	'singularHumanName', 'pluralHumanName', 'fields', 'foreignKeys',
  *	'belongsTo', 'hasOne', 'hasMany', 'hasAndBelongsToMany'
  *
- * @access private
  * @return array Returns an variables to be made available to a view template
+ * @access private
  */
 	function __loadController() {
 		if (!$this->controllerName) {
@@ -252,9 +257,10 @@ class ViewTask extends Shell {
 /**
  * Assembles and writes bakes the view file.
  *
- * @param string $action
- * @param string $content
- * @return bool
+ * @param string $action Action to bake
+ * @param string $content Content to write
+ * @return boolean Success
+ * @access public
  */
 	function bake($action, $content = '') {
 		if ($content === true) {
@@ -279,6 +285,7 @@ class ViewTask extends Shell {
  * @param string $template file to use
  * @param array $vars passed for use in templates
  * @return string content from template
+ * @access public
  */
 	function getContent($template = null, $vars = null) {
 		if (!$template) {
@@ -319,7 +326,7 @@ class ViewTask extends Shell {
 /**
  * Displays help contents
  *
- * @return void
+ * @access public
  */
 	function help() {
 		$this->hr();

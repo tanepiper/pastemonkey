@@ -20,6 +20,15 @@ class Language extends AppModel {
 								'finderQuery' => '',
 								'counterQuery' => ''),
 	);
+	
+	function afterFind($results) {
+		foreach ($results as $key => $val) {
+			if (isset($val['Language']['language']) && isset($val['Language']['weight'])) {
+				$results[$key]['Language']['dropdown'] = $val['Language']['language'] . ' (' . $val['Language']['weight'] . ')';
+			}
+		}
+		return $results;
+	}
 
 }
 ?>

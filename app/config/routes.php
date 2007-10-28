@@ -1,48 +1,19 @@
 <?php
-/* SVN FILE: $Id: routes.php 4410 2007-02-02 13:31:21Z phpnut $ */
-/**
- * Short description for file.
- *
- * In this file, you set up routes to your controllers and their actions.
- * Routes are very important mechanism that allows you to freely connect
- * different urls to chosen controllers and their actions (functions).
- *
- * PHP versions 4 and 5
- *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.app.config
- * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 4410 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-02-02 13:31:21 +0000 (Fri, 02 Feb 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
- */
-/**
- * Here, we are connecting '/' (base path) to controller called 'Pages',
- * its action called 'display', and we pass a param to select the view file
- * to use (in this case, /app/views/pages/home.thtml)...
- */
+/***
+	*	Core Routes for Navigation
+	***/
+
 	Router::connect('/', array('controller' => 'pastes', 'action' => 'add'));
 	Router::connect('/add/*', array('controller' => 'pastes', 'action' => 'add'));
 	Router::connect('/paste/*', array('controller' => 'pastes', 'action' => 'view'));
 	Router::connect('/news', array('controller' => 'pinboards', 'action' => 'index'));
-	//Router::connect('/img/:size/*', array('controller' => 'images', 'action' => 'view'), array('size' => '[0-9]*x[0-9]*'));
-	//Router::connect('/files/*', array('controller' => 'images', 'action' => 'view', 'size' => 'original'));
-	//Router::connect('/img/*', array('controller' => 'images', 'action' => 'view', 'size' => 'default'));
+	Router::connect('/all/*', array('controller' => 'pastes', 'action' => 'index'));
+	Router::connect('/search/*', array('controller' => 'pastes', 'action' => 'search'));
+	Router::connect('/help', array('controller' => 'pages', 'action' => 'display', 'help'));
+	Router::connect('/tags', array('controller' => 'tags', 'action' => 'tagcloud'));
+	Router::connect('/upload', array('controller' => 'pastes', 'action' => 'upload'));
+
 /**
- * Then we connect url '/test' to our test controller. This is helpfull in
- * developement.
- */
-	Router::connect('/tests', array('controller' => 'tests', 'action' => 'index'));
-?>
+ * REST interfaces
+**/	
+	Router::mapResources('pastes');

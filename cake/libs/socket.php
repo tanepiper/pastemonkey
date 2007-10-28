@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: socket.php 5201 2007-05-26 19:33:55Z mariano.iglesias $ */
+/* SVN FILE: $Id: socket.php 5858 2007-10-22 16:11:12Z phpnut $ */
 /**
  * Cake Socket connection class.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5201 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-05-26 20:33:55 +0100 (Sat, 26 May 2007) $
+ * @version			$Revision: 5858 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('validation');
@@ -185,7 +185,7 @@ class CakeSocket extends Object {
 /**
  * Set the last error.
  *
- * @param int $errNum Error code
+ * @param integer $errNum Error code
  * @param string $errStr Error string
  * @access public
  */
@@ -213,7 +213,7 @@ class CakeSocket extends Object {
  * Read data from the socket. Returns false if no data is available or no connection could be
  * established.
  *
- * @param int $length Optional buffer length to read; defaults to 1024
+ * @param integer $length Optional buffer length to read; defaults to 1024
  * @return mixed Socket data
  * @access public
  */

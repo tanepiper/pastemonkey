@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: time.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: time.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 
 /**
  * Time Helper class file.
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5691 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -198,7 +198,7 @@ class TimeHelper extends AppHelper {
  * Returns a UNIX timestamp from a textual datetime description. Wrapper for PHP function strtotime().
  *
  * @param string $date_string Datetime string to be represented as a Unix timestamp
- * @return int Unix timestamp
+ * @return integer Unix timestamp
  */
 	function toUnix($date_string) {
 		$ret = strtotime($date_string);
@@ -327,7 +327,7 @@ class TimeHelper extends AppHelper {
  *
  * @param mixed $timeInterval the numeric value with space then time type. Example of valid types: 6 hours, 2 days, 1 minute.
  * @param mixed $date_string the datestring or unix timestamp to compare
- * @return boolean
+ * @return bool
  */
 	function wasWithinLast($timeInterval, $date_string) {
 		$date = $this->fromString($date_string);

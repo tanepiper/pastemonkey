@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: scaffold.php 5705 2007-09-30 21:56:59Z gwoo $ */
+/* SVN FILE: $Id: scaffold.php 5839 2007-10-21 23:38:01Z mariano.iglesias $ */
 /**
  * Scaffold.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller
  * @since		Cake v 0.10.0.1076
- * @version			$Revision: 5705 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 22:56:59 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5839 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 00:38:01 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -41,7 +41,8 @@ class Scaffold extends Object {
 /**
  * Controller object
  *
- * @var Controller
+ * @var object
+ * @access public
  */
 	var $controller = null;
 /**
@@ -62,12 +63,14 @@ class Scaffold extends Object {
  * Name of current model this view context is attached to
  *
  * @var string
+ * @access public
  */
 	var $model = null;
 /**
  * Path to View.
  *
- * @var string Path to View
+ * @var string
+ * @access public
  */
 	var $viewPath;
 /**
@@ -94,12 +97,14 @@ class Scaffold extends Object {
  * File extension. Defaults to Cake's template ".ctp".
  *
  * @var array
+ * @access public
  */
 	var $ext = '.ctp';
 /**
  * Sub-directory for this view file.
  *
  * @var string
+ * @access public
  */
 	var $subDir = null;
 /**
@@ -107,19 +112,21 @@ class Scaffold extends Object {
  *
  * @link http://wiki.cakephp.org/docs:plugins
  * @var string
+ * @access public
  */
 	var $plugin = null;
 /**
  * List of variables to collect from the associated controller
  *
  * @var array
- * @access protected
+ * @access private
  */
 	var $__passedVars = array('action', 'base', 'webroot', 'layout', 'name', 'viewPath', 'ext', 'params', 'data', 'webservices', 'plugin', 'cacheAction');
 /**
  * Title HTML element for current scaffolded view
  *
  * @var string
+ * @access public
  */
 	var $scaffoldTitle = null;
 /**
@@ -188,7 +195,7 @@ class Scaffold extends Object {
 /**
  * Renders a view action of scaffolded model.
  *
- * @param array $params
+ * @param array $params Parameters for scaffolding
  * @return A rendered view of a row from Models database table
  * @access private
  */
@@ -215,7 +222,7 @@ class Scaffold extends Object {
 /**
  * Renders index action of scaffolded model.
  *
- * @param array $params
+ * @param array $params Parameters for scaffolding
  * @return A rendered view listing rows from Models database table
  * @access private
  */
@@ -231,8 +238,7 @@ class Scaffold extends Object {
 /**
  * Renders an add or edit action for scaffolded model.
  *
- * @param array $params
- * @param string $params add or edit
+ * @param string $action Action (add or edit)
  * @return A rendered view with a form to edit or add a record in the Models database table
  * @access private
  */
@@ -242,8 +248,8 @@ class Scaffold extends Object {
 /**
  * Saves or updates the scaffolded model.
  *
- * @param array $params
- * @param string $type create or update
+ * @param array $params Parameters for scaffolding
+ * @param string $action create or update
  * @return success on save/update, add/edit form if data is empty or error if save or update fails
  * @access private
  */
@@ -256,12 +262,12 @@ class Scaffold extends Object {
 		}
 
 		if ($this->controller->_beforeScaffold($action)) {
-			if ($action == 'edit' && !isset($params['pass'][0])) {
+			if ($action == 'edit' && (!isset($params['pass'][0]) || !$this->ScaffoldModel->exists())) {
 				if (isset($this->controller->Session) && $this->controller->Session->valid != false) {
-					$this->controller->Session->setFlash(sprintf(__("No id set for %s::edit()", true), Inflector::humanize($this->modelKey)));
+					$this->controller->Session->setFlash(sprintf(__("Invalid id for %s::edit()", true), Inflector::humanize($this->modelKey)));
 					$this->controller->redirect($this->redirect);
 				} else {
-					return $this->controller->flash(sprintf(__("No id set for %s::edit()", true), Inflector::humanize($this->modelKey)), $this->redirect);
+					return $this->controller->flash(sprintf(__("Invalid id for %s::edit()", true), Inflector::humanize($this->modelKey)), $this->redirect);
 				}
 			} elseif ($action == 'edit') {
 				$this->ScaffoldModel->id = $params['pass'][0];
@@ -303,15 +309,12 @@ class Scaffold extends Object {
 			}
 
 			foreach ($this->ScaffoldModel->belongsTo as $assocName => $assocData) {
-				$varName = $assocName;
-				if($this->ScaffoldModel->name == $assocData['className']) {
-					$varName = $assocData['className'];
-				}
-				$this->controller->set(Inflector::pluralize(Inflector::variable($varName)), $this->ScaffoldModel->{$assocName}->generateList());
+				$varName = Inflector::variable(Inflector::pluralize(preg_replace('/_id$/', '', $assocData['foreignKey'])));
+				$this->controller->set($varName, $this->ScaffoldModel->{$assocName}->generateList());
 			}
-
-			foreach($this->ScaffoldModel->hasAndBelongsToMany as $assocName => $assocData) {
-				$this->controller->set(Inflector::pluralize(Inflector::variable($varName)), $this->ScaffoldModel->{$assocName}->generateList());
+			foreach ($this->ScaffoldModel->hasAndBelongsToMany as $assocName => $assocData) {
+				$varName = Inflector::variable(Inflector::pluralize($assocName));
+				$this->controller->set($varName, $this->ScaffoldModel->{$assocName}->generateList());
 			}
 
 			return $this->__scaffoldForm($formAction);
@@ -323,7 +326,7 @@ class Scaffold extends Object {
 /**
  * Performs a delete on given scaffolded Model.
  *
- * @param array $params
+ * @param array $params Parameters for scaffolding
  * @return success on delete error if delete fails
  * @access private
  */
@@ -361,9 +364,10 @@ class Scaffold extends Object {
 		}
 	}
 /**
- * Enter description here...
+ * Show a scaffold error
  *
- * @return error
+ * @return A rendered view showing the error
+ * @access private
  */
 	function __scaffoldError() {
 		$pathToViewFile = '';
@@ -390,9 +394,7 @@ class Scaffold extends Object {
  * </code>
  * is placed in the controller's class definition.
  *
- * @param string $url
- * @param string $controller_class
- * @param array $params
+ * @param array $params Parameters for scaffolding
  * @since Cake v 0.10.0.172
  * @access private
  */

@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?php
-/* SVN FILE: $Id: cake.php 5627 2007-09-11 19:03:34Z gwoo $ */
+/* SVN FILE: $Id: cake.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Command-line code generation utility to automate programmer chores.
  *
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.console
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5627 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-11 20:03:34 +0100 (Tue, 11 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -111,7 +111,6 @@ class ShellDispatcher {
  * @access public
  */
 	var $shellName = null;
-
 /**
  * Constructs this ShellDispatcher instance.
  *
@@ -120,7 +119,6 @@ class ShellDispatcher {
 	function ShellDispatcher($args = array()) {
 		$this->__construct($args);
 	}
-
 /**
  * Constructor
  *
@@ -214,6 +212,7 @@ class ShellDispatcher {
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'object.php',
 		 	CORE_PATH . 'cake' . DS . 'libs' . DS . 'inflector.php',
 			CORE_PATH . 'cake' . DS . 'libs' . DS . 'configure.php',
+			CORE_PATH . 'cake' . DS . 'libs' . DS . 'cache.php'
 		);
 
 		foreach ($includes as $inc) {

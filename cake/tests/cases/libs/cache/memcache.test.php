@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: memcache.test.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: memcache.test.php 5752 2007-10-14 01:09:21Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.cache
  * @since			CakePHP(tm) v 1.2.0.5434
- * @version			$Revision: 5700 $
+ * @version			$Revision: 5752 $
  * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-14 02:09:21 +0100 (Sun, 14 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('cache', 'cache' . DS . 'memcache');
@@ -44,7 +44,7 @@ class MemcacheEngineTest extends UnitTestCase {
 	}
 
 	function setUp() {
-		Cache::engine('Memcache');
+		Cache::config('memcache', array('engine'=>'Memcache'));
 	}
 
 	function testSettings() {
@@ -53,14 +53,14 @@ class MemcacheEngineTest extends UnitTestCase {
 						'probability' => 100,
 						'servers' => array('127.0.0.1'),
 						'compress' => false,
-						'name' => 'Memcache'
+						'engine' => 'Memcache'
 						);
 		$this->assertEqual($settings, $expecting);
 	}
 
 	function testConnect() {
 		$Cache =& Cache::getInstance();
-		$result = $Cache->_Engine->connect('127.0.0.1');
+		$result = $Cache->_Engine['Memcache']->connect('127.0.0.1');
 		$this->assertTrue($result);
 	}
 
@@ -108,6 +108,10 @@ class MemcacheEngineTest extends UnitTestCase {
 
 		$result = Cache::delete('delete_test');
 		$this->assertTrue($result);
+	}
+	
+	function tearDown() {
+		Cache::config('default');
 	}
 }
 ?>

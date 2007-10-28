@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: router.php 5694 2007-09-26 09:49:01Z gwoo $ */
+/* SVN FILE: $Id: router.php 5887 2007-10-24 15:09:40Z gwoo $ */
 /**
  * Parses the request URL into controller, action, and parameters.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5694 $
+ * @version			$Revision: 5887 $
  * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-26 10:49:01 +0100 (Wed, 26 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-24 16:09:40 +0100 (Wed, 24 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -340,6 +340,10 @@ class Router extends Object {
 		$out = array('pass' => array());
 		$r = $ext = null;
 
+		if (ini_get('magic_quotes_gpc') == 1) {
+			$url = stripslashes_deep($url);
+		}
+
 		if ($url && strpos($url, '/') !== 0) {
 			$url = '/' . $url;
 		}
@@ -499,11 +503,9 @@ class Router extends Object {
 			$_this->connect('/xmlrpc/:controller/:action/*', array('webservices' => 'XmlRpc'));
 		}
 		$_this->connect('/:controller/:action/*');
-
 		if (empty($_this->__namedArgs)) {
 			$_this->connectNamed(array('page', 'fields', 'order', 'limit', 'recursive', 'sort', 'direction', 'step'));
 		}
-
 		$_this->__defaultsMapped = true;
 	}
 /**
@@ -519,6 +521,14 @@ class Router extends Object {
 		$params[0] = am($defaults, $params[0]);
 		$params[1] = am($defaults, $params[1]);
 		list($_this->__params[], $_this->__paths[]) = $params;
+
+		if (count($_this->__paths)) {
+			if (isset($_this->__paths[0]['namedArgs'])) {
+				foreach ($_this->__paths[0]['namedArgs'] as $arg => $value) {
+					$_this->__namedArgs[$arg] = true;
+				}
+			}
+		}
 	}
 /**
  * Gets parameter information
@@ -614,7 +624,7 @@ class Router extends Object {
  *                        or an array specifying any of the following: 'controller', 'action',
  *                        and/or 'plugin', in addition to named arguments (keyed array elements),
  *                        and standard URL arguments (indexed array elements)
- * @param boolean $full      If true, the full base URL will be prepended to the result
+ * @param boolean $full If true, the full base URL will be prepended to the result
  * @return string  Full translated URL with base path.
  * @access public
  * @static
@@ -696,7 +706,7 @@ class Router extends Object {
 				}
 			}
 			$named = $args = array();
-			$skip = array('bare', 'action', 'controller', 'plugin', 'ext', '?', '#');
+			$skip = array('bare', 'action', 'controller', 'plugin', 'ext', '?', '#', 'prefix', Configure::read('Routing.admin'));
 
 			$keys = array_values(array_diff(array_keys($url), $skip));
 			$count = count($keys);
@@ -707,6 +717,8 @@ class Router extends Object {
 					$args[0] = $url[$keys[$i]];
 				} elseif (is_numeric($keys[$i]) || $keys[$i] == 'id') {
 					$args[] = $url[$keys[$i]];
+				} else {
+					$named[$keys[$i]] = $url[$keys[$i]];
 				}
 			}
 
@@ -736,6 +748,13 @@ class Router extends Object {
 				}
 				$output .= $args;
 			}
+
+			if (!empty($named)) {
+				foreach ($named as $name => $value) {
+					$output .= '/' . $name . $_this->__argSeparator . $value;
+				}
+			}
+
 			$output = str_replace('//', '/', $base . '/' . $output);
 		} else {
 			if (((strpos($url, '://')) || (strpos($url, 'javascript:') === 0) || (strpos($url, 'mailto:') === 0)) || (substr($url, 0, 1) == '#')) {

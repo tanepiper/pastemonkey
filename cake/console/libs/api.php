@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: api.php 5582 2007-08-25 18:00:19Z gwoo $ */
+/* SVN FILE: $Id: api.php 5900 2007-10-25 03:21:33Z nate $ */
 /**
  * API shell to get CakePHP core method signatures.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.console.libs
  * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5582 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-25 19:00:19 +0100 (Sat, 25 Aug 2007) $
+ * @version			$Revision: 5900 $
+ * @modifiedby		$LastChangedBy: nate $
+ * @lastmodified	$Date: 2007-10-25 04:21:33 +0100 (Thu, 25 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -38,6 +38,7 @@ class ApiShell extends Shell {
  * Map between short name for paths and real paths.
  *
  * @var array
+ * @access public
  */
 	var $paths = array();
 /**
@@ -108,7 +109,7 @@ class ApiShell extends Shell {
 
 			if ($File->exists()) {
 				if (!class_exists($class)) {
-					include($File->pwd());
+					include_once($File->pwd());
 				}
 				if (class_exists($class)) {
 					break;
@@ -184,18 +185,25 @@ class ApiShell extends Shell {
 	function __parseClass(&$File, $class) {
 		$parsed = array();
 
-		$methods = am(array(), array_diff(get_class_methods($class), get_class_methods(get_parent_class($class))));
+		if (get_parent_class($class)) {
+			$methods = am(array(), array_diff(get_class_methods($class), get_class_methods(get_parent_class($class))));
+		} else {
+			$methods = get_class_methods($class);
+		}
 
 		$contents = $File->read();
 
 		foreach ($methods as $method) {
 			if (strpos($method, '__') !== 0 && strpos($method, '_') !== 0) {
-				$regex = '/\s+function\s+(' . preg_quote($method, '/') . ')\s*\(([^{]*)\)\s*{/is';
+				$regex = array(
+					'/\s+function\s+(' . preg_quote($method, '/') . ')\s*\(([^{]*)\)\s*{/is',
+					'/\s+function\s+(' . preg_quote('&' . $method, '/') . ')\s*\(([^{]*)\)\s*{/is'
+				);
 
-				if (preg_match($regex, $contents, $matches)) {
+				if (preg_match($regex[0], $contents, $matches) || preg_match($regex[1], $contents, $matches)) {
 					$parsed[$method] = array(
-							'method' => trim($matches[1]),
-							'parameters' => trim($matches[2])
+						'method' => trim($matches[1]),
+						'parameters' => trim($matches[2])
 					);
 				}
 			}

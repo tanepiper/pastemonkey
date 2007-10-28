@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: javascript.php 5686 2007-09-23 14:23:39Z nate $ */
+/* SVN FILE: $Id: javascript.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 
 /**
  * Javascript Helper class file.
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5686 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-23 15:23:39 +0100 (Sun, 23 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -182,7 +182,6 @@ class JavascriptHelper extends AppHelper {
  * @return boolean true on success
  */
 	function event($object, $event, $observer = null, $useCapture = false) {
-
 		if ($useCapture == true) {
 			$useCapture = 'true';
 		} else {

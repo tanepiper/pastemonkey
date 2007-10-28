@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: i18n.test.php 5460 2007-07-25 04:38:28Z phpnut $ */
+/* SVN FILE: $Id: i18n.test.php 5779 2007-10-17 17:20:23Z mariano.iglesias $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.5432
- * @version			$Revision: 5460 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-25 05:38:28 +0100 (Wed, 25 Jul 2007) $
+ * @version			$Revision: 5779 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-17 18:20:23 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('i18n');
@@ -34,9 +34,29 @@ uses('i18n');
  * @subpackage cake.tests.cases.libs
  */
 class I18nTest extends UnitTestCase {
+	function setUp() {
+		$calledFrom = debug_backtrace();
+		$this->dir = dirname($calledFrom[0]['file']);
+	}
 
-	function skip() {
-		$this->skipif (true, 'I18nTest not implemented');
+	function tearDown() {
+		unset($this->dir);
+	}
+
+	function testPlural() {
+		$result = I18n::translate('chair', 'chairs', null, 5, 1, $this->dir);
+		$this->assertEqual($result, 'chair');
+
+		$result = I18n::translate('chair', 'chairs', null, 5, 2, $this->dir);
+		$this->assertEqual($result, 'chairs');
+
+		$data['count'] = 1;
+		$result = I18n::translate('chair', 'chairs', null, 5, $data['count'], $this->dir);
+		$this->assertEqual($result, 'chair');
+
+		$data['count'] = 8;
+		$result = I18n::translate('chair', 'chairs', null, 5, $data['count'], $this->dir);
+		$this->assertEqual($result, 'chairs');
 	}
 }
 ?>

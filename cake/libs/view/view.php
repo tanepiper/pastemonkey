@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: view.php 5709 2007-10-01 19:54:33Z gwoo $ */
+/* SVN FILE: $Id: view.php 5874 2007-10-22 23:52:12Z phpnut $ */
 
 /**
  * Methods for displaying presentation data in the view.
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5709 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-10-01 20:54:33 +0100 (Mon, 01 Oct 2007) $
+ * @version			$Revision: 5874 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-23 00:52:12 +0100 (Tue, 23 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -129,7 +129,7 @@ class View extends Object {
  * Variables for the view
  *
  * @var array
- * @access private
+ * @access public
  */
 	var $viewVars = array();
 /**
@@ -142,8 +142,8 @@ class View extends Object {
 /**
  * Title HTML element of this View.
  *
- * @var boolean
- * @access private
+ * @var string
+ * @access public
  */
 	var $pageTitle = false;
 /**
@@ -181,13 +181,12 @@ class View extends Object {
  * @access public
  */
 	var $autoLayout = true;
-
 /**
  * Array of parameter data
  *
  * @var array Parameter data
  */
-	var $params;
+	var $params = array();
 /**
  * True when the view has been rendered.
  *
@@ -203,7 +202,7 @@ class View extends Object {
 /**
  * File extension. Defaults to Cake's template ".ctp".
  *
- * @var array
+ * @var string
  */
 	var $ext = '.ctp';
 /**
@@ -213,13 +212,13 @@ class View extends Object {
  */
 	var $subDir = null;
 /**
- * Enter description here... Themes. New in Cake RC4.
+ * Theme name.
  *
- * @var array
+ * @var string
  */
 	var $themeWeb = null;
 /**
- * Plugin name. A Plugin is a sub-application. New in Cake RC4.
+ * Plugin name. A Plugin is a sub-application.
  *
  * @link http://manual.cakephp.org/chapter/plugins
  * @var string
@@ -263,7 +262,7 @@ class View extends Object {
  *
  * @return View
  */
-	function __construct(&$controller) {
+	function __construct(&$controller, $register = true) {
 		if (is_object($controller)) {
 			$count = count($this->__passedVars);
 			for ($j = 0; $j < $count; $j++) {
@@ -279,7 +278,9 @@ class View extends Object {
 			);
 		}
 		parent::__construct();
-		ClassRegistry::addObject('view', $this);
+		if($register) {
+			ClassRegistry::addObject('view', $this);
+		}
 	}
 
 /**
@@ -358,9 +359,9 @@ class View extends Object {
 			$this->plugin = $params['plugin'];
 			$this->pluginPath = 'plugins' . DS . $this->plugin . DS;
 			$this->pluginPaths = array(
-									VIEWS . $this->pluginPath,
-									APP . $this->pluginPath . 'views' . DS,
-								);
+				VIEWS . $this->pluginPath,
+				APP . $this->pluginPath . 'views' . DS,
+			);
 		}
 
 		$paths = Configure::getInstance();
@@ -377,7 +378,11 @@ class View extends Object {
 			}
 		}
 
-		if (!is_null($file)) {
+		if (is_null($file)) {
+			$file = fileExistsInPath(LIBS . 'view' . DS . 'templates' . DS . 'elements' . DS . $name. '.ctp');
+		}
+
+		if ($file) {
 			$params = array_merge_recursive($params, $this->loaded);
 			return $this->_render($file, array_merge($this->viewVars, $params), $loadHelpers);
 		}
@@ -419,6 +424,7 @@ class View extends Object {
 				}
 				$cacheFile = 'element_' . $key .'_'. $plugin . convertSlash($name);
 				$cache = cache('views' . DS . $cacheFile, null, $expires);
+
 				if (is_string($cache)) {
 					return $cache;
 				} else {
@@ -484,11 +490,11 @@ class View extends Object {
 			}
 		} else {
 			return $this->cakeError('missingLayout', array(
-					array(
-						'layout' => $this->layout,
-						'file' => $layout_fn,
-						'base' => $this->base
-					)
+				array(
+					'layout' => $this->layout,
+					'file' => $layout_fn,
+					'base' => $this->base
+				)
 			));
 		}
 	}
@@ -520,7 +526,6 @@ class View extends Object {
  *
  * @param string $name
  * @param string $content
- * @return void
  * @access public
  */
 	function addScript($name, $content = null) {
@@ -588,7 +593,7 @@ class View extends Object {
 /**
  * Displays an error page to the user. Uses layouts/error.ctp to render the page.
  *
- * @param int $code HTTP Error code (for instance: 404)
+ * @param integer $code HTTP Error code (for instance: 404)
  * @param string $name Name of the error (for instance: Not Found)
  * @param string $message Error message as a web page
  */
@@ -865,7 +870,6 @@ class View extends Object {
  *
  * @param string $filename the cache file to include
  * @param string $timeStart the page render start time
- * @return void
  */
 	function renderCache($filename, $timeStart) {
 		ob_start();
@@ -924,14 +928,16 @@ class View extends Object {
 			}
 
 			if (strpos($action, 'missingView') === false) {
-				return $this->cakeError('missingView', array(
-											array('className' => $this->name,
-												'action' => $this->action,
-												'file' => $viewFileName,
-												'base' => $this->base)));
+				return $this->cakeError('missingView', array(array(
+					'className' => $this->name,
+					'action' => $this->action,
+					'file' => $viewFileName,
+					'base' => $this->base
+				)));
 				exit();
 			}
 		}
 	}
 }
+
 ?>

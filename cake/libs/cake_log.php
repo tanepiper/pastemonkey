@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cake_log.php 5132 2007-05-20 06:30:19Z mariano.iglesias $ */
+/* SVN FILE: $Id: cake_log.php 5857 2007-10-22 16:09:35Z phpnut $ */
 /**
  * Logging.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5132 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-05-20 07:30:19 +0100 (Sun, 20 May 2007) $
+ * @version			$Revision: 5857 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: l10n.php 5669 2007-09-18 04:16:04Z phpnut $ */
+/* SVN FILE: $Id: l10n.php 5857 2007-10-22 16:09:35Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0.4116
- * @version			$Revision: 5669 $
+ * @version			$Revision: 5857 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 05:16:04 +0100 (Tue, 18 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -373,7 +373,7 @@ class L10n extends Object {
 		}
 
 		if ($this->default) {
-			$this->languagePath[2] = $this->__l10nCatalog[$this->default]['localeFallback'];
+			$this->languagePath[2] = $this->__l10nCatalog[$this->__l10nMap[$this->default]]['localeFallback'];
 		}
 		$this->found = true;
 		Configure::write('Config.language', $this->lang);

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: validation.test.php 5461 2007-07-25 14:22:14Z dho $ */
+/* SVN FILE: $Id: validation.test.php 5901 2007-10-25 03:55:41Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5461 $
- * @modifiedby		$LastChangedBy: dho $
- * @lastmodified	$Date: 2007-07-25 15:22:14 +0100 (Wed, 25 Jul 2007) $
+ * @version			$Revision: 5901 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-25 04:55:41 +0100 (Thu, 25 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('validation');
@@ -1192,7 +1192,20 @@ class ValidationTestCase extends UnitTestCase {
 	}
 
 	function testUrl() {
+		$this->assertTrue($this->Validation->url('http://www.cakephp.org'));
+		$this->assertTrue($this->Validation->url('http://cakephp.org'));
+		$this->assertTrue($this->Validation->url('http://www.cakephp.org/somewhere#anchor'));
+		$this->assertTrue($this->Validation->url('http://192.168.0.1'));
+		$this->assertTrue($this->Validation->url('ftps://192.168.0.1/pub/cake'));
+		$this->assertFalse($this->Validation->url('ftp://256.168.0.1/pub/cake'));
 		$this->assertTrue($this->Validation->url('https://my.gizmoproject.com/gizmo/app?class=MySip;proc=start'));
+		$this->assertTrue($this->Validation->url('www.domain.tld'));
+		$this->assertFalse($this->Validation->url('http://w_w.micr_soft.co_m'));
+		$this->assertFalse($this->Validation->url('http://www.domain.12com'));
+		$this->assertFalse($this->Validation->url('http://www.domain.longttldnotallowed'));
+		$this->assertFalse($this->Validation->url('http://www.-invaliddomain.tld'));
+		$this->assertFalse($this->Validation->url('http://www.domain.-invalidtld'));
+		$this->assertFalse($this->Validation->url('http://www.this-domain-is-just-too-long-and-inacceptable-by-icann-rules-the-maximum-limit-of-characters-is-57.com'));
 	}
 
 	function testValidNumber() {

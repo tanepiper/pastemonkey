@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: xml.php 5531 2007-08-16 05:44:06Z nate $ */
+/* SVN FILE: $Id: xml.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 
 /**
  * XML handling for Cake.
@@ -22,9 +22,9 @@
  * @package      cake
  * @subpackage   cake.cake.libs
  * @since        CakePHP v .0.10.3.1400
- * @version			$Revision: 5531 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-08-16 06:44:06 +0100 (Thu, 16 Aug 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('set');
@@ -314,7 +314,7 @@ class XMLNode extends Object {
 /**
  * Returns true if this structure has child nodes.
  *
- * @return boolean
+ * @return bool
  * @access public
  */
 	function hasChildren() {
@@ -648,8 +648,8 @@ class XML extends XMLNode {
  * If debug mode is on, this method echoes an error message.
  *
  * @param string $msg Error message
- * @param int $code Error code
- * @param int $line Line in file
+ * @param integer $code Error code
+ * @param integer $line Line in file
  * @access public
  */
 	function error($msg, $code = 0, $line = 0) {
@@ -660,7 +660,7 @@ class XML extends XMLNode {
 /**
  * Returns a string with a textual description of the error code, or FALSE if no description was found.
  *
- * @param int $code Error code
+ * @param integer $code Error code
  * @return string Error message
  * @access public
  */

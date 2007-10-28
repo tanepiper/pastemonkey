@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: file.test.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: file.test.php 5866 2007-10-22 20:39:36Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.cache
  * @since			CakePHP(tm) v 1.2.0.5434
- * @version			$Revision: 5700 $
+ * @version			$Revision: 5866 $
  * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-22 21:39:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('cache', 'cache' . DS . 'file');
@@ -35,37 +35,24 @@ uses('cache', 'cache' . DS . 'file');
  */
 class FileEngineTest extends UnitTestCase {
 
-	function setUp() {
-		Cache::engine();
+	function startTest() {
+		Cache::config();
 	}
 
-	function testSettings() {
-		Cache::engine('File', array('path' => TMP . 'tests'));
-		$settings = Cache::settings();
-		$expecting = array('duration'=> 3600,
-						'probability' => 100,
-						'path'=> TMP . 'tests',
-						'prefix'=> 'cake_',
-						'lock' => false,
-						'serialize'=> true,
-						'name' => 'File'
-						);
-		$this->assertEqual($settings, $expecting);
-	}
+	function testCacheDirChange() {
+		$result = Cache::config('sessions', array('engine'=> 'File', 'path' => TMP . 'sessions'));
+		$this->assertEqual($result['settings'], Cache::settings('File'));
+		$this->assertNotEqual($result, Cache::settings('File'));
 
-	function testCacheName() {
-		$cache =& Cache::getInstance();
-		$result = $cache->_Engine->fullpath('models' . DS . 'default_posts');
-		$expecting = CACHE . 'models' . DS .'cake_default_posts';
-		$this->assertEqual($result, $expecting);
-
-		$result = $cache->_Engine->fullpath('default_posts');
-		$expecting = CACHE . 'cake_default_posts';
-		$this->assertEqual($result, $expecting);
-
+		$result = Cache::config('tests', array('engine'=> 'File', 'path' => TMP . 'tests'));
+		$this->assertEqual($result['settings'], Cache::settings('File'));
+		$this->assertNotEqual($result, Cache::settings('File'));
 	}
 
 	function testReadAndWriteCache() {
+		$result = Cache::write(null, 'here');
+		$this->assertFalse($result);
+
 		$result = Cache::read('test');
 		$expecting = '';
 		$this->assertEqual($result, $expecting);
@@ -73,6 +60,7 @@ class FileEngineTest extends UnitTestCase {
 		$data = 'this is a test of the emergency broadcasting system';
 		$result = Cache::write('test', $data, 1);
 		$this->assertTrue($result);
+		$this->assertTrue(file_exists(CACHE . 'cake_test'));
 
 		$result = Cache::read('test');
 		$expecting = $data;
@@ -108,19 +96,78 @@ class FileEngineTest extends UnitTestCase {
 
 		$result = Cache::delete('delete_test');
 		$this->assertTrue($result);
+		$this->assertFalse(file_exists(TMP . 'tests' . DS . 'delete_test'));
+
+		$result = Cache::delete('delete_test');
+		$this->assertFalse($result);
+
 	}
 
 	function testSerialize() {
 		Cache::engine('File', array('serialize' => true));
 		$data = 'this is a test of the emergency broadcasting system';
 		$write = Cache::write('seriailze_test', $data, 1);
+		$this->assertTrue($write);
 
 		Cache::engine('File', array('serialize' => false));
 		$read = Cache::read('seriailze_test');
 
-		$result = Cache::delete('seriailze_test');
+		$newread = Cache::read('seriailze_test');
 
-		$this->assertNotIdentical($write, $read);
+		$delete = Cache::delete('seriailze_test');
+
+		$this->assertIdentical($read, serialize($data));
+
+		$this->assertIdentical($newread, $data);
+
+	}
+
+	function testClear() {
+		$data = 'this is a test of the emergency broadcasting system';
+		$write = Cache::write('seriailze_test1', $data, 1);
+		$write = Cache::write('seriailze_test2', $data, 1);
+		$write = Cache::write('seriailze_test3', $data, 1);
+		$this->assertTrue(file_exists(CACHE . 'cake_seriailze_test1'));
+		$this->assertTrue(file_exists(CACHE . 'cake_seriailze_test2'));
+		$this->assertTrue(file_exists(CACHE . 'cake_seriailze_test3'));
+		Cache::engine('File', array('duration' => 1));
+		sleep(4);
+		$result = Cache::clear(true);
+		$this->assertTrue($result);
+		$this->assertFalse(file_exists(CACHE . 'cake_seriailze_test1'));
+		$this->assertFalse(file_exists(CACHE . 'cake_seriailze_test2'));
+		$this->assertFalse(file_exists(CACHE . 'cake_seriailze_test3'));
+
+		$data = 'this is a test of the emergency broadcasting system';
+		$write = Cache::write('seriailze_test1', $data, 1);
+		$write = Cache::write('seriailze_test2', $data, 1);
+		$write = Cache::write('seriailze_test3', $data, 1);
+		$this->assertTrue(file_exists(CACHE . 'cake_seriailze_test1'));
+		$this->assertTrue(file_exists(CACHE . 'cake_seriailze_test2'));
+		$this->assertTrue(file_exists(CACHE . 'cake_seriailze_test3'));
+
+		$result = Cache::clear();
+		$this->assertTrue($result);
+		$this->assertFalse(file_exists(CACHE . 'cake_seriailze_test1'));
+		$this->assertFalse(file_exists(CACHE . 'cake_seriailze_test2'));
+		$this->assertFalse(file_exists(CACHE . 'cake_seriailze_test3'));
+
+	}
+
+	function testKeyPath() {
+		$result = Cache::write('views.countries.something', 'here');
+		$this->assertTrue($result);
+		$this->assertTrue(file_exists(CACHE . 'cake_views_countries_something'));
+
+		$result = Cache::read('views.countries.something');
+		$this->assertEqual($result, 'here');
+
+		$result = Cache::clear();
+		$this->assertTrue($result);
+	}
+
+	function tearDown() {
+		Cache::config('default');
 	}
 
 }

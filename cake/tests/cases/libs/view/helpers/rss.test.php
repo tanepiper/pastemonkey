@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: rss.test.php 5670 2007-09-18 18:00:22Z phpnut $ */
+/* SVN FILE: $Id: rss.test.php 5766 2007-10-16 01:06:31Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.view.helpers
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5670 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 19:00:22 +0100 (Tue, 18 Sep 2007) $
+ * @version			$Revision: 5766 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-10-16 02:06:31 +0100 (Tue, 16 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 if (!defined('CAKEPHP_UNIT_TEST_EXECUTION')) {
@@ -97,6 +97,9 @@ class RssTest extends UnitTestCase {
 	}
 
 	function testItem() {
+		$result = $this->Rss->item(null, array("title"=>"My title","description"=>"My description","link"=>"http://www.google.com/"));
+		$expecting = '<item><title>My title</title><description>My description</description><link>http://www.google.com/</link><guid>http://www.google.com/</guid></item>';
+		$this->assertEqual($result, $expecting);
 	}
 
 	function testTime() {

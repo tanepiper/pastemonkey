@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_mysql.php 5701 2007-09-30 18:13:46Z gwoo $ */
+/* SVN FILE: $Id: dbo_mysql.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * MySQL layer for DBO
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.10.5.1790
- * @version			$Revision: 5701 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 19:13:46 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -223,7 +223,7 @@ class DboMysql extends DboSource {
 			case 'integer' :
 			case 'float' :
 			case null :
-				if (is_numeric($data) && strpos($data, ',') === false) {
+				if (is_numeric($data) && strpos($data, ',') === false && $data[0] != '0' && strpos($data, 'e') === false) {
 					break;
 				}
 			default:
@@ -293,7 +293,7 @@ class DboMysql extends DboSource {
  * Returns number of affected rows in previous database operation. If no previous operation exists,
  * this returns false.
  *
- * @return int Number of affected rows
+ * @return integer Number of affected rows
  */
 	function lastAffected() {
 		if ($this->_result) {
@@ -305,7 +305,7 @@ class DboMysql extends DboSource {
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
- * @return int Number of rows in resultset
+ * @return integer Number of rows in resultset
  */
 	function lastNumRows() {
 		if ($this->_result and is_resource($this->_result)) {
@@ -361,7 +361,7 @@ class DboMysql extends DboSource {
 		if (strpos($col, 'text') !== false) {
 			return 'text';
 		}
-		if (strpos($col, 'blob') !== false) {
+		if (strpos($col, 'blob') !== false || $col == 'binary') {
 			return 'binary';
 		}
 		if (in_array($col, array('float', 'double', 'decimal'))) {
@@ -379,7 +379,7 @@ class DboMysql extends DboSource {
  * Gets the length of a database-native column description, or null if no length
  *
  * @param string $real Real database-layer column type (i.e. "varchar(255)")
- * @return int An integer representing the length of the column
+ * @return integer An integer representing the length of the column
  */
 	function length($real) {
 		$col = r(array(')', 'unsigned'), '', $real);
@@ -440,7 +440,6 @@ class DboMysql extends DboSource {
  * Sets the database encoding
  *
  * @param string $enc Database encoding
- * @return void
  */
 	function setEncoding($enc) {
 		return $this->_execute('SET NAMES ' . $enc) != false;

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: pages_controller.php 5644 2007-09-16 01:06:17Z phpnut $ */
+/* SVN FILE: $Id: pages_controller.php 5851 2007-10-22 05:52:20Z mariano.iglesias $ */
 /**
  * Static content controller.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.controller
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5644 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-16 02:06:17 +0100 (Sun, 16 Sep 2007) $
+ * @version			$Revision: 5851 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 06:52:20 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -39,23 +39,28 @@ class PagesController extends AppController{
  * Controller name
  *
  * @var string
+ * @access public
  */
 	var $name = 'Pages';
 /**
  * Default helper
  *
  * @var array
+ * @access public
  */
 	var $helpers = array('Html');
 /**
  * This controller does not use a model
  *
  * @var array
+ * @access public
  */
 	var $uses = array();
 /**
  * Displays a view
  *
+ * @param mixed What page to display
+ * @access public
  */
 	function display() {
 		if (!func_num_args()) {

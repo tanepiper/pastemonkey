@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_adodb.php 5643 2007-09-15 22:31:24Z gwoo $ */
+/* SVN FILE: $Id: dbo_adodb.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 
 /**
  * AdoDB layer for DBO.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.datasources.dbo
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5643 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-15 23:31:24 +0100 (Sat, 15 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -240,7 +240,7 @@ class DboAdodb extends DboSource {
 /**
  * Returns number of affected rows in previous database operation, or false if no previous operation exists.
  *
- * @return int Number of affected rows
+ * @return integer Number of affected rows
  */
 	function lastAffected() {
 		return $this->_adodb->Affected_Rows();
@@ -248,7 +248,7 @@ class DboAdodb extends DboSource {
 /**
  * Returns number of rows in previous resultset, or false if no previous resultset exists.
  *
- * @return int Number of rows in resultset
+ * @return integer Number of rows in resultset
  */
 	function lastNumRows() {
 		return $this->_result ? $this->_result->RecordCount() : false;
@@ -267,8 +267,8 @@ class DboAdodb extends DboSource {
 /**
  * Returns a LIMIT statement in the correct format for the particular database.
  *
- * @param int $limit Limit of results returned
- * @param int $offset Offset from which to start results
+ * @param integer $limit Limit of results returned
+ * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
  * @todo Please change output string to whatever select your database accepts. adodb doesn't allow us to get the correct limit string out of it.
  */

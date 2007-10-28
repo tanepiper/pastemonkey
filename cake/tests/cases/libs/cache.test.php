@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cache.test.php 5460 2007-07-25 04:38:28Z phpnut $ */
+/* SVN FILE: $Id: cache.test.php 5752 2007-10-14 01:09:21Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.5432
- * @version			$Revision: 5460 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-25 05:38:28 +0100 (Wed, 25 Jul 2007) $
+ * @version			$Revision: 5752 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-10-14 02:09:21 +0100 (Sun, 14 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('cache');
@@ -36,7 +36,34 @@ uses('cache');
 class CacheTest extends UnitTestCase {
 
 	function skip() {
-		$this->skipif (true, 'CacheTest not implemented');
+		$this->skipif (false, 'CacheTest not implemented');
+	}
+
+	function testConfig() {
+		$settings = array('engine' => 'File', 'path' => TMP . 'tests', 'prefix' => 'cake_test_');
+		$results = Cache::config('new', $settings);
+		$this->assertEqual($results, Cache::config('new'));
+	}
+
+	function testConfigChange() {
+		$result = Cache::config('sessions', array('engine'=> 'File', 'path' => TMP . 'sessions'));
+		$this->assertEqual($result['settings'], Cache::settings('File'));
+
+		$result = Cache::config('tests', array('engine'=> 'File', 'path' => TMP . 'tests'));
+		$this->assertEqual($result['settings'], Cache::settings('File'));
+	}
+
+	function testInitSettings() {
+		Cache::engine('File', array('path' => TMP . 'tests'));
+		$settings = Cache::settings();
+		$expecting = array('duration'=> 3600,
+						'probability' => 100,
+						'path'=> TMP . 'tests',
+						'prefix'=> 'cake_',
+						'lock' => false,
+						'serialize'=> true,
+						);
+		$this->assertEqual($settings, $expecting);
 	}
 }
 ?>

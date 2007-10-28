@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: error.php 5563 2007-08-21 21:46:59Z gwoo $ */
+/* SVN FILE: $Id: error.php 5809 2007-10-20 05:55:37Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.10.5.1732
- * @version			$Revision: 5563 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-21 22:46:59 +0100 (Tue, 21 Aug 2007) $
+ * @version			$Revision: 5809 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-20 06:55:37 +0100 (Sat, 20 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 uses('sanitize');
@@ -130,7 +130,7 @@ class ErrorHandler extends Object{
 
 		header("HTTP/1.0 404 Not Found");
 		$this->error(array('code' => '404',
-							'name' => 'Not found',
+							'name' => __('Not found', true),
 							'message' => sprintf(__("The requested address %s was not found on this server.", true), $url, $message),
 							'base' => $base));
 		exit();

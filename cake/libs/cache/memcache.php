@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: memcache.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: memcache.php 5858 2007-10-22 16:11:12Z phpnut $ */
 /**
  * Memcache storage engine for cache
  *
@@ -20,9 +20,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.cache
  * @since			CakePHP(tm) v 1.2.0.4933
- * @version			$Revision: 5700 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5858 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -62,7 +62,6 @@ class MemcacheEngine extends CacheEngine {
 		if (!class_exists('Memcache')) {
 			return false;
 		}
-
 		parent::init($settings);
 		$defaults = array('servers' => array('127.0.0.1'), 'compress'=> false);
 		$this->settings = am($this->settings, $defaults, $settings);
@@ -94,7 +93,7 @@ class MemcacheEngine extends CacheEngine {
  *
  * @param string $key Identifier for the data
  * @param mixed $value Data to be cached
- * @param int $duration How long to cache the data, in seconds
+ * @param integer $duration How long to cache the data, in seconds
  * @return boolean True if the data was succesfully cached, false on failure
  * @access public
  */
@@ -131,10 +130,10 @@ class MemcacheEngine extends CacheEngine {
 		return $this->__Memcache->flush();
 	}
 /**
- * connects to a server in connection pool
+ * Connects to a server in connection pool
  *
  * @param string $host host ip address or name
- * @param integer $port
+ * @param integer $port Server port
  * @return boolean True if memcache server was connected
  * @access public
  */

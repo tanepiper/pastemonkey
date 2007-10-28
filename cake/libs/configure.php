@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: configure.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: configure.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.0.0.2363
- * @version			$Revision: 5700 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -533,9 +533,11 @@ class Configure extends Object {
 		$pluginPaths = null;
 
 		if ($boot) {
-			if (!require_once(APP_PATH . 'config' . DS . 'core.php')) {
+			$_this->write('App', array('base' => false, 'baseUrl' => false, 'dir' => APP_DIR, 'webroot' => WEBROOT_DIR));
+			if (!include(APP_PATH . 'config' . DS . 'core.php')) {
 				trigger_error(sprintf(__("Can't find application core file. Please create %score.php, and make sure it is readable by PHP.", true), CONFIGS), E_USER_ERROR);
 			}
+
 			if (!include(APP_PATH . 'config' . DS . 'bootstrap.php')) {
 				trigger_error(sprintf(__("Can't find application bootstrap file. Please create %sbootstrap.php, and make sure it is readable by PHP.", true), CONFIGS), E_USER_ERROR);
 			}
@@ -549,23 +551,57 @@ class Configure extends Object {
 		$_this->__buildBehaviorPaths($behaviorPaths);
 		$_this->__buildPluginPaths($pluginPaths);
 
-		$baseUrl = false;
 		if (defined('BASE_URL')) {
-			$baseUrl = BASE_URL;
+			trigger_error('BASE_URL Deprecated: See Configure::write(\'App.baseUrl\', \'' . BASE_URL . '\');  in APP/config/core.php', E_USER_WARNING);
+			$_this->write('App.baseUrl', BASE_URL);
 		}
-		$_this->write('App', array('base' => false, 'baseUrl' => $baseUrl, 'dir' => APP_DIR, 'webroot' => WEBROOT_DIR));
-
 		if (defined('DEBUG')) {
-			trigger_error('Deprecated: Use Configure::write(\'debug\', ' . DEBUG . ');', E_USER_WARNING);
+			trigger_error('DEBUG Deprecated: Use Configure::write(\'debug\', ' . DEBUG . ');  in APP/config/core.php', E_USER_WARNING);
 			$_this->write('debug', DEBUG);
 		}
 		if (defined('CAKE_ADMIN')) {
-			trigger_error('Deprecated: Use Configure::write(\'Routing.admin\', ' . CAKE_ADMIN . ');', E_USER_WARNING);
+			trigger_error('CAKE_ADMIN Deprecated: Use Configure::write(\'Routing.admin\', \'' . CAKE_ADMIN . '\');  in APP/config/core.php', E_USER_WARNING);
 			$_this->write('Routing.admin', CAKE_ADMIN);
 		}
 		if (defined('WEBSERVICES')) {
-			trigger_error('Deprecated: Use Router::parseExtensions();', E_USER_WARNING);
+			trigger_error('WEBSERVICES Deprecated: Use Router::parseExtensions(); or add Configure::write(\'Routing.webservices\', \'' . WEBSERVICES . '\');', E_USER_WARNING);
 			$_this->write('Routing.webservices', WEBSERVICES);
+		}
+		if (defined('ACL_CLASSNAME')) {
+			trigger_error('ACL_CLASSNAME Deprecated. Use Configure::write(\'Acl.classname\', \'' . ACL_CLASSNAME . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Acl.classname', ACL_CLASSNAME);
+		}
+		if (defined('ACL_DATABASE')) {
+			trigger_error('ACL_DATABASE Deprecated. Use Configure::write(\'Acl.database\', \'' . ACL_CLASSNAME . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Acl.database', ACL_CLASSNAME);
+		}
+		if (defined('CAKE_SESSION_SAVE')) {
+			trigger_error('CAKE_SESSION_SAVE Deprecated. Use Configure::write(\'Session.save\', \'' . CAKE_SESSION_SAVE . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Session.save', CAKE_SESSION_SAVE);
+		}
+		if (defined('CAKE_SESSION_TABLE')) {
+			trigger_error('CAKE_SESSION_TABLE Deprecated. Use Configure::write(\'Session.table\', \'' . CAKE_SESSION_TABLE . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Session.table', CAKE_SESSION_TABLE);
+		}
+		if (defined('CAKE_SESSION_STRING')) {
+			trigger_error('CAKE_SESSION_STRING Deprecated. Use Configure::write(\'Security.salt\', \'' . CAKE_SESSION_STRING . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Security.salt', CAKE_SESSION_STRING);
+		}
+		if (defined('CAKE_SESSION_COOKIE')) {
+			trigger_error('CAKE_SESSION_COOKIE Deprecated. Use Configure::write(\'Session.cookie\', \'' . CAKE_SESSION_COOKIE . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Session.cookie', CAKE_SESSION_COOKIE);
+		}
+		if (defined('CAKE_SECURITY')) {
+			trigger_error('CAKE_SECURITY Deprecated. Use Configure::write(\'Security.level\', \'' . CAKE_SECURITY . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Security.level', CAKE_SECURITY);
+		}
+		if (defined('CAKE_SESSION_TIMEOUT')) {
+			trigger_error('CAKE_SESSION_TIMEOUT Deprecated. Use Configure::write(\'Session.timeout\', \'' . CAKE_SESSION_TIMEOUT . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Session.timeout', CAKE_SESSION_TIMEOUT);
+		}
+		if (defined('AUTO_SESSION')) {
+			trigger_error('AUTO_SESSION Deprecated. Use Configure::write(\'Session.start\', \'' . AUTO_SESSION . '\'); in APP/config/core.php', E_USER_WARNING);
+			$_this->write('Session.start', AUTO_SESSION);
 		}
 	}
 }

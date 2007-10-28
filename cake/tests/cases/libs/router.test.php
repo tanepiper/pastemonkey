@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: router.test.php 5694 2007-09-26 09:49:01Z gwoo $ */
+/* SVN FILE: $Id: router.test.php 5835 2007-10-21 21:51:40Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5694 $
+ * @version			$Revision: 5835 $
  * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-26 10:49:01 +0100 (Wed, 26 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-21 22:51:40 +0100 (Sun, 21 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('router', 'debugger');
@@ -609,6 +609,24 @@ class RouterTest extends UnitTestCase {
 		$result = $this->router->parse('admin/users/view/');
 		$expected = array('pass' => array(), 'controller' => 'users', 'action' => 'view', 'plugin' => null, 'prefix' => 'admin', 'admin' => true);
 		$this->assertEqual($result, $expected);
+
+		Configure::write('Routing.admin', 'beheer');
+
+		$this->router->reload();
+		$this->router->setRequestInfo(array(
+			array('beheer' => true, 'controller' => 'posts', 'action' => 'index', 'form' => array(), 'url' => array(), 'bare' => 0, 'webservices' => null, 'plugin' => null),
+			array('base' => '/', 'here' => '/beheer/posts/index', 'webroot' => '/', 'passedArgs' => array(), 'argSeparator' => ':', 'namedArgs' => array(), 'webservices' => null)
+		));
+
+		$result = $this->router->parse('beheer/users/view/');
+		$expected = array('pass' => array(), 'controller' => 'users', 'action' => 'view', 'plugin' => null, 'prefix' => 'beheer', 'beheer' => true);
+		$this->assertEqual($result, $expected);
+
+
+		$result = $this->router->url(array('controller' => 'posts', 'action' => 'index', '0', '?' => 'var=test&var2=test2'));
+		$expected = '/beheer/posts/index/0?var=test&var2=test2';
+		$this->assertEqual($result, $expected);
+
 	}
 
 	function testExtensionParsingSetting() {
@@ -684,6 +702,17 @@ class RouterTest extends UnitTestCase {
 
 		$result = $this->router->url(array('controller' => 'posts', 'action' => 'index', 'published' => 0, 'deleted' => 0));
 		$expected = '/posts/index/published:0/deleted:0';
+		$this->assertEqual($result, $expected);
+
+		$this->router->reload();
+		extract($this->router->getNamedExpressions());
+		$this->router->setRequestInfo(array(null, array('base' => '/', 'argSeparator' => ':')));
+		$this->router->connectNamed(array('file'=> '[\w\.\-]+\.(html|png)'));
+		$this->router->connect('/', array('controller' => 'graphs', 'action' => 'index'));
+		$this->router->connect('/:id/*', array('controller' => 'graphs', 'action' => 'view'), array('id' => $ID));
+
+		$result = $this->router->url(array('controller' => 'graphs', 'action' => 'view', 'id' => 12, 'file' => 'asdf.png'));
+		$expected = '/12/file:asdf.png';
 		$this->assertEqual($result, $expected);
 
 		Configure::write('Routing.admin', 'admin');

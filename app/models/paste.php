@@ -1,13 +1,20 @@
 <?php
+
+uses('String');
 class Paste extends AppModel {
 
 	var $name = 'Paste';
 	var $validate = array(
 		'paste' => VALID_NOT_EMPTY,
-		'language_id' => VALID_NOT_EMPTY,
+	//	'language_id' => VALID_NOT_EMPTY,
 	);
 	
-	var $actsAs = array('Tag'/*,'ImageUpload'*/); 
+	var $invalid_mine_types = array(
+		'application/exe',
+		'image/png',
+	);
+	
+	var $actsAs = array('Tag'); 
 	
 	
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
@@ -24,8 +31,11 @@ class Paste extends AppModel {
 								'fields' => '',
 								'order' => '',
 								'counterCache' => ''),
-			'User' => array('className'=>'User',
-									'foreignKey'=>'author'),
+	);
+	
+	var $hasMany = array(
+			'Comment' => array('className' => 'Comment'
+				),
 	);
 
 	var $hasAndBelongsToMany = array(
@@ -36,47 +46,46 @@ class Paste extends AppModel {
 						'fields' => array('Tag.id', 'Tag.tag'),
 						'order' => 'Tag.tag ASC',
 						'unique' => true),
-	);
-	
-/*	var $hasMany = array(
-		'Attachment' => array(
-			'foreignKey' => 'foreign_id',
-			'conditions' => array('Attachment.class' => 'To Be Filled'),
-			'dependent' => true
-		)
-	);
-	
-	var $hasOne = array(
-		'Thumb' => array(
-			'className' => 'Attachment',	
-			'foreignKey' => 'foreign_id',
-			'conditions' => array('Thumb.class' => 'To Be Filled', 'Thumb.thumb' => true),
-			'dependent' => true
-		)
-	);
-	
-	function __construct($id = false, $table = null, $ds = null) {
-		parent::__construct();
-		if (isset($this->hasMany['Attachment'])) {
-			$this->hasMany['Attachment']['conditions']['Attachment.class'] = $this->name;
-		}
-		if (isset($this->hasOne['Thumb'])) {
-			$this->hasOne['Thumb']['conditions']['Thumb.class'] = $this->name;
-		}
-	}
-*/	
+	);	
 
 	function beforeSave() {
+	
+		$output = '';
+	
+		if (!empty($this->data['Paste']['file'])) {
+			$this->__processFile($this->data['Paste']['file']);
+		}
+		
 		$this->data['Paste']['expiry'] = $this->_generateDate($this->data['Paste']['expire_type']);
+		
+		$process = $this->_highlightLines($this->data['Paste']['paste']);
+		
+		foreach ($process['lines'] as $key => $val) {
+			$output .= $val . ',';
+		}
+		$this->data['Paste']['highlight_lines'] = $output;
+		$this->data['Paste']['paste'] = $process['output'];
+		
+		if ($this->data['Paste']['private']) {
+			$this->data['Paste']['priv_stub'] = String::uuid();
+		}
+		
 		return true;
 	}
 
 	function beforeRender() {
 	}
 	
-	function afterSave()
+	function afterSave($created)
 	{
-		@unlink(CACHE.'views'.DS.'element__latest');
+		if ($created) {
+			$last_insert = $this->read(null, $this->id);
+			$last_insert['Language']['weight']++;
+			$this->Language->id = $last_insert['Language']['id'];
+			$this->Language->saveField('weight', $last_insert['Language']['weight'], false);			
+		}
+		return true;
+		//@unlink(CACHE.'views'.DS.'element__latest');
 	}
  	    
 	function afterDelete()
@@ -98,6 +107,46 @@ class Paste extends AppModel {
 			$output = date('Y-m-d H:i:s', strtotime($expiry_type));
 		}
 		return $output;
+	}
+	
+	function _highlightLines($source) {
+	
+		$search = '!!!';
+		$replace = '';
+		
+		$each_line = explode("\n",$source);
+   		$count=0;
+		$lines = array('lines'=>array(), 'output'=>'');
+		$output = '';
+		 while ($count < count($each_line)) { 
+			if(str_replace($search, $replace, $each_line[$count]) != $each_line[$count]) {
+				array_push($lines['lines'], $count + 1);	
+				$each_line[$count] = str_replace($search, $replace, $each_line[$count]);
+			}
+			$lines['output'] .= $each_line[$count] . "\n";
+			$count++;
+		}
+		return $lines;
+	}
+	
+	function __processFile($file) {
+		if(move_uploaded_file($file['tmp_name'], Configure::read('File.upload_dir') . '/' . $file['name'])) {
+			if ($file['size'] > Configure::read('File.maxsize')) {
+				return false;
+			}
+			
+			$openfile = fopen(Configure::read('File.upload_dir') . '/' . $file['name'], 'r');
+			$contents = fread($openfile, Configure::read('File.maxsize'));
+			if (preg_match('/\0/', $contents)) {
+				fclose($openfile);
+				unlink(Configure::read('File.upload_dir') . '/' . $file['name']);
+				return false;
+			} else {
+				$this->data['Paste']['paste'] = $contents;
+				fclose($openfile);
+				unlink(Configure::read('File.upload_dir') . '/' . $file['name']);
+			}
+		}
 	}
 }
 ?>

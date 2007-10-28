@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: class_registry.php 5675 2007-09-20 14:50:42Z nate $ */
+/* SVN FILE: $Id: class_registry.php 5868 2007-10-22 20:58:55Z phpnut $ */
 /**
  * Class collections.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 0.9.2
- * @version			$Revision: 5675 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-20 15:50:42 +0100 (Thu, 20 Sep 2007) $
+ * @version			$Revision: 5868 $
+ * @modifiedby		$LastChangedBy: phpnut $
+ * @lastmodified	$Date: 2007-10-22 21:58:55 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -181,6 +181,16 @@ class ClassRegistry {
 		if (array_key_exists($key, $_this->__map)) {
 			return $_this->__map[$key];
 		}
+	}
+/**
+ * Flushes all objects from the ClassREgistry.
+ *
+ * @access public
+ */
+	function flush() {
+		$_this =& ClassRegistry::getInstance();
+		$_this->__objects = array();
+		$_this->__map = array();
 	}
 }
 ?>

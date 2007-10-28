@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_firebird.php 5575 2007-08-24 05:17:59Z gwoo $ */
+/* SVN FILE: $Id: dbo_firebird.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Firebird/Interbase layer for DBO
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.model.dbo
  * @since			CakePHP(tm) v 1.2.0.5152
- * @version			$Revision: 5575 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-08-24 06:17:59 +0100 (Fri, 24 Aug 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -147,7 +147,7 @@ class DboFirebird extends DboSource {
 /**
  * Returns a row from given resultset as an array .
  *
- * @param bool $assoc Associative array only, or both?
+ * @param boolean $assoc Associative array only, or both?
  * @return array The fetched row as an array
  */
 	function fetchRow($assoc = false) {
@@ -306,7 +306,7 @@ class DboFirebird extends DboSource {
  * Returns number of affected rows in previous database operation. If no previous operation exists,
  * this returns false.
  *
- * @return int Number of affected rows
+ * @return integer Number of affected rows
  */
 	function lastAffected() {
 		if ($this->_result) {
@@ -318,7 +318,7 @@ class DboFirebird extends DboSource {
  * Returns number of rows in previous resultset. If no previous resultset exists,
  * this returns false.
  *
- * @return int Number of rows in resultset
+ * @return integer Number of rows in resultset
  */
 	function lastNumRows() {
 		return $this->_result? /*ibase_affected_rows($this->_result)*/ 1: false;
@@ -364,8 +364,8 @@ class DboFirebird extends DboSource {
 /**
  * Returns a limit statement in the correct format for the particular database.
  *
- * @param int $limit Limit of results returned
- * @param int $offset Offset from which to start results
+ * @param integer $limit Limit of results returned
+ * @param integer $offset Offset from which to start results
  * @return string SQL limit/offset statement
  */
 	function limit($limit, $offset = null) {

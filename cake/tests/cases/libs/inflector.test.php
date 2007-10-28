@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: inflector.test.php 5428 2007-07-09 17:02:55Z phpnut $ */
+/* SVN FILE: $Id: inflector.test.php 5762 2007-10-15 16:55:14Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs
  * @since			CakePHP(tm) v 1.2.0.4206
- * @version			$Revision: 5428 $
+ * @version			$Revision: 5762 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-07-09 18:02:55 +0100 (Mon, 09 Jul 2007) $
+ * @lastmodified	$Date: 2007-10-15 17:55:14 +0100 (Mon, 15 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('inflector');
@@ -42,6 +42,10 @@ class InflectorTest extends UnitTestCase {
 	}
 
 	function testInflectingSingulars() {
+		$result = $this->Inflector->singularize('categorias');
+		$expected = 'categoria';
+		$this->assertEqual($result, $expected);
+
 		$result = $this->Inflector->singularize('menus');
 		$expected = 'menu';
 		$this->assertEqual($result, $expected);
@@ -108,6 +112,10 @@ class InflectorTest extends UnitTestCase {
 	}
 
 	function testInflectingPlurals() {
+		$result = $this->Inflector->pluralize('categoria');
+		$expected = 'categorias';
+		$this->assertEqual($result, $expected);
+
 		$result = $this->Inflector->pluralize('house');
 		$expected = 'houses';
 		$this->assertEqual($result, $expected);
@@ -170,6 +178,20 @@ class InflectorTest extends UnitTestCase {
 
 		$result = $this->Inflector->pluralize('Media');
 		$expected = 'Media';
+		$this->assertEqual($result, $expected);
+	}
+
+	function testInflectorSlug() {
+		$result = $this->Inflector->slug('Foo Bar: Not just for breakfast any-more');
+		$expected = 'Foo_Bar_Not_just_for_breakfast_any_more';
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Inflector->slug('Foo Bar: Not just for breakfast any-more', "-");
+		$expected = 'Foo-Bar-Not-just-for-breakfast-any-more';
+		$this->assertEqual($result, $expected);
+
+		$result = $this->Inflector->slug('Foo Bar: Not just for breakfast any-more', "+");
+		$expected = 'Foo+Bar+Not+just+for+breakfast+any+more';
 		$this->assertEqual($result, $expected);
 	}
 

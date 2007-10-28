@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dispatcher.php 5707 2007-10-01 16:49:37Z gwoo $ */
+/* SVN FILE: $Id: dispatcher.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Dispatcher takes the URL information, parses it for paramters and
  * tells the involved controllers what to do.
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5707 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-10-01 17:49:37 +0100 (Mon, 01 Oct 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -82,7 +82,6 @@ class Dispatcher extends Object {
  * @access public
  */
 	var $plugin = null;
-
 /**
  * the params for this request
  *
@@ -110,10 +109,9 @@ class Dispatcher extends Object {
  * the form of Missing Controllers information. It does the same with Actions (methods of Controllers are called
  * Actions).
  *
- * @param string $url	URL information to work on.
- * @param array $additionalParams	Settings array ("bare", "return"),
- * which is melded with the GET and POST params.
- * @return boolean		Success
+ * @param string $url URL information to work on
+ * @param array $additionalParams Settings array ("bare", "return") which is melded with the GET and POST params
+ * @return boolean Success
  * @access public
  */
 	function dispatch($url = null, $additionalParams = array()) {
@@ -135,7 +133,7 @@ class Dispatcher extends Object {
 				Router::setRequestInfo(array($this->params, array('base' => $this->base, 'webroot' => $this->webroot)));
 
 				return $this->cakeError('error404',	array(array('url' => strtolower($controller),
-														'message' => 'Was not found on this server',
+														'message' => __('Was not found on this server', true),
 														'base' => $this->base)));
 			} else {
 				Router::setRequestInfo(array($this->params, array('base' => $this->base, 'webroot' => $this->webroot)));
@@ -184,16 +182,14 @@ class Dispatcher extends Object {
 		$controller->base = $this->base;
 		$controller->here = $this->here;
 		$controller->webroot = $this->webroot;
-		$controller->params = $this->params;
 		$controller->plugin = $this->plugin;
-		$controller->action = $this->params['action'];
-		$controller->webservices = $this->params['webservices'];
+		$controller->params =& $this->params;
+		$controller->action =& $this->params['action'];
+		$controller->webservices =& $this->params['webservices'];
+		$controller->passedArgs =& $this->params['pass'];
 
-		$controller->passedArgs = $this->params['pass'];
-		$controller->namedArgs = Set::diff(Set::extract($this->params['pass'], '{n}'), $this->params['pass']);
-
-		if (!empty($controller->params['data'])) {
-			$controller->data =& $controller->params['data'];
+		if (!empty($this->params['data'])) {
+			$controller->data =& $this->params['data'];
 		} else {
 			$controller->data = null;
 		}
@@ -235,8 +231,9 @@ class Dispatcher extends Object {
 
 		$controller->constructClasses();
 
+		$this->start($controller);
+
 		if ($privateAction) {
-			$this->start($controller);
 			return $this->cakeError('privateAction', array(
 				array(
 					'className' => Inflector::camelize($this->params['controller']."Controller"),
@@ -260,10 +257,8 @@ class Dispatcher extends Object {
  * @return string Output as sent by controller
  * @access protected
  */
-	function _invoke (&$controller, $params, $missingAction = false) {
-		$this->start($controller);
+	function _invoke(&$controller, $params, $missingAction = false) {
 		$classVars = get_object_vars($controller);
-
 		if ($missingAction && in_array('scaffold', array_keys($classVars))) {
 			uses('controller'. DS . 'scaffold');
 			return new Scaffold($controller, $params);
@@ -278,7 +273,7 @@ class Dispatcher extends Object {
 					)
 				));
 		} else {
-			$output = call_user_func_array(array(&$controller, $params['action']), empty($params['pass'])? null: $params['pass']);
+			$output = call_user_func_array(array(&$controller, $params['action']), empty($params['pass'])? array(): $params['pass']);
 		}
 
 		if ($controller->autoRender) {
@@ -338,7 +333,7 @@ class Dispatcher extends Object {
 /**
  * Returns array of GET and POST parameters. GET parameters are taken from given URL.
  *
- * @param string $fromUrl	URL to mine for parameter information.
+ * @param string $fromUrl URL to mine for parameter information.
  * @return array Parameters found in POST and GET.
  * @access public
  */
@@ -396,7 +391,7 @@ class Dispatcher extends Object {
 /**
  * Returns a base URL and sets the proper webroot
  *
- * @return string	Base URL
+ * @return string Base URL
  * @access public
  */
 	function baseUrl() {
@@ -471,7 +466,7 @@ class Dispatcher extends Object {
 /**
  * Get controller to use, either plugin controller or application controller
  *
- * @param array $params Array
+ * @param array $params Array of parameters
  * @return mixed name of controller if not loaded, or object if loaded
  * @access private
  */
@@ -482,9 +477,15 @@ class Dispatcher extends Object {
 
 		$controller = false;
 		if (!$ctrlClass = $this->__loadController($params)) {
-			$params = $this->_restructureParams($params);
+			if(!isset($params['plugin'])) {
+				$params = $this->_restructureParams($params);
+			}
 			if (!$ctrlClass = $this->__loadController($params)) {
-				$params = am($params, array('controller'=> $params['plugin'], 'action'=> $params['controller']));
+				$params = am($params, array('controller'=> $params['plugin'],
+											'action'=> $params['controller'],
+											'pass' => am($params['pass'], Router::getArgs($params['action']))
+										)
+								);
 				if (!$ctrlClass = $this->__loadController($params)) {
 					return false;
 				}
@@ -499,10 +500,10 @@ class Dispatcher extends Object {
 		return $controller;
 	}
 /**
- * load controller and return controller class
+ * Load controller and return controller class
  *
- * @param array $params Array
- * @return mixed name of controller class name
+ * @param array $params Array of parameters
+ * @return string|bool Name of controller class name
  * @access private
  */
 	function __loadController($params) {
@@ -512,19 +513,17 @@ class Dispatcher extends Object {
 			$this->plugin = $params['plugin'];
 			$pluginName = Inflector::camelize($params['plugin']);
 			$pluginPath = $pluginName . '.';
+			$this->params['controller'] = $this->plugin;
+			$controller = $pluginName;
 		}
 
 		if (!empty($params['controller'])) {
 			$controller = Inflector::camelize($params['controller']);
-			$ctrlClass = $controller . 'Controller';
-		} elseif ($this->plugin) {
-			$this->params['controller'] = $this->plugin;
-			$controller = $pluginName;
-			$ctrlClass = $controller . 'Controller';
 		}
 
 		if ($pluginPath . $controller) {
 			if (loadController($pluginPath . $controller)) {
+				$ctrlClass = $controller . 'Controller';
 				return $ctrlClass;
 			}
 		}
@@ -535,6 +534,7 @@ class Dispatcher extends Object {
  * constructs a new one, using the PHP_SELF constant and other variables.
  *
  * @return string URI
+ * @access public
  */
 	function uri() {
 		if ($uri = env('HTTP_X_REWRITE_URL')) {
@@ -565,9 +565,10 @@ class Dispatcher extends Object {
 /**
  * Returns and sets the $_GET[url] derived from the REQUEST_URI
  *
- * @param string $uri
- * @param string $script
+ * @param string $uri Request URI
+ * @param string $base Base path
  * @return string URL
+ * @access public
  */
 	function getUrl($uri = null, $base = null) {
 		if (empty($_GET['url'])) {
@@ -609,11 +610,10 @@ class Dispatcher extends Object {
 /**
  * Outputs cached dispatch for js, css, view cache
  *
- * @param string $url
- * @return string URL
+ * @param string $url Requested URL
+ * @access public
  */
 	function cached($url) {
-
 		if (strpos($url, 'ccss/') === 0) {
 			include WWW_ROOT . DS . 'css.php';
 			exit();
@@ -624,7 +624,12 @@ class Dispatcher extends Object {
 
 		if (in_array($requestPath[0], array_keys($folders))) {
 			if (file_exists(VENDORS . join(DS, $requestPath))) {
+				$fileModified = filemtime(VENDORS . join(DS, $requestPath));
+				header("Date: " . date("D, j M Y G:i:s ", $fileModified) . 'GMT');
 				header('Content-type: ' . $folders[$requestPath[0]]);
+				header("Expires: " . gmdate("D, j M Y H:i:s", time() + DAY) . " GMT");
+				header("Cache-Control: cache");
+				header("Pragma: cache");
 				include (VENDORS . join(DS, $requestPath));
 				exit();
 			}

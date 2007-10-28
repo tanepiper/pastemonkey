@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: html.php 5647 2007-09-16 01:42:33Z phpnut $ */
+/* SVN FILE: $Id: html.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Html Helper class file.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.9.1
- * @version			$Revision: 5647 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-16 02:42:33 +0100 (Sun, 16 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -50,21 +50,21 @@ class HtmlHelper extends AppHelper {
 		'mailto' => '<a href="mailto:%s" %s>%s</a>',
 		'form' => '<form %s>',
 		'formend' => '</form>',
-		'input' => '<input name="data[%s][%s]" %s/>',
-		'textarea' => '<textarea name="data[%s][%s]" %s>%s</textarea>',
-		'hidden' => '<input type="hidden" name="data[%s][%s]" %s/>',
-		'textarea' => '<textarea name="data[%s][%s]" %s>%s</textarea>',
-		'checkbox' => '<input type="checkbox" name="data[%s][%s]" %s/>',
-		'radio' => '<input type="radio" name="data[%s][%s]" id="%s" %s />%s',
-		'selectstart' => '<select name="data[%s][%s]"%s>',
-		'selectmultiplestart' => '<select name="data[%s][%s][]"%s>',
+		'input' => '<input name="%s" %s/>',
+		'textarea' => '<textarea name="%s" %s>%s</textarea>',
+		'hidden' => '<input type="hidden" name="%s" %s/>',
+		'textarea' => '<textarea name="%s" %s>%s</textarea>',
+		'checkbox' => '<input type="checkbox" name="%s" %s/>',
+		'radio' => '<input type="radio" name="%s" id="%s" %s />%s',
+		'selectstart' => '<select name="%s"%s>',
+		'selectmultiplestart' => '<select name="%s[]"%s>',
 		'selectempty' => '<option value=""%s>&nbsp;</option>',
 		'selectoption' => '<option value="%s"%s>%s</option>',
 		'selectend' => '</select>',
 		'optiongroup' => '<optgroup label="%s"%s>',
 		'optiongroupend' => '</optgroup>',
-		'password' => '<input type="password" name="data[%s][%s]" %s/>',
-		'file' => '<input type="file" name="data[%s][%s]" %s/>',
+		'password' => '<input type="password" name="%s" %s/>',
+		'file' => '<input type="file" name="%s" %s/>',
 		'file_no_model' => '<input type="file" name="%s" %s/>',
 		'submit' => '<input type="submit" %s/>',
 		'submitimage' => '<input type="image" src="%s" %s/>',
@@ -283,9 +283,9 @@ class HtmlHelper extends AppHelper {
 		} elseif (isset($htmlAttributes['default'])) {
 			if ($htmlAttributes['default'] == false) {
 				if (isset($htmlAttributes['onclick'])) {
-					$htmlAttributes['onclick'] .= ' return false;';
+					$htmlAttributes['onclick'] .= ' event.returnValue = false; return false;';
 				} else {
-					$htmlAttributes['onclick'] = 'return false;';
+					$htmlAttributes['onclick'] = 'event.returnValue = false; return false;';
 				}
 				unset($htmlAttributes['default']);
 			}

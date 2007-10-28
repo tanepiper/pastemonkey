@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: i18n.php 5669 2007-09-18 04:16:04Z phpnut $ */
+/* SVN FILE: $Id: i18n.php 5881 2007-10-24 01:25:21Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0.4116
- * @version			$Revision: 5669 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-18 05:16:04 +0100 (Tue, 18 Sep 2007) $
+ * @version			$Revision: 5881 $
+ * @modifiedby		$LastChangedBy: gwoo $
+ * @lastmodified	$Date: 2007-10-24 02:25:21 +0100 (Wed, 24 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -103,6 +103,9 @@ class I18n extends Object {
  * @access public
  */
 	function translate($singular, $plural = null, $domain = null, $category = 5, $count = null, $directory = null) {
+		if (!$category) {
+			$category = 5;
+		}
 		$_this =& I18n::getInstance();
 		$_this->category = $_this->__categories[$category];
 
@@ -310,12 +313,12 @@ class I18n extends Object {
 				$default = APP . 'locale'. DS . $lang . DS . $_this->category . DS . 'default';
 				$core = CAKE_CORE_INCLUDE_PATH . DS . 'cake' . DS . 'locale'. DS . $lang . DS . $_this->category . DS . 'core';
 
-				if (file_exists($fn = "$file.mo") && ($f = fopen($fn, "rb"))) {
-					$_this->__loadMo($f, $domain);
+				if (file_exists($fn = "$file.mo")) {
+					$_this->__loadMo($fn, $domain);
 					$_this->__noLocale = false;
 					break 2;
-				} elseif (file_exists($fn = "$default.mo") && ($f = fopen($fn, "rb"))) {
-					$_this->__loadMo($f, $domain);
+				} elseif (file_exists($fn = "$default.mo")) {
+					$_this->__loadMo($fn, $domain);
 					$_this->__noLocale = false;
 					break 2;
 				} elseif (file_exists($fn = "$file.po") && ($f = fopen($fn, "r"))) {
@@ -326,8 +329,8 @@ class I18n extends Object {
 					$_this->__loadPo($f, $domain);
 					$_this->__noLocale = false;
 					break 2;
-				} elseif (file_exists($fn = "$core.mo") && ($f = fopen($fn, "rb"))) {
-					$_this->__loadMo($f, $domain);
+				} elseif (file_exists($fn = "$core.mo")) {
+					$_this->__loadMo($fn, $domain);
 					$_this->__noLocale = false;
 					break 2;
 				} elseif (file_exists($fn = "$core.po") && ($f = fopen($fn, "r"))) {
@@ -365,8 +368,7 @@ class I18n extends Object {
  */
 	function __loadMo($file, $domain) {
 		$_this =& I18n::getInstance();
-		$data = fread($file, 1<<20);
-		fclose($file);
+		$data = file_get_contents($file);
 
 		if ($data) {
 			$header = substr($data, 0, 20);

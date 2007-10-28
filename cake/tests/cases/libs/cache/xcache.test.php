@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: xcache.test.php 5700 2007-09-30 07:45:34Z gwoo $ */
+/* SVN FILE: $Id: xcache.test.php 5752 2007-10-14 01:09:21Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -21,9 +21,9 @@
  * @package			cake.tests
  * @subpackage		cake.tests.cases.libs.cache
  * @since			CakePHP(tm) v 1.2.0.5434
- * @version			$Revision: 5700 $
+ * @version			$Revision: 5752 $
  * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-09-30 08:45:34 +0100 (Sun, 30 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-14 02:09:21 +0100 (Sun, 14 Oct 2007) $
  * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 uses('cache', 'cache' . DS . 'xcache');
@@ -44,16 +44,16 @@ class XcacheEngineTest extends UnitTestCase {
 	}
 
 	function setUp() {
-		Cache::engine('Xcache');
+		Cache::config('xcache', array('engine'=>'Xcache'));
 	}
 
 	function testSettings() {
 		$settings = Cache::settings();
 		$expecting = array('duration'=> 3600,
 						'probability' => 100,
+						'engine' => 'Xcache',
 						'PHP_AUTH_USER' => 'cake',
-						'PHP_AUTH_PW' => '',
-						'name' => 'Xcache'
+						'PHP_AUTH_PW' => 'cake',
 						);
 		$this->assertEqual($settings, $expecting);
 	}
@@ -101,6 +101,10 @@ class XcacheEngineTest extends UnitTestCase {
 
 		$result = Cache::delete('delete_test');
 		$this->assertTrue($result);
+	}
+	
+	function tearDown() {
+		Cache::config('default');
 	}
 }
 ?>

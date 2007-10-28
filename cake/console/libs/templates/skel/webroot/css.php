@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: css.php 4407 2007-02-02 10:39:45Z phpnut $ */
+/* SVN FILE: $Id: css.php 5776 2007-10-17 12:51:17Z phpnut $ */
 /**
  * Short description for file.
  *
@@ -21,18 +21,19 @@
  * @package			cake
  * @subpackage		cake.app.webroot
  * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 4407 $
+ * @version			$Revision: 5776 $
  * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-02-02 10:39:45 +0000 (Fri, 02 Feb 2007) $
+ * @lastmodified	$Date: 2007-10-17 13:51:17 +0100 (Wed, 17 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+if (!defined('CAKE_CORE_INCLUDE_PATH')) {
+	header('HTTP/1.1 404 Not Found');
+	exit('File Not Found');
+}
 /**
  * Enter description here...
  */
-	require(CONFIGS . 'paths.php');
-	require(CAKE . 'basics.php');
-	require(LIBS . 'folder.php');
-	require(LIBS . 'file.php');
+	uses('file');
 /**
  * Enter description here...
  *
@@ -41,13 +42,13 @@
  * @return unknown
  */
 	function make_clean_css($path, $name) {
-		 require(VENDORS . 'csspp' . DS . 'csspp.php');
-		 $data  =file_get_contents($path);
-		 $csspp =new csspp();
-		 $output=$csspp->compress($data);
-		 $ratio =100 - (round(strlen($output) / strlen($data), 3) * 100);
-		 $output=" /* file: $name, ratio: $ratio% */ " . $output;
-		 return $output;
+		require(VENDORS . 'csspp' . DS . 'csspp.php');
+		$data = file_get_contents($path);
+		$csspp = new csspp();
+		$output = $csspp->compress($data);
+		$ratio = 100 - (round(strlen($output) / strlen($data), 3) * 100);
+		$output = " /* file: $name, ratio: $ratio% */ " . $output;
+		return $output;
 	}
 /**
  * Enter description here...
@@ -57,15 +58,15 @@
  * @return unknown
  */
 	function write_css_cache($path, $content) {
-		 if (!is_dir(dirname($path))) {
-			  mkdir(dirname($path));
-		 }
-		 $cache=new File($path);
-		 return $cache->write($content);
+		if (!is_dir(dirname($path))) {
+			mkdir(dirname($path));
+		}
+		$cache = new File($path);
+		return $cache->write($content);
 	}
 
 	if (preg_match('|\.\.|', $url) || !preg_match('|^ccss/(.+)$|i', $url, $regs)) {
-		 die(__('Wrong file name.'));
+		die('Wrong file name.');
 	}
 
 	$filename = 'css/' . $regs[1];
@@ -73,23 +74,25 @@
 	$cachepath = CACHE . 'css' . DS . str_replace(array('/','\\'), '-', $regs[1]);
 
 	if (!file_exists($filepath)) {
-		 die(__('Wrong file name.'));
+		die('Wrong file name.');
 	}
 
 	if (file_exists($cachepath)) {
-		 $templateModified=filemtime($filepath);
-		 $cacheModified   =filemtime($cachepath);
+		$templateModified = filemtime($filepath);
+		$cacheModified = filemtime($cachepath);
 
-		 if ($templateModified > $cacheModified) {
-			  $output=make_clean_css($filepath, $filename);
-			  write_css_cache($cachepath, $output);
-		 } else {
-			  $output = file_get_contents($cachepath);
-		 }
+		if ($templateModified > $cacheModified) {
+			$output = make_clean_css($filepath, $filename);
+			write_css_cache($cachepath, $output);
+		} else {
+			$output = file_get_contents($cachepath);
+		}
 	} else {
-		 $output=make_clean_css($filepath, $filename);
-		 write_css_cache($cachepath, $output);
+		$output = make_clean_css($filepath, $filename);
+		write_css_cache($cachepath, $output);
+		$templateModified = time();
 	}
+
 	header("Date: " . date("D, j M Y G:i:s ", $templateModified) . 'GMT');
 	header("Content-Type: text/css");
 	header("Expires: " . gmdate("D, j M Y H:i:s", time() + DAY) . " GMT");

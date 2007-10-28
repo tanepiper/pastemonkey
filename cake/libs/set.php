@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: set.php 5652 2007-09-16 18:22:17Z nate $ */
+/* SVN FILE: $Id: set.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 /**
  * Library of array functions for Cake.
  *
@@ -19,9 +19,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs
  * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5652 $
- * @modifiedby		$LastChangedBy: nate $
- * @lastmodified	$Date: 2007-09-16 19:22:17 +0100 (Sun, 16 Sep 2007) $
+ * @version			$Revision: 5860 $
+ * @modifiedby		$LastChangedBy: mariano.iglesias $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
@@ -601,7 +601,7 @@ class Set extends Object {
  * Counts the dimensions of an array.
  *
  * @param array $array Array to count dimensions on
- * @return int The number of dimensions in $array
+ * @return integer The number of dimensions in $array
  * @access public
  */
 	function countDim($array = null) {

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: text.php 5618 2007-09-06 05:41:54Z mariano.iglesias $ */
+/* SVN FILE: $Id: text.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
 
 /**
  * Text Helper
@@ -22,9 +22,9 @@
  * @package			cake
  * @subpackage		cake.cake.libs.view.helpers
  * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5618 $
+ * @version			$Revision: 5860 $
  * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-09-06 06:41:54 +0100 (Thu, 06 Sep 2007) $
+ * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
@@ -106,10 +106,10 @@ class TextHelper extends AppHelper {
 		}
 		$options .= ')';
 
-		$text=preg_replace_callback('#((?:http|https|ftp|nntp)://[^ <]+)#', create_function('$matches',
+		$text = preg_replace_callback('#(?<!href="|">)((?:http|https|ftp|nntp)://[^ <]+)#i', create_function('$matches',
 			'$Html = new HtmlHelper(); $Html->tags = $Html->loadConfig(); return $Html->link($matches[0], $matches[0],' . $options . ');'), $text);
 
-		return preg_replace_callback('#(?<!http://|https://|ftp://|nntp://)(www\.[^\n\%\ <]+[^<\n\%\,\.\ <])#i',
+		return preg_replace_callback('#(?<!href="|">)(?<!http://|https://|ftp://|nntp://)(www\.[^\n\%\ <]+[^<\n\%\,\.\ <])#i',
 			create_function('$matches', '$Html = new HtmlHelper(); $Html->tags = $Html->loadConfig(); return $Html->link($matches[0], "http://" . low($matches[0]),' . $options . ');'), $text);
 	}
 /**
@@ -148,9 +148,9 @@ class TextHelper extends AppHelper {
  * Cuts a string to the length of $length and replaces the last characters
  * with the ending if the text is longer than length.
  *
- * @param string  $text	String to truncate.
+ * @param string $text	String to truncate.
  * @param integer $length Length of returned string, including ellipsis.
- * @param string  $ending Ending to be appended to the trimmed string.
+ * @param string $ending Ending to be appended to the trimmed string.
  * @param boolean $exact If false, $text will not be cut mid-word
  * @return string Trimmed string.
  * @access public
