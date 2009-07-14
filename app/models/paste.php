@@ -93,6 +93,11 @@ class Paste extends AppModel {
 		@unlink(CACHE.'views'.DS.'element__latest');
 	}
 	
+	function pasteExpiryTimes() {
+	  return array('1 hour'=>'1 Hour', '1 day'=>'1 Day','1 week'=>'1 Week','1 month'=>'1 Month','never'=>'Never');
+	}
+	
+	
 	function _purge(){
 		$remove = $this->findAll('Paste.expiry < NOW()');
 		foreach ($remove as $paste) {

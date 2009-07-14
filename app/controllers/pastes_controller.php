@@ -6,18 +6,24 @@
   * @Version 0.6
   * 
   */
-uses('Sanitize'); // Load the Sanatize Class
-
 class PastesController extends AppController {
 
 	// Load Security Component to stop forms being ammended at runtime.
 	var $components = array('Security');
 	// Default Pagination Settings
 	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' , 'Paste.private', 'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language', 'Language.class'), 'order'=>array('Paste.created'=>'DESC'));
-	// Define expiry types for pastes
-	var $expiry_types = array('1 hour'=>'1 Hour', '1 day'=>'1 Day','1 week'=>'1 Week','1 month'=>'1 Month','never'=>'Never');
-	
+
+  /** Set the plain text id for default */	
 	var $plain_text_id = 48;
+	
+	/**
+	 * Inheret the beforeFilter from the AppController
+	 */
+	function beforeFilter() {
+	  parent::beforeFilter();
+	}
+	
+	
 	/**
 	  *	Function index
 	  */
@@ -129,7 +135,7 @@ class PastesController extends AppController {
 		// Generate a list of languages
 		//$this->set('languages', $this->Paste->Language->generateList(null,array('Language.weight'=>'DESC', 'Language.language'=>'ASC'),null,'{n}.Language.id','{n}.Language.dropdown'));
 		// Set Expiry types
-		$this->set('expiry_types',$this->expiry_types);
+		$this->set('expiry_types',$this->Paste->pasteExpiryTimes());
 		// Purge all old pastes
 		$this->Paste->_purge();
 	}
@@ -248,7 +254,11 @@ class PastesController extends AppController {
 */	
 	function latest($num = 10) {
 		$this->cacheAction = '1 hour';
-		$latest = $this->Paste->findAll(array('Paste.private'=>'0'),array('Paste.id','Paste.author','Paste.created'),array('Paste.created'=>'DESC'),10);
+		$latest = $this->Paste->find('all', array(
+		  'conditions' => array('Paste.private'=>'0'),
+		  'fields' => array('Paste.id','Paste.author','Paste.created'),
+		  'order' => array('Paste.created'=>'DESC'),
+		  'limit'=> 10));
 		$this->set('latest',$latest);
 		return $latest;
 	}

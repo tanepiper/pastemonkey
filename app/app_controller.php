@@ -6,6 +6,7 @@ class AppController extends Controller {
 	
 	function beforeFilter()
 	{
+	  App::import('Sanitize');
 		$this->layout = "pastemonkey";
 	}	
 	
@@ -13,7 +14,7 @@ class AppController extends Controller {
 		if ($this->RequestHandler->isAjax() || isset ($this->params['requested'])) {
 			echo $this->requestAction(Router::url($url), array ('return'));
 		} else {
-			return parent :: redirect($url, $status,$exit);
+			return parent::redirect($url, $status,$exit);
 		}
 		if ($exit) {
 			die();
