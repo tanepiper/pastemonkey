@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_firebird.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: dbo_firebird.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Firebird/Interbase layer for DBO
  *
@@ -7,32 +7,30 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.model.dbo
- * @since			CakePHP(tm) v 1.2.0.5152
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.dbo
+ * @since         CakePHP(tm) v 1.2.0.5152
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Short description for class.
  *
  * Long description for class
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model.dbo
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.dbo
  */
 class DboFirebird extends DboSource {
 /**
@@ -97,7 +95,7 @@ class DboFirebird extends DboSource {
  * @var array
  */
 	var $columns = array(
-		'primary_key' => array('name' => 'integer IDENTITY (1, 1) NOT NULL'),
+		'primary_key' => array('name' => 'IDENTITY (1, 1) NOT NULL'),
 		'string'	=> array('name'	 => 'varchar', 'limit' => '255'),
 		'text'		=> array('name' => 'BLOB SUB_TYPE 1 SEGMENT SIZE 100 CHARACTER SET NONE'),
 		'integer'	=> array('name' => 'integer'),
@@ -108,6 +106,16 @@ class DboFirebird extends DboSource {
 		'date'		=> array('name' => 'date', 'format'	   => 'd.m.Y', 'formatter' => 'date'),
 		'binary'	=> array('name' => 'blob'),
 		'boolean'	=> array('name' => 'smallint')
+	);
+/**
+ * Firebird Transaction commands.
+ *
+ * @var array
+ **/
+	var $_commands = array(
+		'begin'	   => 'SET TRANSACTION',
+		'commit'   => 'COMMIT',
+		'rollback' => 'ROLLBACK'
 	);
 /**
  * Connects to the database using options in the given configuration array.
@@ -139,19 +147,15 @@ class DboFirebird extends DboSource {
  * @access protected
  */
 	function _execute($sql) {
-		if (strpos(strtolower($sql),"update") > 0) {
-			break;
-		}
 		return @ibase_query($this->connection,	$sql);
 	}
 /**
  * Returns a row from given resultset as an array .
  *
- * @param boolean $assoc Associative array only, or both?
  * @return array The fetched row as an array
  */
-	function fetchRow($assoc = false) {
-		if (is_resource($this->_result)) {
+	function fetchRow() {
+		if ($this->hasResult()) {
 			$this->resultSet($this->_result);
 			$resultRow = $this->fetchResult();
 			return $resultRow;
@@ -175,7 +179,7 @@ class DboFirebird extends DboSource {
 				Where RDB" . "$" . "SYSTEM_FLAG =0";
 
 		$result = @ibase_query($this->connection,$sql);
-		$tables=array();
+		$tables = array();
 		while ($row = ibase_fetch_row ($result)) {
 			$tables[] = strtolower(trim($row[0]));
 		}
@@ -189,7 +193,7 @@ class DboFirebird extends DboSource {
  * @return array Fields in table. Keys are name and type
  */
 	function describe(&$model) {
-		$this->modeltmp[$model->table] = $model->name;
+		$this->modeltmp[$model->table] = $model->alias;
 		$cache = parent::describe($model);
 
 		if ($cache != null) {
@@ -203,10 +207,8 @@ class DboFirebird extends DboSource {
 
 		for ($i = 0; $i < $coln; $i++) {
 			$col_info = ibase_field_info($rs, $i);
-			$col_info['type'] = $this->column($col_info['type']);
-
 			$fields[strtolower($col_info['name'])] = array(
-					'type' => $col_info['type'],
+					'type' => $this->column($col_info['type']),
 					'null' => '',
 					'length' => $col_info['length']
 				);
@@ -263,9 +265,9 @@ class DboFirebird extends DboSource {
 			break;
 			default:
 				if (get_magic_quotes_gpc()) {
-					$data = stripslashes(r("'", "''", $data));
+					$data = stripslashes(str_replace("'", "''", $data));
 				} else {
-					$data = r("'", "''", $data);
+					$data = str_replace("'", "''", $data);
 				}
 			break;
 		}
@@ -400,9 +402,11 @@ class DboFirebird extends DboSource {
 			return $col;
 		}
 
-		$col = r(')', '', $real);
+		$col = str_replace(')', '', $real);
 		$limit = null;
-		@list($col, $limit)=explode('(', $col);
+		if (strpos($col, '(') !== false) {
+			list($col, $limit) = explode('(', $col);
+		}
 
 		if (in_array($col, array('DATE', 'TIME'))) {
 			return strtolower($col);
@@ -458,21 +462,26 @@ class DboFirebird extends DboSource {
 /**
  * Builds final SQL statement
  *
+ * @param string $type Query type
  * @param array $data Query data
  * @return string
  */
-	function renderStatement($data) {
+	function renderStatement($type, $data) {
 		extract($data);
 
-		if (preg_match('/offset\s+([0-9]+)/i', $limit, $offset)) {
-			$limit = preg_replace('/\s*offset.*$/i', '', $limit);
-			preg_match('/top\s+([0-9]+)/i', $limit, $limitVal);
-			$offset = intval($offset[1]) + intval($limitVal[1]);
-			$rOrder = $this->__switchSort($order);
-			list($order2, $rOrder) = array($this->__mapFields($order), $this->__mapFields($rOrder));
-			return "SELECT * FROM (SELECT {$limit} * FROM (SELECT TOP {$offset} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$order}) AS Set1 {$rOrder}) AS Set2 {$order2}";
+		if (strtolower($type) == 'select') {
+			if (preg_match('/offset\s+([0-9]+)/i', $limit, $offset)) {
+				$limit = preg_replace('/\s*offset.*$/i', '', $limit);
+				preg_match('/top\s+([0-9]+)/i', $limit, $limitVal);
+				$offset = intval($offset[1]) + intval($limitVal[1]);
+				$rOrder = $this->__switchSort($order);
+				list($order2, $rOrder) = array($this->__mapFields($order), $this->__mapFields($rOrder));
+				return "SELECT * FROM (SELECT {$limit} * FROM (SELECT TOP {$offset} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$order}) AS Set1 {$rOrder}) AS Set2 {$order2}";
+			} else {
+				return "SELECT {$limit} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$order}";
+			}
 		} else {
-			return "SELECT {$limit} {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$order}";
+			return parent::renderStatement($type, $data);
 		}
 	}
 /**
@@ -498,19 +507,6 @@ class DboFirebird extends DboSource {
 			return $resultRow;
 		} else {
 			return false;
-		}
-	}
-/**
- * Inserts multiple values into a join table
- *
- * @param string $table
- * @param string $fields
- * @param array $values
- */
-	function insertMulti($table, $fields, $values) {
-		$count = count($values);
-		for ($x = 0; $x < $count; $x++) {
-			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
 		}
 	}
 }

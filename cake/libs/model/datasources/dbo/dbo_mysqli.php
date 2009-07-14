@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_mysqli.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: dbo_mysqli.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * MySQLi layer for DBO
  *
@@ -7,35 +7,33 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.model.datasources.dbo
- * @since			CakePHP(tm) v 1.1.4.2974
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.datasources.dbo
+ * @since         CakePHP(tm) v 1.1.4.2974
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-
+App::import('Core', 'DboMysql');
 /**
- * Short description for class.
+ * MySQLi DBO driver object
  *
- * Long description for class
+ * Provides connection and SQL generation for MySQL RDMS using PHP's MySQLi Interface
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model.datasources.dbo
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.datasources.dbo
  */
-class DboMysqli extends DboSource {
+class DboMysqli extends DboMysqlBase {
 /**
  * Enter description here...
  *
@@ -43,45 +41,19 @@ class DboMysqli extends DboSource {
  */
 	var $description = "Mysqli DBO Driver";
 /**
- * Enter description here...
- *
- * @var unknown_type
- */
-	var $startQuote = "`";
-/**
- * Enter description here...
- *
- * @var unknown_type
- */
-	var $endQuote = "`";
-/**
  * Base configuration settings for Mysqli driver
  *
  * @var array
  */
-	var $_baseConfig = array('persistent' => true,
-								'host' => 'localhost',
-								'login' => 'root',
-								'password' => '',
-								'database' => 'cake',
-								'port' => '3306',
-								'connect' => 'mysqli_connect');
-/**
- * Mysqli column definition
- *
- * @var array
- */
-	var $columns = array('primary_key' => array('name' => 'int(11) DEFAULT NULL auto_increment'),
-						'string' => array('name' => 'varchar', 'limit' => '255'),
-						'text' => array('name' => 'text'),
-						'integer' => array('name' => 'int', 'limit' => '11', 'formatter' => 'intval'),
-						'float' => array('name' => 'float', 'formatter' => 'floatval'),
-						'datetime' => array('name' => 'datetime', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
-						'timestamp' => array('name' => 'timestamp', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
-						'time' => array('name' => 'time', 'format' => 'H:i:s', 'formatter' => 'date'),
-						'date' => array('name' => 'date', 'format' => 'Y-m-d', 'formatter' => 'date'),
-						'binary' => array('name' => 'blob'),
-						'boolean' => array('name' => 'tinyint', 'limit' => '1'));
+	var $_baseConfig = array(
+		'persistent' => true,
+		'host' => 'localhost',
+		'login' => 'root',
+		'password' => '',
+		'database' => 'cake',
+		'port' => '3306',
+		'connect' => 'mysqli_connect'
+	);
 /**
  * Connects to the database using options in the given configuration array.
  *
@@ -90,12 +62,22 @@ class DboMysqli extends DboSource {
 	function connect() {
 		$config = $this->config;
 		$this->connected = false;
-		$this->connection = mysqli_connect($config['host'], $config['login'], $config['password'], $config['database'], $config['port']);
+
+		if (is_numeric($config['port'])) {
+			$config['socket'] = null;
+		} else {
+			$config['socket'] = $config['port'];
+			$config['port'] = null;
+		}
+
+		$this->connection = mysqli_connect($config['host'], $config['login'], $config['password'], $config['database'], $config['port'], $config['socket']);
 
 		if ($this->connection !== false) {
 			$this->connected = true;
 		}
-
+		
+		$this->_useAlias = (bool)version_compare(mysqli_get_server_info($this->connection), "4.1", ">=");
+		
 		if (!empty($config['encoding'])) {
 			$this->setEncoding($config['encoding']);
 		}
@@ -107,7 +89,9 @@ class DboMysqli extends DboSource {
  * @return boolean True if the database could be disconnected, else false
  */
 	function disconnect() {
-		@mysqli_free_result($this->results);
+		if (isset($this->results) && is_resource($this->results)) {
+			mysqli_free_result($this->results);
+		}
 		$this->connected = !@mysqli_close($this->connection);
 		return !$this->connected;
 	}
@@ -119,7 +103,28 @@ class DboMysqli extends DboSource {
  * @access protected
  */
 	function _execute($sql) {
-		return mysqli_query($this->connection, $sql);
+		if (preg_match('/^\s*call/i', $sql)) {
+			return $this->_executeProcedure($sql);
+		} else {
+			return mysqli_query($this->connection, $sql);
+		}
+	}
+/**
+ * Executes given SQL statement (procedure call).
+ *
+ * @param string $sql SQL statement (procedure call)
+ * @return resource Result resource identifier for first recordset
+ * @access protected
+ */
+	function _executeProcedure($sql) {
+		$answer = mysqli_multi_query($this->connection, $sql);
+
+		$firstResult = mysqli_store_result($this->connection);
+
+		if (mysqli_more_results($this->connection)) {
+			while ($lastResult = mysqli_next_result($this->connection));
+		}
+		return $firstResult;
 	}
 /**
  * Returns an array of sources (tables) in the database.
@@ -173,6 +178,9 @@ class DboMysqli extends DboSource {
 					'default'	=> $column[0]['Default'],
 					'length'	=> $this->length($column[0]['Type'])
 				);
+				if (!empty($column[0]['Key']) && isset($this->index[$column[0]['Key']])) {
+					$fields[$column[0]['Field']]['key']	= $this->index[$column[0]['Key']];
+				}
 			}
 		}
 
@@ -198,7 +206,7 @@ class DboMysqli extends DboSource {
 			return 'NULL';
 		}
 
-		if ($data === '') {
+		if ($data === '' && $column !== 'integer' && $column !== 'float' && $column !== 'boolean') {
 			return  "''";
 		}
 
@@ -209,9 +217,14 @@ class DboMysqli extends DboSource {
 			case 'integer' :
 			case 'float' :
 			case null :
-				if (is_numeric($data) && strpos($data, ',') === false && $data[0] != '0' && strpos($data, 'e') === false) {
-					break;
+				if ($data === '') {
+					return 'NULL';
 				}
+				if ((is_int($data) || is_float($data) || $data === '0') || (
+					is_numeric($data) && strpos($data, ',') === false &&
+					$data[0] != '0' && strpos($data, 'e') === false)) {
+						return $data;
+					}
 			default:
 				$data = "'" . mysqli_real_escape_string($this->connection, $data) . "'";
 			break;
@@ -227,40 +240,9 @@ class DboMysqli extends DboSource {
  * (i.e. if the database/model does not support transactions).
  */
 	function begin(&$model) {
-		if (parent::begin($model)) {
-			if ($this->execute('START TRANSACTION')) {
-				$this->_transactionStarted = true;
-				return true;
-			}
-		}
-		return false;
-	}
-/**
- * Commit a transaction
- *
- * @param unknown_type $model
- * @return boolean True on success, false on fail
- * (i.e. if the database/model does not support transactions,
- * or a transaction has not started).
- */
-	function commit(&$model) {
-		if (parent::commit($model)) {
-			$this->_transactionStarted = false;
-			return $this->execute('COMMIT');
-		}
-		return false;
-	}
-/**
- * Rollback a transaction
- *
- * @param unknown_type $model
- * @return boolean True on success, false on fail
- * (i.e. if the database/model does not support transactions,
- * or a transaction has not started).
- */
-	function rollback(&$model) {
-		if (parent::rollback($model)) {
-			return $this->execute('ROLLBACK');
+		if (parent::begin($model) && $this->execute('START TRANSACTION')) {
+			$this->_transactionStarted = true;
+			return true;
 		}
 		return false;
 	}
@@ -294,8 +276,8 @@ class DboMysqli extends DboSource {
  * @return integer Number of rows in resultset
  */
 	function lastNumRows() {
-		if ($this->_result and is_object($this->_result)) {
-			return @mysqli_num_rows($this->_result);
+		if ($this->hasResult()) {
+			return mysqli_num_rows($this->_result);
 		}
 		return null;
 	}
@@ -328,14 +310,16 @@ class DboMysqli extends DboSource {
 			return $col;
 		}
 
-		$col = r(')', '', $real);
+		$col = str_replace(')', '', $real);
 		$limit = $this->length($real);
-		@list($col,$vals) = explode('(', $col);
+		if (strpos($col, '(') !== false) {
+			list($col, $vals) = explode('(', $col);
+		}
 
 		if (in_array($col, array('date', 'time', 'datetime', 'timestamp'))) {
 			return $col;
 		}
-		if ($col == 'tinyint' && $limit == 1) {
+		if (($col == 'tinyint' && $limit == 1) || $col == 'boolean') {
 			return 'boolean';
 		}
 		if (strpos($col, 'int') !== false) {
@@ -347,17 +331,14 @@ class DboMysqli extends DboSource {
 		if (strpos($col, 'text') !== false) {
 			return 'text';
 		}
-		if (strpos($col, 'blob') !== false) {
+		if (strpos($col, 'blob') !== false || $col == 'binary') {
 			return 'binary';
 		}
-		if (in_array($col, array('float', 'double', 'decimal'))) {
+		if (strpos($col, 'float') !== false || strpos($col, 'double') !== false || strpos($col, 'decimal') !== false) {
 			return 'float';
 		}
 		if (strpos($col, 'enum') !== false) {
 			return "enum($vals)";
-		}
-		if ($col == 'boolean') {
-			return $col;
 		}
 		return 'text';
 	}
@@ -368,7 +349,7 @@ class DboMysqli extends DboSource {
  * @return integer An integer representing the length of the column
  */
 	function length($real) {
-		$col = r(array(')', 'unsigned'), '', $real);
+		$col = str_replace(array(')', 'unsigned'), '', $real);
 		$limit = null;
 
 		if (strpos($col, '(') !== false) {
@@ -386,12 +367,15 @@ class DboMysqli extends DboSource {
  * @param unknown_type $results
  */
 	function resultSet(&$results) {
+		if (isset($this->results) && is_resource($this->results) && $this->results != $results) {
+			mysqli_free_result($this->results);
+		}
 		$this->results =& $results;
 		$this->map = array();
-		$num_fields = mysqli_num_fields($results);
+		$numFields = mysqli_num_fields($results);
 		$index = 0;
 		$j = 0;
-		while ($j < $num_fields) {
+		while ($j < $numFields) {
 			$column = mysqli_fetch_field_direct($results, $j);
 			if (!empty($column->table)) {
 				$this->map[$index++] = array($column->table, $column->name);
@@ -411,7 +395,10 @@ class DboMysqli extends DboSource {
 			$resultRow = array();
 			$i = 0;
 			foreach ($row as $index => $field) {
-				@list($table, $column) = $this->map[$index];
+				$table = $column = null;
+				if (count($this->map[$index]) == 2) {
+					list($table, $column) = $this->map[$index];
+				}
 				$resultRow[$table][$column] = $row[$index];
 				$i++;
 			}
@@ -421,20 +408,20 @@ class DboMysqli extends DboSource {
 		}
 	}
 /**
- * Sets the database encoding
- *
- * @param string $enc Database encoding
- */
-	function setEncoding($enc) {
-		return $this->_execute('SET NAMES ' . $enc) != false;
-	}
-/**
  * Gets the database encoding
  *
  * @return string The database encoding
  */
 	function getEncoding() {
 		return mysqli_client_encoding($this->connection);
+	}
+/**
+ * Checks if the result is valid
+ *
+ * @return boolean True if the result is valid, else false
+ */
+	function hasResult() {
+		return is_object($this->_result);
 	}
 }
 ?>

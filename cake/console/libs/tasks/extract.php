@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: extract.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: extract.php 8120 2009-03-19 20:25:10Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -7,24 +7,22 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *                              1785 E. Sahara Avenue, Suite 490-204
- *                              Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright       Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link                http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package         cake
- * @subpackage      cake.cake.console.libs
- * @since           CakePHP(tm) v 1.2.0.5012
- * @version         $Revision: 5860 $
- * @modifiedby      $LastChangedBy: mariano.iglesias $
- * @lastmodified    $Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license         http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.console.libs
+ * @since         CakePHP(tm) v 1.2.0.5012
+ * @version       $Revision: 8120 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Only used when -debug option
@@ -56,8 +54,8 @@
 /**
  * Language string extractor
  *
- * @package     cake
- * @subpackage  cake.cake.console.libs
+ * @package       cake
+ * @subpackage    cake.cake.console.libs
  */
 class ExtractTask extends Shell{
 /**
@@ -124,11 +122,11 @@ class ExtractTask extends Shell{
  */
 	var $__output = null;
 /**
- * Override initialize
+ * Execution method always used for tasks
  *
  * @access public
  */
-	function initialize() {
+	function execute() {
 		if (isset($this->params['files']) && !is_array($this->params['files'])) {
 			$this->files = explode(',', $this->params['files']);
 		}
@@ -137,10 +135,10 @@ class ExtractTask extends Shell{
 		} else {
 			$response = '';
 			while ($response == '') {
-				$response = $this->in("What is the full path you would like to extract?\nExample: " . $this->params['root'] . DS . "myapp\n[Q]uit", null, 'Q');
+				$response = $this->in("What is the full path you would like to extract?\nExample: " . $this->params['root'] . DS . "myapp\n[Q]uit", null, $this->params['working']);
 				if (strtoupper($response) === 'Q') {
 					$this->out('Extract Aborted');
-					exit();
+					$this->_stop();
 				}
 			}
 
@@ -148,7 +146,7 @@ class ExtractTask extends Shell{
 				$this->path = $response;
 			} else {
 				$this->err('The directory path you supplied was not found. Please try again.');
-				$this->initialize();
+				$this->execute();
 			}
 		}
 
@@ -165,7 +163,7 @@ class ExtractTask extends Shell{
 				$response = $this->in("What is the full path you would like to output?\nExample: " . $this->path . DS . "locale\n[Q]uit", null, $this->path . DS . "locale");
 				if (strtoupper($response) === 'Q') {
 					$this->out('Extract Aborted');
-					exit();
+					$this->_stop();
 				}
 			}
 
@@ -173,27 +171,21 @@ class ExtractTask extends Shell{
 				$this->__output = $response . DS;
 			} else {
 				$this->err('The directory path you supplied was not found. Please try again.');
-				$this->initialize();
+				$this->execute();
 			}
 		}
 
 		if (empty($this->files)) {
 			$this->files = $this->__searchDirectory();
 		}
+		$this->__extract();
 	}
 /**
- * Override startup
+ * Extract text
  *
- * @access public
+ * @access private
  */
-	function startup() {
-	}
-/**
- * Execution method always used for tasks
- *
- * @access public
- */
-	function execute() {
+	function __extract() {
 		$this->out('');
 		$this->out('');
 		$this->out(__('Extracting...', true));
@@ -205,7 +197,7 @@ class ExtractTask extends Shell{
 		$response = '';
 		$filename = '';
 		while ($response == '') {
-		    $response = $this->in(__('Would you like to merge all translations into one file?', true), array('y','n'), 'y');
+			$response = $this->in(__('Would you like to merge all translations into one file?', true), array('y','n'), 'y');
 			if (strtolower($response) == 'n') {
 				$this->__oneFile = false;
 			} else {
@@ -226,7 +218,7 @@ class ExtractTask extends Shell{
  * @access public
  */
 	function help() {
-	    $this->out(__('CakePHP Language String Extraction:', true));
+		$this->out(__('CakePHP Language String Extraction:', true));
 		$this->hr();
 		$this->out(__('The Extract script generates .pot file(s) with translations', true));
 		$this->out(__('By default the .pot file(s) will be place in the locale directory of -app', true));
@@ -416,8 +408,8 @@ class ExtractTask extends Shell{
  * @access private
  */
 	function __buildFiles() {
-		$output = '';
 		foreach ($this->__strings as $str => $fileInfo) {
+			$output = '';
 			$occured = $fileList = array();
 
 			if ($this->__oneFile === true) {
@@ -532,7 +524,7 @@ class ExtractTask extends Shell{
 					$response = $this->in("\n\nError: ".$file . ' already exists in this location. Overwrite?', array('y','n', 'q'), 'n');
 					if (strtoupper($response) === 'Q') {
 						$this->out('Extract Aborted');
-						exit();
+						$this->_stop();
 					} elseif (strtoupper($response) === 'N') {
 						$response = '';
 						while ($response == '') {
@@ -627,6 +619,7 @@ class ExtractTask extends Shell{
 		} else {
 			$string = strtr($string, array("\\'" => "'", "\\\\" => "\\"));
 		}
+		$string = str_replace("\r\n", "\n", $string);
 		return addcslashes($string, "\0..\37\\\"");
 	}
 /**
@@ -674,6 +667,9 @@ class ExtractTask extends Shell{
 		}
 		$files = glob("$path*.{php,ctp,thtml,inc,tpl}", GLOB_BRACE);
 		$dirs = glob("$path*", GLOB_ONLYDIR);
+
+		$files = $files ? $files : array();
+		$dirs = $dirs ? $dirs : array();
 
 		foreach ($dirs as $dir) {
 			if (!preg_match("!(^|.+/)(CVS|.svn)$!", $dir)) {

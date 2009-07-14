@@ -15,7 +15,7 @@ class GeshiHelper extends Helper {
 
 	function generate($source, $lang, $options = array()) {
 		$settings = array_merge($this->defaults, ife(is_array($options), $options, array()));
-		vendor('geshi/geshi');
+		App::import('Vendor', 'geshi/geshi');
 		
 		$geshi =& new GeSHi($source,$lang);
 		if ($settings['linenumbers']) {

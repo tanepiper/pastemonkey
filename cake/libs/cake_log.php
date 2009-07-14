@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cake_log.php 5857 2007-10-22 16:09:35Z phpnut $ */
+/* SVN FILE: $Id: cake_log.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Logging.
  *
@@ -7,31 +7,29 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs
- * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5857 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs
+ * @since         CakePHP(tm) v 0.2.9
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Included libraries.
  *
  */
 	if (!class_exists('File')) {
-		 uses('file');
+		require LIBS . 'file.php';
 	}
 /**
  * Set up error level constants to be used within the framework if they are not defined within the
@@ -40,9 +38,6 @@
  */
 	if (!defined('LOG_WARNING')) {
 		define('LOG_WARNING', 3);
-	}
-	if (!defined('LOG_ERR')) {
-		define('LOG_ERR', LOG_ERROR);
 	}
 	if (!defined('LOG_NOTICE')) {
 		define('LOG_NOTICE', 4);
@@ -56,8 +51,8 @@
 /**
  * Logs messages to text files
  *
- * @package		cake
- * @subpackage	cake.cake.libs
+ * @package       cake
+ * @subpackage    cake.cake.libs
  */
 class CakeLog {
 /**
@@ -67,8 +62,15 @@ class CakeLog {
  * @param string $msg  Message to log
  * @return boolean Success
  * @access public
+ * @static
  */
 	function write($type, $msg) {
+		if (!defined('LOG_ERROR')) {
+			define('LOG_ERROR', 2);
+		}
+		if (!defined('LOG_ERR')) {
+			define('LOG_ERR', LOG_ERROR);
+		}
 		$levels = array(
 			LOG_WARNING => 'warning',
 			LOG_NOTICE => 'notice',
@@ -90,8 +92,10 @@ class CakeLog {
 			$filename = LOGS . $type . '.log';
 		}
 		$output = date('Y-m-d H:i:s') . ' ' . ucfirst($type) . ': ' . $msg . "\n";
-		$log = new File($filename);
-		return $log->append($output);
+		$log = new File($filename, true);
+		if ($log->writable()) {
+			return $log->append($output);
+		}
 	}
 }
 ?>

@@ -32,7 +32,7 @@ class PastesController extends AppController {
 			$this->passedArgs['limit'] = 5;
 		}
 		
-		$this->set('pastes', $this->paginate(array('conditions'=>array('Paste.private'=>'0'))));
+		$this->set('pastes', $this->paginate('Paste', array('Paste.private'=>'0')));
 		$this->Paste->_purge();	// Purge Old Pastes
 	}
 
@@ -70,7 +70,7 @@ class PastesController extends AppController {
 			}
 		
 			// Clean up paste before we save
-			$this->cleanUpFields();
+			//$this->cleanUpFields();
 			$this->Paste->create();
 			
 			// Write session data based on authors options

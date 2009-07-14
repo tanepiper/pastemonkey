@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: flay.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: flay.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Text-to-HTML parser.
  *
@@ -7,39 +7,37 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs
- * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs
+ * @since         CakePHP(tm) v 0.2.9
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Included libraries.
  *
  */
-	if (!class_exists('Object')) {
-		 uses ('object');
-	}
+if (!class_exists('Object')) {
+	uses('object');
+}
 /**
  * Text-to-HTML parser.
  *
  * Text-to-html parser, similar to Textile or RedCloth, only with a little different syntax.
  *
- * @package		cake
- * @subpackage	cake.cake.libs
+ * @package       cake
+ * @subpackage    cake.cake.libs
  */
 class Flay extends Object{
 /**
@@ -143,8 +141,8 @@ class Flay extends Object{
 						}
 					}
 
-					if (count($links)) {
-						for ($ii = 0; $ii < count($links); $ii++) {
+					if ($count = count($links)) {
+						for ($ii = 0; $ii < $count; $ii++) {
 							if (preg_match("#^(http|https|ftp|nntp)://#", $links[$ii])) {
 								$prefix = null;
 							} else {

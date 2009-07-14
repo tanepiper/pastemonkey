@@ -1,36 +1,35 @@
 <?php
-/* SVN FILE: $Id: magic_db.php 5444 2007-07-19 13:38:26Z the_undefined $ */
+/* SVN FILE: $Id: magic_db.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * MagicDb parser and file analyzer
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link			http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs
- * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5444 $
- * @modifiedby		$LastChangedBy: the_undefined $
- * @lastmodified	$Date: 2007-07-19 15:38:26 +0200 (Do, 19 Jul 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs
+ * @since         CakePHP(tm) v 1.2.0
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-
-uses ('object', 'file');
+if (!class_exists('File')) {
+	uses('object', 'file');
+}
 /**
  * A class to parse and use the MagicDb for file type analysis
  *
- * @package		cake.tests
- * @subpackage	cake.tests.cases.libs
+ * @package       cake.tests
+ * @subpackage    cake.tests.cases.libs
  */
 class MagicDb extends Object {
 /**
@@ -45,7 +44,7 @@ class MagicDb extends Object {
  *
  * @var $magicDb mixed Can be an array containing the db, a magic db as a string, or a filename pointing to a magic db in .db or magic.db.php format
  * @return boolean Returns false if reading / validation failed or true on success.
- * @author Felix
+ * @author        Felix
  **/
 	function read($magicDb = null) {
 		if (!is_string($magicDb) && !is_array($magicDb)) {
@@ -110,7 +109,7 @@ class MagicDb extends Object {
 		$format = array();
 		while (!empty($lines)) {
 			$line = array_shift($lines);
-			if (strpos($line, '#') === 0 || empty($line)) {
+			if (isset($line[0]) && $line[0] == '#' || empty($line)) {
 				continue;
 			}
 
@@ -168,7 +167,7 @@ class MagicDb extends Object {
 			}
 			$matches[] = $magic;
 		}
-		
+
 		return $matches;
 	}
 }
@@ -176,8 +175,8 @@ class MagicDb extends Object {
 /**
  * undocumented class
  *
- * @package		cake.tests
- * @subpackage	cake.tests.cases.libs
+ * @package       cake.tests
+ * @subpackage    cake.tests.cases.libs
  */
 class MagicFileResource extends Object{
 /**
@@ -197,7 +196,7 @@ class MagicFileResource extends Object{
 /**
  * undocumented function
  *
- * @param unknown $file 
+ * @param unknown $file
  * @return void
  * @access public
  */
@@ -211,35 +210,49 @@ class MagicFileResource extends Object{
 /**
  * undocumented function
  *
- * @param unknown $magic 
+ * @param unknown $magic
  * @return void
  * @access public
  */
 	function test($magic) {
-		@list($offset, $type, $expected, $comment) = $magic;
+		$offset = null;
+		$type = null;
+		$expected = null;
+		$comment = null;
+		if (isset($magic[0])) {
+			$offset = $magic[0];
+		}
+		if (isset($magic[1])) {
+			$type = $magic[1];
+		}
+		if (isset($magic[2])) {
+			$expected = $magic[2];
+		}
+		if (isset($magic[3])) {
+			$comment = $magic[3];
+		}
 		$val = $this->extract($offset, $type, $expected);
 		return $val == $expected;
 	}
 /**
  * undocumented function
  *
- * @param unknown $type 
- * @param unknown $length 
+ * @param unknown $type
+ * @param unknown $length
  * @return void
  * @access public
  */
 	function read($length = null) {
-		if (!is_object($this->resource)){
+		if (!is_object($this->resource)) {
 			return substr($this->resource, $this->offset, $length);
-		} else {
-			return $this->resource->read($length);
 		}
+		return $this->resource->read($length);
 	}
 /**
  * undocumented function
  *
- * @param unknown $type 
- * @param unknown $expected 
+ * @param unknown $type
+ * @param unknown $expected
  * @return void
  * @access public
  */
@@ -257,8 +270,8 @@ class MagicFileResource extends Object{
 /**
  * undocumented function
  *
- * @param unknown $offset 
- * @param unknown $whence 
+ * @param unknown $offset
+ * @param unknown $whence
  * @return void
  * @access public
  */
@@ -269,7 +282,7 @@ class MagicFileResource extends Object{
 			}
 			return $this->offset;
 		}
-		
+
 		if (!ctype_digit($offset)) {
 			return false;
 		}

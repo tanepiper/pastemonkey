@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: error.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: error.php 8004 2009-01-16 20:15:21Z gwoo $ */
 /**
  * ErrorHandler for Console Shells
  *
@@ -7,30 +7,28 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.console
- * @since			CakePHP(tm) v 1.2.0.5074
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.console
+ * @since         CakePHP(tm) v 1.2.0.5074
+ * @version       $Revision: 8004 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-01-16 12:15:21 -0800 (Fri, 16 Jan 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Error Handler for Cake console.
  *
- * @package		cake
- * @subpackage	cake.cake.console
+ * @package       cake
+ * @subpackage    cake.cake.console
  */
 class ErrorHandler extends Object {
 /**
@@ -71,7 +69,7 @@ class ErrorHandler extends Object {
 	function error($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr($code . $name . $message."\n");
-		exit();
+		$this->_stop();
 	}
 /**
  * Convenience method to display a 404 page.
@@ -84,7 +82,7 @@ class ErrorHandler extends Object {
 		$this->error(array('code' => '404',
 							'name' => 'Not found',
 							'message' => sprintf(__("The requested address %s was not found on this server.", true), $url, $message)));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Controller web page.
@@ -96,7 +94,7 @@ class ErrorHandler extends Object {
 		extract($params, EXTR_OVERWRITE);
 		$controllerName = str_replace('Controller', '', $className);
 		$this->stderr(sprintf(__("Missing Controller '%s'", true), $controllerName));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Action web page.
@@ -107,7 +105,7 @@ class ErrorHandler extends Object {
 	function missingAction($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing Method '%s' in '%s'", true), $action, $className));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Private Action web page.
@@ -118,7 +116,7 @@ class ErrorHandler extends Object {
 	function privateAction($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Trying to access private method '%s' in '%s'", true), $action, $className));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Table web page.
@@ -129,7 +127,7 @@ class ErrorHandler extends Object {
 	function missingTable($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing database table '%s' for model '%s'", true), $table, $className));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Database web page.
@@ -138,9 +136,8 @@ class ErrorHandler extends Object {
  * @access public
  */
 	function missingDatabase($params = array()) {
-		extract($params, EXTR_OVERWRITE);
 		$this->stderr(__("Missing Database", true));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing View web page.
@@ -151,7 +148,7 @@ class ErrorHandler extends Object {
 	function missingView($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing View '%s' for '%s' in '%s'", true), $file, $action, $className));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Layout web page.
@@ -162,7 +159,7 @@ class ErrorHandler extends Object {
 	function missingLayout($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing Layout '%s'", true), $file));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Database Connection web page.
@@ -173,7 +170,7 @@ class ErrorHandler extends Object {
 	function missingConnection($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(__("Missing Database Connection. Try 'cake bake'", true));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Helper file web page.
@@ -184,7 +181,7 @@ class ErrorHandler extends Object {
 	function missingHelperFile($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing Helper file '%s' for '%s'", true), $file, Inflector::camelize($helper)));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Helper class web page.
@@ -195,7 +192,7 @@ class ErrorHandler extends Object {
 	function missingHelperClass($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing Helper class '%s' in '%s'", true), Inflector::camelize($helper), $file));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Component file web page.
@@ -206,7 +203,7 @@ class ErrorHandler extends Object {
 	function missingComponentFile($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing Component file '%s' for '%s'", true), $file, Inflector::camelize($component)));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Component class web page.
@@ -217,7 +214,7 @@ class ErrorHandler extends Object {
 	function missingComponentClass($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing Component class '%s' in '%s'", true), Inflector::camelize($component), $file));
-		exit();
+		$this->_stop();
 	}
 /**
  * Renders the Missing Model class web page.
@@ -228,7 +225,7 @@ class ErrorHandler extends Object {
 	function missingModel($params) {
 		extract($params, EXTR_OVERWRITE);
 		$this->stderr(sprintf(__("Missing model '%s'", true), $className));
-		exit();
+		$this->_stop();
 	}
 /**
  * Outputs to the stdout filehandle.

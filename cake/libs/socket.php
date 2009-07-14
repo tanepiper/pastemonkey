@@ -1,38 +1,35 @@
 <?php
-/* SVN FILE: $Id: socket.php 5858 2007-10-22 16:11:12Z phpnut $ */
+/* SVN FILE: $Id: socket.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Cake Socket connection class.
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs
- * @since			CakePHP(tm) v 1.2.0
- * @version			$Revision: 5858 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs
+ * @since         CakePHP(tm) v 1.2.0
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-uses('validation');
-
+App::import('Core', 'Validation');
 /**
  * Cake network socket connection class.
  *
  * Core base class for network communication.
  *
- * @package		cake
- * @subpackage	cake.cake.libs
+ * @package       cake
+ * @subpackage    cake.cake.libs
  */
 class CakeSocket extends Object {
 /**
@@ -69,7 +66,6 @@ class CakeSocket extends Object {
  * @access public
  */
 	var $connection = null;
-
 /**
  * This boolean contains the current state of the CakeSocket class
  *
@@ -77,15 +73,13 @@ class CakeSocket extends Object {
  * @access public
  */
 	var $connected = false;
-
 /**
  * This variable contains an array with the last error number (num) and string (str)
  *
  * @var array
  * @access public
  */
-	var $error = array();
-
+	var $lastError = array();
 /**
  * Constructor.
  *
@@ -94,11 +88,7 @@ class CakeSocket extends Object {
 	function __construct($config = array()) {
 		parent::__construct();
 
-		$classVars = get_class_vars(__CLASS__);
-		$baseConfig = $classVars['_baseConfig'];
-
-		$this->config = am($baseConfig, $config);
-
+		$this->config = array_merge($this->_baseConfig, $config);
 		if (!is_numeric($this->config['protocol'])) {
 			$this->config['protocol'] = getprotobyname($this->config['protocol']);
 		}
@@ -114,20 +104,23 @@ class CakeSocket extends Object {
 			$this->disconnect();
 		}
 
+		$scheme = null;
+		if (isset($this->config['request']) && $this->config['request']['uri']['scheme'] == 'https') {
+			$scheme = 'ssl://';
+		}
+
 		if ($this->config['persistent'] == true) {
 			$tmp = null;
-			$this->connection = @pfsockopen($this->config['host'], $this->config['port'], $errNum, $errStr, $this->config['timeout']);
+			$this->connection = @pfsockopen($scheme.$this->config['host'], $this->config['port'], $errNum, $errStr, $this->config['timeout']);
 		} else {
-			$this->connection = fsockopen($this->config['host'], $this->config['port'], $errNum, $errStr, $this->config['timeout']);
+			$this->connection = @fsockopen($scheme.$this->config['host'], $this->config['port'], $errNum, $errStr, $this->config['timeout']);
 		}
 
 		if (!empty($errNum) || !empty($errStr)) {
 			$this->setLastError($errStr, $errNum);
 		}
 
-		$this->connected = is_resource($this->connection);
-
-		return $this->connected;
+		return $this->connected = is_resource($this->connection);
 	}
 
 /**
@@ -176,8 +169,8 @@ class CakeSocket extends Object {
  * @access public
  */
 	function lastError() {
-		if (!empty($this->error)) {
-			return $this->error['num'].': '.$this->error['str'];
+		if (!empty($this->lastError)) {
+			return $this->lastError['num'].': '.$this->lastError['str'];
 		} else {
 			return null;
 		}
@@ -261,9 +254,28 @@ class CakeSocket extends Object {
  *
  * @access private
  */
- 	function __destruct() {
- 		$this->disconnect();
- 	}
-}
+	function __destruct() {
+		$this->disconnect();
+	}
+/**
+ * Resets the state of this Socket instance to it's initial state (before Object::__construct got executed)
+ *
+ * @return boolean True on success
+ * @access public
+ */
+	function reset($state = null) {
+		if (empty($state)) {
+			static $initalState = array();
+			if (empty($initalState)) {
+				$initalState = get_class_vars(__CLASS__);
+			}
+			$state = $initalState;
+		}
 
+		foreach ($state as $property => $value) {
+			$this->{$property} = $value;
+		}
+		return true;
+	}
+}
 ?>

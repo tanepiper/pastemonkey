@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.php 5858 2007-10-22 16:11:12Z phpnut $ */
+/* SVN FILE: $Id: acl.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Access Control List factory class.
  *
@@ -7,32 +7,30 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.controller.components
- * @since			CakePHP(tm) v 0.10.0.1076
- * @version			$Revision: 5858 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.controller.components
+ * @since         CakePHP(tm) v 0.10.0.1076
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Access Control List factory class.
  *
  * Looks for ACL implementation class in core config, and returns an instance of that class.
  *
- * @package		cake
- * @subpackage	cake.cake.libs.controller.components
+ * @package       cake
+ * @subpackage    cake.cake.libs.controller.components
  */
 class AclComponent extends Object {
 /**
@@ -47,9 +45,9 @@ class AclComponent extends Object {
  *
  */
 	function __construct() {
-		$name = Configure::read('Acl.classname');
+		$name = Inflector::camelize(strtolower(Configure::read('Acl.classname')));
 		if (!class_exists($name)) {
-			if (loadComponent($name)) {
+			if (App::import('Component', $name)) {
 				if (strpos($name, '.') !== false) {
 					list($plugin, $name) = explode('.', $name);
 				}
@@ -150,55 +148,13 @@ class AclComponent extends Object {
 	function revoke($aro, $aco, $action = "*") {
 		return $this->_Instance->revoke($aro, $aco, $action);
 	}
-/**
- * Sets the current ARO instance to object from getAro
- *
- * @param string $id ID of ARO
- * @return boolean Success
- * @access public
- */
-	function setAro($id) {
-		return $this->Aro = $this->_Instance->getAro($id);
-	}
-/**
-* Sets the current ACO instance to object from getAco
- *
- * @param string $id ID of ACO
- * @return boolean Success
- * @access public
- */
-	function setAco($id) {
-		return $this->Aco = $this->_Instance->getAco($id);
-	}
-/**
- * Pass-thru function for ACL getAro instance
- * that gets an ARO object from the given id or alias
- *
- * @param string $id ARO id
- * @return object ARO
- * @access public
- */
-	function getAro($id) {
-		return $this->_Instance->getAro($id);
-	}
-/**
- * Pass-thru function for ACL getAco instance.
- * that gets an ACO object from the given id or alias
- *
- * @param string $id ACO id
- * @return object ACO
- * @access public
- */
-	function getAco($id) {
-		return $this->_Instance->getAco($id);
-	}
 }
 /**
  * Access Control List abstract class. Not to be instantiated.
  * Subclasses of this class are used by AclComponent to perform ACL checks in Cake.
  *
- * @package 	cake
- * @subpackage	cake.cake.libs.controller.components
+ * @package       cake
+ * @subpackage    cake.cake.libs.controller.components
  * @abstract
  */
 class AclBase extends Object {
@@ -234,24 +190,27 @@ class AclBase extends Object {
 /**
  * In this file you can extend the AclBase.
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model
+ * @package       cake
+ * @subpackage    cake.cake.libs.model
  */
-class DB_ACL extends AclBase {
+class DbAcl extends AclBase {
 /**
  * Constructor
  *
  */
 	function __construct() {
 		parent::__construct();
-		uses('model' . DS . 'db_acl');
-		$this->Aro =& new Aro();
-		$this->Aco =& new Aco();
+		if (!class_exists('AclNode')) {
+			uses('model' . DS . 'db_acl');
+		}
+		$this->Aro =& ClassRegistry::init(array('class' => 'Aro', 'alias' => 'Aro'));
+		$this->Aco =& ClassRegistry::init(array('class' => 'Aco', 'alias' => 'Aco'));
 	}
 /**
  * Enter description here...
  *
  * @param object $component
+ * @return void
  * @access public
  */
 	function initialize(&$component) {
@@ -272,39 +231,49 @@ class DB_ACL extends AclBase {
 			return false;
 		}
 
-		$permKeys = $this->_getAcoKeys($this->Aro->Permission->loadInfo());
+		$permKeys = $this->_getAcoKeys($this->Aro->Permission->schema());
 		$aroPath = $this->Aro->node($aro);
-		$acoPath = new Set($this->Aco->node($aco));
+		$acoPath = $this->Aco->node($aco);
 
-		if (empty($aroPath) ||  empty($acoPath)) {
-			trigger_error("DB_ACL::check() - Failed ARO/ACO node lookup in permissions check.  Node references:\nAro: " . print_r($aro, true) . "\nAco: " . print_r($aco, true), E_USER_WARNING);
+		if (empty($aroPath) || empty($acoPath)) {
+			trigger_error("DbAcl::check() - Failed ARO/ACO node lookup in permissions check.  Node references:\nAro: " . print_r($aro, true) . "\nAco: " . print_r($aco, true), E_USER_WARNING);
 			return false;
 		}
-		if ($acoPath->get() == null || $acoPath->get() == array()) {
-			trigger_error("DB_ACL::check() - Failed ACO node lookup in permissions check.  Node references:\nAro: " . print_r($aro, true) . "\nAco: " . print_r($aco, true), E_USER_WARNING);
+
+		if ($acoPath == null || $acoPath == array()) {
+			trigger_error("DbAcl::check() - Failed ACO node lookup in permissions check.  Node references:\nAro: " . print_r($aro, true) . "\nAco: " . print_r($aco, true), E_USER_WARNING);
 			return false;
 		}
 
 		$aroNode = $aroPath[0];
-		$acoNode = $acoPath->get();
-		$acoNode = $acoNode[0];
+		$acoNode = $acoPath[0];
 
 		if ($action != '*' && !in_array('_' . $action, $permKeys)) {
-			trigger_error(sprintf(__("ACO permissions key %s does not exist in DB_ACL::check()", true), $action), E_USER_NOTICE);
+			trigger_error(sprintf(__("ACO permissions key %s does not exist in DbAcl::check()", true), $action), E_USER_NOTICE);
 			return false;
 		}
 
 		$inherited = array();
-		for ($i = 0 ; $i < count($aroPath); $i++) {
-			$perms = $this->Aro->Permission->findAll(array(
-						$this->Aro->Permission->name . '.aro_id' => $aroPath[$i][$this->Aro->name]['id'],
-						$this->Aro->Permission->name . '.aco_id' => $acoPath->extract('{n}.' . $this->Aco->name . '.id')),
-						null, array($this->Aco->name . '.lft' => 'desc'), null, null, 0);
+		$acoIDs = Set::extract($acoPath, '{n}.' . $this->Aco->alias . '.id');
+
+		$count = count($aroPath);
+		for ($i = 0 ; $i < $count; $i++) {
+			$permAlias = $this->Aro->Permission->alias;
+
+			$perms = $this->Aro->Permission->find('all', array(
+				'conditions' => array(
+					"{$permAlias}.aro_id" => $aroPath[$i][$this->Aro->alias]['id'],
+					"{$permAlias}.aco_id" => $acoIDs
+				),
+				'order' => array($this->Aco->alias . '.lft' => 'desc'),
+				'recursive' => 0
+			));
 
 			if (empty($perms)) {
 				continue;
 			} else {
-				foreach (Set::extract($perms, '{n}.' . $this->Aro->Permission->name) as $perm) {
+				$perms = Set::extract($perms, '{n}.' . $this->Aro->Permission->alias);
+				foreach ($perms as $perm) {
 					if ($action == '*') {
 
 						foreach ($permKeys as $key) {
@@ -316,12 +285,12 @@ class DB_ACL extends AclBase {
 								}
 							}
 						}
+
 						if (count($inherited) === count($permKeys)) {
 							return true;
 						}
-
 					} else {
-						switch($perm['_' . $action]) {
+						switch ($perm['_' . $action]) {
 							case -1:
 								return false;
 							case 0:
@@ -349,24 +318,20 @@ class DB_ACL extends AclBase {
  */
 	function allow($aro, $aco, $actions = "*", $value = 1) {
 		$perms = $this->getAclLink($aro, $aco);
-		$permKeys = $this->_getAcoKeys($this->Aro->Permission->loadInfo());
+		$permKeys = $this->_getAcoKeys($this->Aro->Permission->schema());
 		$save = array();
 
 		if ($perms == false) {
-			trigger_error(__('DB_ACL::allow() - Invalid node', true), E_USER_WARNING);
+			trigger_error(__('DbAcl::allow() - Invalid node', true), E_USER_WARNING);
 			return false;
 		}
-
 		if (isset($perms[0])) {
-			$save = $perms[0][$this->Aro->Permission->name];
+			$save = $perms[0][$this->Aro->Permission->alias];
 		}
 
 		if ($actions == "*") {
-			$permKeys = $this->_getAcoKeys($this->Aro->Permission->loadInfo());
-
-			foreach ($permKeys as $key) {
-				$save[$key] = $value;
-			}
+			$permKeys = $this->_getAcoKeys($this->Aro->Permission->schema());
+			$save = array_combine($permKeys, array_pad(array(), count($permKeys), $value));
 		} else {
 			if (!is_array($actions)) {
 				$actions = array('_' . $actions);
@@ -382,15 +347,15 @@ class DB_ACL extends AclBase {
 				}
 			}
 		}
-
-		$save['aro_id'] = $perms['aro'];
-		$save['aco_id'] = $perms['aco'];
+		list($save['aro_id'], $save['aco_id']) = array($perms['aro'], $perms['aco']);
 
 		if ($perms['link'] != null && count($perms['link']) > 0) {
-			$save['id'] = $perms['link'][0][$this->Aro->Permission->name]['id'];
+			$save['id'] = $perms['link'][0][$this->Aro->Permission->alias]['id'];
+		} else {
+			unset($save['id']);
+			$this->Aro->Permission->id = null;
 		}
-		$this->Aro->Permission->create($save);
-		return $this->Aro->Permission->save();
+		return ($this->Aro->Permission->save($save) !== false);
 	}
 /**
  * Deny access for $aro to action $action in $aco
@@ -460,12 +425,12 @@ class DB_ACL extends AclBase {
 		}
 
 		return array(
-			'aro' => Set::extract($obj, 'Aro.0.'.$this->Aro->name.'.id'),
-			'aco'  => Set::extract($obj, 'Aco.0.'.$this->Aco->name.'.id'),
-			'link' => $this->Aro->Permission->findAll(array(
-				$this->Aro->Permission->name . '.aro_id' => Set::extract($obj, 'Aro.0.'.$this->Aro->name.'.id'),
-				$this->Aro->Permission->name . '.aco_id' => Set::extract($obj, 'Aco.0.'.$this->Aco->name.'.id')
-			))
+			'aro' => Set::extract($obj, 'Aro.0.'.$this->Aro->alias.'.id'),
+			'aco'  => Set::extract($obj, 'Aco.0.'.$this->Aco->alias.'.id'),
+			'link' => $this->Aro->Permission->find('all', array('conditions' => array(
+				$this->Aro->Permission->alias . '.aro_id' => Set::extract($obj, 'Aro.0.'.$this->Aro->alias.'.id'),
+				$this->Aro->Permission->alias . '.aco_id' => Set::extract($obj, 'Aco.0.'.$this->Aco->alias.'.id')
+			)))
 		);
 	}
 /**
@@ -477,8 +442,7 @@ class DB_ACL extends AclBase {
  */
 	function _getAcoKeys($keys) {
 		$newKeys = array();
-		$keys = $keys->extract('{n}.name');
-
+		$keys = array_keys($keys);
 		foreach ($keys as $key) {
 			if (!in_array($key, array('id', 'aro_id', 'aco_id'))) {
 				$newKeys[] = $key;
@@ -490,10 +454,10 @@ class DB_ACL extends AclBase {
 /**
  * In this file you can extend the AclBase.
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model.iniacl
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.iniacl
  */
-class INI_ACL extends AclBase {
+class IniAcl extends AclBase {
 /**
  * Array with configuration, parsed from ini file
  *

@@ -1,36 +1,34 @@
 <?php
-/* SVN FILE: $Id: html.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: html.php 8120 2009-03-19 20:25:10Z gwoo $ */
 /**
  * Html Helper class file.
  *
  * Simplifies the construction of HTML elements.
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.view.helpers
- * @since			CakePHP(tm) v 0.9.1
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.view.helpers
+ * @since         CakePHP(tm) v 0.9.1
+ * @version       $Revision: 8120 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Html Helper class for easy use of HTML widgets.
  *
  * HtmlHelper encloses all methods needed while working with HTML pages.
  *
- * @package		cake
- * @subpackage	cake.cake.libs.view.helpers
+ * @package       cake
+ * @subpackage    cake.cake.libs.view.helpers
  */
 class HtmlHelper extends AppHelper {
 /*************************************************************************
@@ -45,16 +43,17 @@ class HtmlHelper extends AppHelper {
  * @var array
  */
 	var $tags = array(
-		'metalink' => '<link href="%s" title="%s"%s />',
-		'link' => '<a href="%s" %s>%s</a>',
+		'meta' => '<meta%s/>',
+		'metalink' => '<link href="%s"%s/>',
+		'link' => '<a href="%s"%s>%s</a>',
 		'mailto' => '<a href="mailto:%s" %s>%s</a>',
 		'form' => '<form %s>',
 		'formend' => '</form>',
 		'input' => '<input name="%s" %s/>',
 		'textarea' => '<textarea name="%s" %s>%s</textarea>',
 		'hidden' => '<input type="hidden" name="%s" %s/>',
-		'textarea' => '<textarea name="%s" %s>%s</textarea>',
 		'checkbox' => '<input type="checkbox" name="%s" %s/>',
+		'checkboxmultiple' => '<input type="checkbox" name="%s[]"%s />',
 		'radio' => '<input type="radio" name="%s" id="%s" %s />%s',
 		'selectstart' => '<select name="%s"%s>',
 		'selectmultiplestart' => '<select name="%s[]"%s>',
@@ -63,11 +62,14 @@ class HtmlHelper extends AppHelper {
 		'selectend' => '</select>',
 		'optiongroup' => '<optgroup label="%s"%s>',
 		'optiongroupend' => '</optgroup>',
+		'checkboxmultiplestart' => '',
+		'checkboxmultipleend' => '',
 		'password' => '<input type="password" name="%s" %s/>',
 		'file' => '<input type="file" name="%s" %s/>',
 		'file_no_model' => '<input type="file" name="%s" %s/>',
 		'submit' => '<input type="submit" %s/>',
 		'submitimage' => '<input type="image" src="%s" %s/>',
+		'button' => '<input type="%s" %s/>',
 		'image' => '<img src="%s" %s/>',
 		'tableheader' => '<th%s>%s</th>',
 		'tableheaderrow' => '<tr%s>%s</tr>',
@@ -76,10 +78,13 @@ class HtmlHelper extends AppHelper {
 		'block' => '<div%s>%s</div>',
 		'blockstart' => '<div%s>',
 		'blockend' => '</div>',
+		'tag' => '<%s%s>%s</%s>',
+		'tagstart' => '<%s%s>',
+		'tagend' => '</%s>',
 		'para' => '<p%s>%s</p>',
 		'parastart' => '<p%s>',
 		'label' => '<label for="%s"%s>%s</label>',
-		'fieldset' => '<fieldset><legend>%s</legend>%s</fieldset>',
+		'fieldset' => '<fieldset%s>%s</fieldset>',
 		'fieldsetstart' => '<fieldset><legend>%s</legend>',
 		'fieldsetend' => '</fieldset>',
 		'legend' => '<legend>%s</legend>',
@@ -88,7 +93,8 @@ class HtmlHelper extends AppHelper {
 		'charset' => '<meta http-equiv="Content-Type" content="text/html; charset=%s" />',
 		'ul' => '<ul%s>%s</ul>',
 		'ol' => '<ol%s>%s</ol>',
-		'li' => '<li%s>%s</li>'
+		'li' => '<li%s>%s</li>',
+		'error' => '<div%s>%s</div>'
 	);
 /**
  * Base URL
@@ -154,9 +160,10 @@ class HtmlHelper extends AppHelper {
  *
  * @param string $name Text for link
  * @param string $link URL for link (if empty it won't be a link)
+ * @param mixed $options Link attributes e.g. array('id'=>'selected')
  */
-	function addCrumb($name, $link = null) {
-		$this->_crumbs[] = array($name, $link);
+	function addCrumb($name, $link = null, $options = null) {
+		$this->_crumbs[] = array($name, $link, $options);
 	}
 /**
  * Returns a doctype string.
@@ -177,45 +184,65 @@ class HtmlHelper extends AppHelper {
 		if (isset($this->__docTypes[$type])) {
 			return $this->output($this->__docTypes[$type]);
 		}
+		return null;
 	}
 /**
- * Creates a link to an external resource
+ * Creates a link to an external resource and handles basic meta tags
  *
- * @param  string  $title The title of the external resource
- * @param  mixed   $url   The address of the external resource
+ * @param  string  $type The title of the external resource
+ * @param  mixed   $url   The address of the external resource or string for content attribute
  * @param  array   $attributes Other attributes for the generated tag. If the type attribute is html, rss, atom, or icon, the mime-type is returned.
  * @param  boolean $inline If set to false, the generated tag appears in the head tag of the layout.
  * @return string
  */
-	function meta($title = null, $url = null, $attributes = array(), $inline = true) {
-		$types = array(
-			'html'	=> 'text/html',
-			'rss'	=> 'application/rss+xml',
-			'atom'	=> 'application/atom+xml',
-			'icon'	=> 'image/x-icon'
-		);
+	function meta($type, $url = null, $attributes = array(), $inline = true) {
+		if (!is_array($type)) {
+			$types = array(
+				'rss'	=> array('type' => 'application/rss+xml', 'rel' => 'alternate', 'title' => $type, 'link' => $url),
+				'atom'	=> array('type' => 'application/atom+xml', 'title' => $type, 'link' => $url),
+				'icon'	=> array('type' => 'image/x-icon', 'rel' => 'icon', 'link' => $url),
+				'keywords' => array('name' => 'keywords', 'content' => $url),
+				'description' => array('name' => 'description', 'content' => $url),
+			);
 
-		if (!isset($attributes['type']) && is_array($url) && isset($url['ext'])) {
-			if (in_array($url['ext'], array_keys($types))) {
-				$attributes['type'] = $url['ext'];
-			} else {
-				$attributes['type'] = 'rss';
+			if ($type === 'icon' && $url === null) {
+				$types['icon']['link'] = $this->webroot('favicon.ico');
 			}
-		} elseif (!isset($attributes['type'])) {
-			$attributes['type'] = 'rss';
-		}
 
-		if (isset($attributes['type']) && in_array($attributes['type'], array_keys($types))) {
-			$attributes['type'] = $types[$attributes['type']];
+			if (isset($types[$type])) {
+				$type = $types[$type];
+			} elseif (!isset($attributes['type']) && $url !== null) {
+				if (is_array($url) && isset($url['ext'])) {
+					$type = $types[$url['ext']];
+				} else {
+					$type = $types['rss'];
+				}
+			} elseif (isset($attributes['type']) && isset($types[$attributes['type']])) {
+				$type = $types[$attributes['type']];
+				unset($attributes['type']);
+			} else {
+				$type = array();
+			}
+		} elseif ($url !== null) {
+			$inline = $url;
 		}
+		$attributes = array_merge($type, $attributes);
+		$out = null;
 
-		if (!isset($attributes['rel'])) {
-			$attributes['rel'] = 'alternate';
+		if (isset($attributes['link'])) {
+			if (isset($attributes['rel']) && $attributes['rel'] === 'icon') {
+				$out = sprintf($this->tags['metalink'], $attributes['link'], $this->_parseAttributes($attributes, array('link'), ' ', ' '));
+				$attributes['rel'] = 'shortcut icon';
+			} else {
+				$attributes['link'] = $this->url($attributes['link'], true);
+			}
+			$out .= sprintf($this->tags['metalink'], $attributes['link'], $this->_parseAttributes($attributes, array('link'), ' ', ' '));
+		} else {
+			$out = sprintf($this->tags['meta'], $this->_parseAttributes($attributes, array('type')));
 		}
-		$out = $this->output(sprintf($this->tags['metalink'], $this->url($url, true), $title, $this->_parseAttributes($attributes)));
 
 		if ($inline) {
-			return $out;
+			return $this->output($out);
 		} else {
 			$view =& ClassRegistry::getObject('view');
 			$view->addScript($out);
@@ -228,14 +255,10 @@ class HtmlHelper extends AppHelper {
  * @return string A meta tag containing the specified character set.
  */
 	function charset($charset = null) {
-		if (is_null($charset)) {
-			$charset = Configure::read('charset');
-			if (is_null($charset)) {
-				$charset = 'utf-8';
-			}
+		if (empty($charset)) {
+			$charset = strtolower(Configure::read('App.encoding'));
 		}
-
-		return $this->output(sprintf($this->tags['charset'], $charset));
+		return $this->output(sprintf($this->tags['charset'], (!empty($charset) ? $charset : 'utf-8')));
 	}
 /**
  * Creates an HTML link.
@@ -262,12 +285,12 @@ class HtmlHelper extends AppHelper {
 			$escapeTitle = false;
 		}
 
-		if (isset($htmlAttributes['escape'])) {
+		if (isset($htmlAttributes['escape']) && $escapeTitle == true) {
 			$escapeTitle = $htmlAttributes['escape'];
-			unset($htmlAttributes['escape']);
 		}
+
 		if ($escapeTitle === true) {
-			$title = htmlspecialchars($title, ENT_QUOTES);
+			$title = h($title);
 		} elseif (is_string($escapeTitle)) {
 			$title = htmlentities($title, ENT_QUOTES, $escapeTitle);
 		}
@@ -280,15 +303,13 @@ class HtmlHelper extends AppHelper {
 			$confirmMessage = str_replace("'", "\'", $confirmMessage);
 			$confirmMessage = str_replace('"', '\"', $confirmMessage);
 			$htmlAttributes['onclick'] = "return confirm('{$confirmMessage}');";
-		} elseif (isset($htmlAttributes['default'])) {
-			if ($htmlAttributes['default'] == false) {
-				if (isset($htmlAttributes['onclick'])) {
-					$htmlAttributes['onclick'] .= ' event.returnValue = false; return false;';
-				} else {
-					$htmlAttributes['onclick'] = 'event.returnValue = false; return false;';
-				}
-				unset($htmlAttributes['default']);
+		} elseif (isset($htmlAttributes['default']) && $htmlAttributes['default'] == false) {
+			if (isset($htmlAttributes['onclick'])) {
+				$htmlAttributes['onclick'] .= ' event.returnValue = false; return false;';
+			} else {
+				$htmlAttributes['onclick'] = 'event.returnValue = false; return false;';
 			}
+			unset($htmlAttributes['default']);
 		}
 		return $this->output(sprintf($this->tags['link'], $url, $this->_parseAttributes($htmlAttributes), $title));
 	}
@@ -312,7 +333,32 @@ class HtmlHelper extends AppHelper {
 			}
 			return;
 		}
-		$url = $this->webroot((COMPRESS_CSS ? 'c' : '') . CSS_URL . $path . ".css");
+
+		if (strpos($path, '://') !== false) {
+			$url = $path;
+		} else {
+			if ($path[0] !== '/') {
+				$path = CSS_URL . $path;
+			}
+
+			if (strpos($path, '?') === false) {
+				if (strpos($path, '.css') === false) {
+					$path .= '.css';
+				}
+			}
+
+			$path = $this->webroot($path);
+
+			$url = $path;
+			if (strpos($path, '?') === false && ((Configure::read('Asset.timestamp') === true && Configure::read() > 0) || Configure::read('Asset.timestamp') === 'force')) {
+				$url .= '?' . @filemtime(WWW_ROOT . str_replace('/', DS, $path));
+			}
+
+			if (Configure::read('Asset.filter.css')) {
+				$url = str_replace(CSS_URL, 'ccss/', $url);
+			}
+		}
+
 		if ($rel == 'import') {
 			$out = sprintf($this->tags['style'], $this->_parseAttributes($htmlAttributes, null, '', ' '), '@import url(' . $url . ');');
 		} else {
@@ -333,7 +379,8 @@ class HtmlHelper extends AppHelper {
 /**
  * Builds CSS style data from an array of CSS properties
  *
- * @param array $data
+ * @param array $data Style data array
+ * @param boolean $inline Whether or not the style block should be displayed inline
  * @return string CSS styling data
  */
 	function style($data, $inline = true) {
@@ -365,7 +412,7 @@ class HtmlHelper extends AppHelper {
 
 			foreach ($this->_crumbs as $crumb) {
 				if (!empty($crumb[1])) {
-					$out[] = $this->link($crumb[0], $crumb[1]);
+					$out[] = $this->link($crumb[0], $crumb[1], $crumb[2]);
 				} else {
 					$out[] = $crumb[0];
 				}
@@ -379,45 +426,38 @@ class HtmlHelper extends AppHelper {
  * Creates a formatted IMG element.
  *
  * @param string $path Path to the image file, relative to the app/webroot/img/ directory.
- * @param array	$htmlAttributes Array of HTML attributes.
+ * @param array	$options Array of HTML attributes.
  * @return string
  */
-	function image($path, $htmlAttributes = array()) {
-		if (strpos($path, '://')) {
-			$url = $path;
-		} else {
-			$url = $this->webroot(IMAGES_URL . $path);
+	function image($path, $options = array()) {
+		if (is_array($path)) {
+			$path = $this->url($path);
+		} elseif ($path[0] === '/') {
+			$path = $this->webroot($path);
+		} elseif (strpos($path, '://') === false) {
+			if ((Configure::read('Asset.timestamp') == true && Configure::read() > 0) || Configure::read('Asset.timestamp') === 'force') {
+				$path .= '?' . @filemtime(str_replace('/', DS, WWW_ROOT . IMAGES_URL . $path));
+			}
+			$path = $this->webroot(IMAGES_URL . $path);
 		}
 
-		if (!isset($htmlAttributes['alt'])) {
-			$htmlAttributes['alt'] = '';
-		}
-		return $this->output(sprintf($this->tags['image'], $url, $this->_parseAttributes($htmlAttributes, null, '', ' ')));
-	}
-/**
- * Creates a set of radio widgets.
- *
- * @deprecated
- */
-	function radio($fieldName, $options, $inbetween = null, $htmlAttributes = array()) {
-		trigger_error(__('(HtmlHelper::radio) Deprecated: Use FormHelper::radio instead', true), E_USER_WARNING);
-
-		$this->setFormTag($fieldName);
-		$value = isset($htmlAttributes['value']) ? $htmlAttributes['value'] : $this->value($fieldName);
-		$out = array();
-
-		foreach ($options as $optValue => $optTitle) {
-			$optionsHere = array('value' => $optValue);
- 	        if (!empty($value) && $optValue == $value) {
- 	        	$optionsHere['checked'] = 'checked';
- 	        }
-			$parsedOptions = $this->_parseAttributes(array_merge($htmlAttributes, $optionsHere), null, '', ' ');
-			$individualTagName = $this->field() . "_{$optValue}";
-			$out[] = sprintf($this->tags['radio'], $this->model(), $this->field(), $individualTagName, $parsedOptions, $optTitle);
+		if (!isset($options['alt'])) {
+			$options['alt'] = '';
 		}
 
-		$out = join($inbetween, $out);
-		return $this->output($out ? $out : null);
+		$url = false;
+		if (!empty($options['url'])) {
+			$url = $options['url'];
+			unset($options['url']);
+		}
+
+		$image = sprintf($this->tags['image'], $path, $this->_parseAttributes($options, null, '', ' '));
+
+		if ($url) {
+			return $this->output(sprintf($this->tags['link'], $this->url($url), null, $image));
+		}
+
+		return $this->output($image);
 	}
 /**
  * Returns a row of formatted and named TABLE headers.
@@ -439,22 +479,47 @@ class HtmlHelper extends AppHelper {
  * Returns a formatted string of table rows (TR's with TD's in them).
  *
  * @param array $data		Array of table data
- * @param array $oddTrOptionsHTML options for odd TR elements
- * @param array $evenTrOptionsHTML options for even TR elements
+ * @param array $oddTrOptions HTML options for odd TR elements if true useCount is used
+ * @param array $evenTrOptions HTML options for even TR elements
+ * @param bool $useCount adds class "column-$i"
+ * @param bool $continueOddEven If false, will use a non-static $count variable, so that the odd/even count is reset to zero just for that call
  * @return string	Formatted HTML
  */
-	function tableCells($data, $oddTrOptions = null, $evenTrOptions = null) {
+	function tableCells($data, $oddTrOptions = null, $evenTrOptions = null, $useCount = false, $continueOddEven = true) {
 		if (empty($data[0]) || !is_array($data[0])) {
 			$data = array($data);
 		}
-		static $count = 0;
+
+		if ($oddTrOptions === true) {
+			$useCount = true;
+			$oddTrOptions = null;
+		}
+
+		if ($evenTrOptions === false) {
+			$continueOddEven = false;
+			$evenTrOptions = null;
+		}
+
+		if ($continueOddEven) {
+			static $count = 0;
+		} else {
+			$count = 0;
+		}
 
 		foreach ($data as $line) {
 			$count++;
 			$cellsOut = array();
-
+			$i = 0;
 			foreach ($line as $cell) {
-				$cellsOut[] = sprintf($this->tags['tablecell'], null, $cell);
+				$cellOptions = array();
+
+				if (is_array($cell)) {
+					$cellOptions = $cell[1];
+					$cell = $cell[0];
+				} elseif ($useCount) {
+					$cellOptions['class'] = 'column-' . ++$i;
+				}
+				$cellsOut[] = sprintf($this->tags['tablecell'], $this->_parseAttributes($cellOptions), $cell);
 			}
 			$options = $this->_parseAttributes($count % 2 ? $oddTrOptions : $evenTrOptions);
 			$out[] = sprintf($this->tags['tablerow'], $options, join(' ', $cellsOut));
@@ -462,28 +527,44 @@ class HtmlHelper extends AppHelper {
 		return $this->output(join("\n", $out));
 	}
 /**
+ * Returns a formatted block tag, i.e DIV, SPAN, P.
+ *
+ * @param string $name Tag name.
+ * @param string $text String content that will appear inside the div element.
+ *   If null, only a start tag will be printed
+ * @param array $attributes Additional HTML attributes of the DIV tag
+ * @param boolean $escape If true, $text will be HTML-escaped
+ * @return string The formatted tag element
+ */
+	function tag($name, $text = null, $attributes = array(), $escape = false) {
+		if ($escape) {
+			$text = h($text);
+		}
+		if (!is_array($attributes)) {
+			$attributes = array('class' => $attributes);
+		}
+		if ($text === null) {
+			$tag = 'tagstart';
+		} else {
+			$tag = 'tag';
+		}
+		return $this->output(sprintf($this->tags[$tag], $name, $this->_parseAttributes($attributes, null, ' ', ''), $text, $name));
+	}
+/**
  * Returns a formatted DIV tag for HTML FORMs.
  *
  * @param string $class CSS class name of the div element.
  * @param string $text String content that will appear inside the div element.
- *			If null, only a start tag will be printed
+ *   If null, only a start tag will be printed
  * @param array $attributes Additional HTML attributes of the DIV tag
  * @param boolean $escape If true, $text will be HTML-escaped
  * @return string The formatted DIV element
  */
 	function div($class = null, $text = null, $attributes = array(), $escape = false) {
-		if ($escape) {
-			$text = h($text);
-		}
 		if ($class != null && !empty($class)) {
 			$attributes['class'] = $class;
 		}
-		if ($text === null) {
-			$tag = 'blockstart';
-		} else {
-			$tag = 'block';
-		}
-		return $this->output(sprintf($this->tags[$tag], $this->_parseAttributes($attributes, null, ' ', ''), $text));
+		return $this->tag('div', $text, $attributes, $escape);
 	}
 /**
  * Returns a formatted P tag.
@@ -512,13 +593,17 @@ class HtmlHelper extends AppHelper {
  * Build a nested list (UL/OL) out of an associative array.
  *
  * @param array $list Set of elements to list
- * @param array $attributes Additional HTML attributes of the list (ol/ul) tag
+ * @param array $attributes Additional HTML attributes of the list (ol/ul) tag or if ul/ol use that as tag
  * @param array $itemAttributes Additional HTML attributes of the list item (LI) tag
  * @param string $tag Type of list tag to use (ol/ul)
  * @return string The nested list
  * @access public
  */
 	function nestedList($list, $attributes = array(), $itemAttributes = array(), $tag = 'ul') {
+		if (is_string($attributes)) {
+			$tag = $attributes;
+			$attributes = array();
+		}
 		$items = $this->__nestedListItem($list, $attributes, $itemAttributes, $tag);
 		return sprintf($this->tags[$tag], $this->_parseAttributes($attributes, null, ' ', ''), $items);
 	}
@@ -537,7 +622,7 @@ class HtmlHelper extends AppHelper {
 		$out = '';
 
 		$index = 1;
-		foreach($items as $key => $item) {
+		foreach ($items as $key => $item) {
 			if (is_array($item)) {
 				$item = $key . $this->nestedList($item, $attributes, $itemAttributes, $tag);
 			}
@@ -550,179 +635,6 @@ class HtmlHelper extends AppHelper {
 			$index++;
 		}
 		return $out;
-	}
-/**
- * Creates a password input widget.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::input or FormHelper::password
- */
-	function password($fieldName, $htmlAttributes = array()) {
-		trigger_error(sprintf(__('Method password() is deprecated in %s: see FormHelper::input or FormHelper::password', true), get_class($this)), E_USER_NOTICE);
-		$htmlAttributes = $this->value($htmlAttributes, $fieldName);
-		$htmlAttributes = $this->domId($htmlAttributes);
-		if ($this->tagIsInvalid()) {
-			$htmlAttributes = $this->addClass($htmlAttributes, 'form_error');
-		}
-		return $this->output(sprintf($this->tags['password'], $this->model(), $this->field(), $this->_parseAttributes($htmlAttributes, null, ' ', ' ')));
-	}
-/**
- * Creates a textarea widget.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::input or FormHelper::textarea
- */
-	function textarea($fieldName, $htmlAttributes = array()) {
-		trigger_error(sprintf(__('Method textarea() is deprecated in %s: see FormHelper::input or FormHelper::textarea', true), get_class($this)), E_USER_NOTICE);
-		$htmlAttributes = $this->value($htmlAttributes, $fieldName);
-
-		$value = null;
-		if (isset($htmlAttributes['value']) && !empty($htmlAttributes['value'])) {
-			$value = $htmlAttributes['value'];
-			unset($htmlAttributes['value']);
-		}
-		$htmlAttributes = $this->domId($htmlAttributes);
-
-		if ($this->tagIsInvalid()) {
-			$htmlAttributes = $this->addClass($htmlAttributes, 'form_error');
-		}
-		return $this->output(sprintf($this->tags['textarea'], $this->model(), $this->field(), $this->_parseAttributes($htmlAttributes, null, ' '), $value));
-	}
-/**
- * Creates a checkbox widget.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::input or FormHelper::checkbox
- */
-	function checkbox($fieldName, $title = null, $htmlAttributes = array()) {
-		trigger_error(sprintf(__('Method checkbox() is deprecated in %s: see FormHelper::input or FormHelper::checkbox', true), get_class($this)), E_USER_NOTICE);
-		$value = $this->tagValue($fieldName);
-		$notCheckedValue = 0;
-
-		if (isset($htmlAttributes['checked'])) {
-			if ($htmlAttributes['checked'] == 'checked' || intval($htmlAttributes['checked']) === 1 || $htmlAttributes['checked'] === true) {
-				$htmlAttributes['checked'] = 'checked';
-			} else {
-				$htmlAttributes['checked'] = null;
-				$notCheckedValue = -1;
-			}
-		} else {
-			$model = $this->model();
-			if (isset($htmlAttributes['value']) || (!class_exists($model) && !loadModel($model))) {
-				if (isset($htmlAttributes['value']) && $htmlAttributes['value'] == $value) {
-					$htmlAttributes['checked'] = 'checked';
-				} else {
-					$htmlAttributes['checked'] = null;
-				}
-				if (isset($htmlAttributes['value']) && $htmlAttributes['value'] == '0') {
-					$notCheckedValue = -1;
-				}
-			} else {
-				$model = new $model;
-				$db =& ConnectionManager::getDataSource($model->useDbConfig);
-				$value = $db->boolean($value);
-				$htmlAttributes['checked'] = $value ? 'checked' : null;
-				$htmlAttributes['value'] = 1;
-			}
-		}
-		$htmlAttributes = $this->domId($htmlAttributes);
-		$output = $this->hidden($fieldName, array('value' => $notCheckedValue, 'id' => $htmlAttributes['id'] . '_'), true);
-		$output .= sprintf($this->tags['checkbox'], $this->model(), $this->field(), $this->_parseAttributes($htmlAttributes, null, '', ' '));
-		return $this->output($output);
-	}
-/**
- * Creates a hidden input field.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::input or FormHelper::hidden
- */
-	function hidden($fieldName, $htmlAttributes = array()) {
-		trigger_error(sprintf(__('Method hidden() is deprecated in %s: see FormHelper::input or FormHelper::hidden', true), get_class($this)), E_USER_NOTICE);
-		$htmlAttributes = $this->value($htmlAttributes, $fieldName);
-		$htmlAttributes = $this->domId($htmlAttributes);
-		return $this->output(sprintf($this->tags['hidden'], $this->model(), $this->field(), $this->_parseAttributes($htmlAttributes, null, ' ', ' ')));
-	}
-/**
- * Creates a text input widget.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::input or FormHelper::text
- */
-	function input($fieldName, $htmlAttributes = array()) {
-		trigger_error(sprintf(__('Method input() is deprecated in %s: see FormHelper::input or FormHelper::text', true), get_class($this)), E_USER_NOTICE);
-		$htmlAttributes = $this->value($htmlAttributes, $fieldName);
-		$htmlAttributes = $this->domId($htmlAttributes);
-
-		if (!isset($htmlAttributes['type'])) {
-			$htmlAttributes['type'] = 'text';
-		}
-
-		if ($this->tagIsInvalid()) {
-			$htmlAttributes = $this->addClass($htmlAttributes, 'form_error');
-		}
-		return $this->output(sprintf($this->tags['input'], $this->model(), $this->field(), $this->_parseAttributes($htmlAttributes, null, ' ', ' ')));
-	}
-
-/**
- * Returns value of $fieldName. False if the tag does not exist.
- *
- * @deprecated 1.2.0.5147
- * @see Helper::value
- */
-	function tagValue($fieldName) {
-		trigger_error(sprintf(__('Method tagValue() is deprecated in %s: see Helper::value', true), get_class($this)), E_USER_NOTICE);
-		$this->setFormTag($fieldName);
-		if (isset($this->data[$this->model()][$this->field()])) {
-			return h($this->data[$this->model()][$this->field()]);
-		}
-		return false;
-	}
-/**
- * Returns number of errors in a submitted FORM.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::errors
- */
-	function validate() {
-		trigger_error(sprintf(__('Method validate() is deprecated in %s: see FormHelper::errors', true), get_class($this)), E_USER_NOTICE);
-		$args = func_get_args();
-		$errors = call_user_func_array(array(&$this, 'validateErrors'),  $args);
-		return count($errors);
-	}
-/**
- * Validates a FORM according to the rules set up in the Model.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::errors
- */
-	function validateErrors() {
-		trigger_error(sprintf(__('Method validateErrors() is deprecated in %s: see FormHelper::errors', true), get_class($this)), E_USER_NOTICE);
-		$objects = func_get_args();
-		if (!count($objects)) {
-			return false;
-		}
-
-		$errors = array();
-		foreach ($objects as $object) {
-			$errors = array_merge($errors, $object->invalidFields($object->data));
-		}
-		return $this->validationErrors = (count($errors) ? $errors : false);
-	}
-/**
- * Returns a formatted error message for given FORM field, NULL if no errors.
- *
- * @deprecated 1.2.0.5147
- * @see FormHelper::error
- */
-	function tagErrorMsg($field, $text) {
-		trigger_error(sprintf(__('Method tagErrorMsg() is deprecated in %s: see FormHelper::error', true), get_class($this)), E_USER_NOTICE);
-		$error = 1;
-		$this->setFormTag($field);
-		if ($error == $this->tagIsInvalid()) {
-			return sprintf('<div class="error-message">%s</div>', is_array($text) ? (empty($text[$error - 1]) ? 'Error in field' : $text[$error - 1]) : $text);
-		} else {
-			return null;
-		}
 	}
 }
 ?>

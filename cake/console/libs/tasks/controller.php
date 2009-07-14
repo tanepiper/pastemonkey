@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: controller.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: controller.php 8166 2009-05-04 21:17:19Z gwoo $ */
 /**
  * The ControllerTask handles creating and updating controller files.
  *
@@ -7,32 +7,37 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007,	Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008,	Cake Software Foundation, Inc.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.console.libs.tasks
- * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.console.libs.tasks
+ * @since         CakePHP(tm) v 1.2
+ * @version       $Revision: 8166 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-05-04 14:17:19 -0700 (Mon, 04 May 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Task class for creating and updating controller files.
  *
- * @package		cake
- * @subpackage	cake.cake.console.libs.tasks
+ * @package       cake
+ * @subpackage    cake.cake.console.libs.tasks
  */
 class ControllerTask extends Shell {
+/**
+ * Name of plugin
+ *
+ * @var string
+ * @access public
+ */
+	var $plugin = null;
 /**
  * Tasks to be loaded by this Task
  *
@@ -41,11 +46,19 @@ class ControllerTask extends Shell {
  */
 	var $tasks = array('Project');
 /**
+ * path to CONTROLLERS directory
+ *
+ * @var array
+ * @access public
+ */
+	var $path = CONTROLLERS;
+/**
  * Override initialize
  *
  * @access public
  */
-	function initialize() {}
+	function initialize() {
+	}
 /**
  * Execution method always used for tasks
  *
@@ -61,7 +74,7 @@ class ControllerTask extends Shell {
 			$actions = null;
 			if (isset($this->args[1]) && $this->args[1] == 'scaffold') {
 				$this->out('Baking scaffold for ' . $controller);
-				$actions = $this->__bakeActions($controller);
+				$actions = $this->bakeActions($controller);
 			} else {
 				$actions = 'scaffold';
 			}
@@ -69,14 +82,17 @@ class ControllerTask extends Shell {
 				if ($admin = $this->getAdmin()) {
 					$this->out('Adding ' . Configure::read('Routing.admin') .' methods');
 					if ($actions == 'scaffold') {
-						$actions = $this->__bakeActions($controller, $admin);
+						$actions = $this->bakeActions($controller, $admin);
 					} else {
-						$actions .= $this->__bakeActions($controller, $admin);
+						$actions .= $this->bakeActions($controller, $admin);
 					}
 				}
 			}
-			$baked = $this->__bake($controller, $actions);
-			$this->__bakeTest($controller);
+			if ($this->bake($controller, $actions)) {
+				if ($this->_checkUnitTest()) {
+					$this->bakeTest($controller);
+				}
+			}
 		}
 	}
 /**
@@ -84,67 +100,71 @@ class ControllerTask extends Shell {
  *
  * @access private
  */
-	function __interactive() {
-		$this->interactive = false;
+	function __interactive($controllerName = false) {
+		if (!$controllerName) {
+			$this->interactive = true;
+			$this->hr();
+			$this->out(sprintf("Bake Controller\nPath: %s", $this->path));
+			$this->hr();
+			$actions = '';
+			$uses = array();
+			$helpers = array();
+			$components = array();
+			$wannaUseSession = 'y';
+			$wannaDoAdmin = 'n';
+			$wannaUseScaffold = 'n';
+			$wannaDoScaffolding = 'y';
+			$controllerName = $this->getName();
+		}
 		$this->hr();
-		$this->out('Controller Bake:');
+		$this->out("Baking {$controllerName}Controller");
 		$this->hr();
-		$actions = '';
-		$uses = array();
-		$helpers = array();
-		$components = array();
-		$wannaUseSession = 'y';
-		$wannaDoAdmin = 'n';
-		$wannaUseScaffold = 'n';
-		$wannaDoScaffolding = 'y';
-		$controllerName = $this->getName();
-		$controllerPath = low(Inflector::underscore($controllerName));
-		$doItInteractive = $this->in("Would you like bake to build your controller interactively?\nWarning: Choosing no will overwrite {$controllerName} controller if it exist.", array('y','n'), 'y');
+
+		$controllerFile = low(Inflector::underscore($controllerName));
+
+		$question[] = __("Would you like to build your controller interactively?", true);
+		if (file_exists($this->path . $controllerFile .'_controller.php')) {
+			$question[] = sprintf(__("Warning: Choosing no will overwrite the %sController.", true), $controllerName);
+		}
+		$doItInteractive = $this->in(join("\n", $question), array('y','n'), 'y');
 
 		if (low($doItInteractive) == 'y' || low($doItInteractive) == 'yes') {
 			$this->interactive = true;
 
-			$wannaUseScaffold = $this->in("Would you like to use scaffolding?", array('y','n'), 'y');
+			$wannaUseScaffold = $this->in(__("Would you like to use scaffolding?", true), array('y','n'), 'n');
 
 			if (low($wannaUseScaffold) == 'n' || low($wannaUseScaffold) == 'no') {
 
-				$wannaDoScaffolding = $this->in("Would you like to include some basic class methods (index(), add(), view(), edit())?", array('y','n'), 'n');
+				$wannaDoScaffolding = $this->in(__("Would you like to include some basic class methods (index(), add(), view(), edit())?", true), array('y','n'), 'n');
 
 				if (low($wannaDoScaffolding) == 'y' || low($wannaDoScaffolding) == 'yes') {
-					$wannaDoAdmin = $this->in("Would you like to create the methods for admin routing?", array('y','n'), 'n');
+					$wannaDoAdmin = $this->in(__("Would you like to create the methods for admin routing?", true), array('y','n'), 'n');
 				}
 
-				$wannaDoUses = $this->in("Would you like this controller to use other models besides '" . $this->_modelName($controllerName) .  "'?", array('y','n'), 'n');
-
-				if (low($wannaDoUses) == 'y' || low($wannaDoUses) == 'yes') {
-					$usesList = $this->in("Please provide a comma separated list of the classnames of other models you'd like to use.\nExample: 'Author, Article, Book'");
-					$usesListTrimmed = str_replace(' ', '', $usesList);
-					$uses = explode(',', $usesListTrimmed);
-				}
-				$wannaDoHelpers = $this->in("Would you like this controller to use other helpers besides HtmlHelper and FormHelper?", array('y','n'), 'n');
+				$wannaDoHelpers = $this->in(__("Would you like this controller to use other helpers besides HtmlHelper and FormHelper?", true), array('y','n'), 'n');
 
 				if (low($wannaDoHelpers) == 'y' || low($wannaDoHelpers) == 'yes') {
-					$helpersList = $this->in("Please provide a comma separated list of the other helper names you'd like to use.\nExample: 'Ajax, Javascript, Time'");
+					$helpersList = $this->in(__("Please provide a comma separated list of the other helper names you'd like to use.\nExample: 'Ajax, Javascript, Time'", true));
 					$helpersListTrimmed = str_replace(' ', '', $helpersList);
 					$helpers = explode(',', $helpersListTrimmed);
 				}
-				$wannaDoComponents = $this->in("Would you like this controller to use any components?", array('y','n'), 'n');
+				$wannaDoComponents = $this->in(__("Would you like this controller to use any components?", true), array('y','n'), 'n');
 
 				if (low($wannaDoComponents) == 'y' || low($wannaDoComponents) == 'yes') {
-					$componentsList = $this->in("Please provide a comma separated list of the component names you'd like to use.\nExample: 'Acl, MyNiftyHelper'");
+					$componentsList = $this->in(__("Please provide a comma separated list of the component names you'd like to use.\nExample: 'Acl, Security, RequestHandler'", true));
 					$componentsListTrimmed = str_replace(' ', '', $componentsList);
 					$components = explode(',', $componentsListTrimmed);
 				}
 
-				$wannaUseSession = $this->in("Would you like to use Sessions?", array('y','n'), 'y');
+				$wannaUseSession = $this->in(__("Would you like to use Sessions?", true), array('y','n'), 'y');
 			} else {
 				$wannaDoScaffolding = 'n';
 			}
 		} else {
-			$wannaDoScaffolding = $this->in("Would you like to include some basic class methods (index(), add(), view(), edit())?", array('y','n'), 'y');
+			$wannaDoScaffolding = $this->in(__("Would you like to include some basic class methods (index(), add(), view(), edit())?", true), array('y','n'), 'y');
 
 			if (low($wannaDoScaffolding) == 'y' || low($wannaDoScaffolding) == 'yes') {
-				$wannaDoAdmin = $this->in("Would you like to create the methods for admin routing?", array('y','n'), 'y');
+				$wannaDoAdmin = $this->in(__("Would you like to create the methods for admin routing?", true), array('y','n'), 'y');
 			}
 		}
 		$admin = false;
@@ -154,9 +174,9 @@ class ControllerTask extends Shell {
 		}
 
 		if (low($wannaDoScaffolding) == 'y' || low($wannaDoScaffolding) == 'yes') {
-			$actions = $this->__bakeActions($controllerName, null, in_array(low($wannaUseSession), array('y', 'yes')));
+			$actions = $this->bakeActions($controllerName, null, in_array(low($wannaUseSession), array('y', 'yes')));
 			if ($admin) {
-				$actions .= $this->__bakeActions($controllerName, $admin, in_array(low($wannaUseSession), array('y', 'yes')));
+				$actions .= $this->bakeActions($controllerName, $admin, in_array(low($wannaUseSession), array('y', 'yes')));
 			}
 		}
 
@@ -165,26 +185,15 @@ class ControllerTask extends Shell {
 			$this->hr();
 			$this->out('The following controller will be created:');
 			$this->hr();
-			$this->out("Controller Name:	$controllerName");
+			$this->out("Controller Name:  $controllerName");
 
 			if (low($wannaUseScaffold) == 'y' || low($wannaUseScaffold) == 'yes') {
-				$this->out("		var \$scaffold;");
+				$this->out("		   var \$scaffold;");
 				$actions = 'scaffold';
-			}
-			if (count($uses)) {
-				$this->out("Uses:            ", false);
-
-				foreach ($uses as $use) {
-					if ($use != $uses[count($uses) - 1]) {
-						$this->out(ucfirst($use) . ", ", false);
-					} else {
-						$this->out(ucfirst($use));
-					}
-				}
 			}
 
 			if (count($helpers)) {
-				$this->out("Helpers:			", false);
+				$this->out("Helpers:      ", false);
 
 				foreach ($helpers as $help) {
 					if ($help != $helpers[count($helpers) - 1]) {
@@ -196,7 +205,7 @@ class ControllerTask extends Shell {
 			}
 
 			if (count($components)) {
-				$this->out("Components:            ", false);
+				$this->out("Components:      ", false);
 
 				foreach ($components as $comp) {
 					if ($comp != $components[count($components) - 1]) {
@@ -207,20 +216,20 @@ class ControllerTask extends Shell {
 				}
 			}
 			$this->hr();
-			$looksGood = $this->in('Look okay?', array('y','n'), 'y');
+			$looksGood = $this->in(__('Look okay?', true), array('y','n'), 'y');
 
 			if (low($looksGood) == 'y' || low($looksGood) == 'yes') {
-				$baked = $this->__bake($controllerName, $actions, $helpers, $components, $uses);
+				$baked = $this->bake($controllerName, $actions, $helpers, $components, $uses);
 				if ($baked && $this->_checkUnitTest()) {
-					$this->__bakeTest($controllerName);
+					$this->bakeTest($controllerName);
 				}
 			} else {
-				$this->out('Bake Aborted.');
+				$this->__interactive($controllerName);
 			}
 		} else {
-			$baked = $this->__bake($controllerName, $actions, $helpers, $components, $uses);
+			$baked = $this->bake($controllerName, $actions, $helpers, $components, $uses);
 			if ($baked && $this->_checkUnitTest()) {
-				$this->__bakeTest($controllerName);
+				$this->bakeTest($controllerName);
 			}
 		}
 	}
@@ -233,19 +242,19 @@ class ControllerTask extends Shell {
  * @return string Baked actions
  * @access private
  */
-	function __bakeActions($controllerName, $admin = null, $wannaUseSession = true) {
+	function bakeActions($controllerName, $admin = null, $wannaUseSession = true) {
 		$currentModelName = $this->_modelName($controllerName);
-		if (!loadModel($currentModelName)) {
-			$this->out('You must have a model for this class to build scaffold methods. Please try again.');
+		if (!App::import('Model', $currentModelName)) {
+			$this->err(__('You must have a model for this class to build scaffold methods. Please try again.', true));
 			exit;
 		}
 		$actions = null;
 		$modelObj =& new $currentModelName();
 		$controllerPath = $this->_controllerPath($controllerName);
 		$pluralName = $this->_pluralName($currentModelName);
-		$singularName = $this->_singularName($currentModelName);
-		$singularHumanName = $this->_singularHumanName($currentModelName);
-		$pluralHumanName = $this->_pluralHumanName($controllerName);
+		$singularName = Inflector::variable($currentModelName);
+		$singularHumanName = Inflector::humanize($currentModelName);
+		$pluralHumanName = Inflector::humanize($controllerName);
 		$actions .= "\n";
 		$actions .= "\tfunction {$admin}index() {\n";
 		$actions .= "\t\t\$this->{$currentModelName}->recursive = 0;\n";
@@ -255,10 +264,10 @@ class ControllerTask extends Shell {
 		$actions .= "\tfunction {$admin}view(\$id = null) {\n";
 		$actions .= "\t\tif (!\$id) {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\$this->Session->setFlash('Invalid {$singularHumanName}.');\n";
-			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'), null, true);\n";
+			$actions .= "\t\t\t\$this->Session->setFlash(__('Invalid {$singularHumanName}.', true));\n";
+			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'));\n";
 		} else {
-			$actions .= "\t\t\t\$this->flash('Invalid {$singularHumanName}', array('action'=>'index'));\n";
+			$actions .= "\t\t\t\$this->flash(__('Invalid {$singularHumanName}', true), array('action'=>'index'));\n";
 		}
 		$actions .= "\t\t}\n";
 		$actions .= "\t\t\$this->set('".$singularName."', \$this->{$currentModelName}->read(null, \$id));\n";
@@ -269,19 +278,17 @@ class ControllerTask extends Shell {
 		$compact = array();
 		$actions .= "\tfunction {$admin}add() {\n";
 		$actions .= "\t\tif (!empty(\$this->data)) {\n";
-		$actions .= "\t\t\t\$this->cleanUpFields();\n";
 		$actions .= "\t\t\t\$this->{$currentModelName}->create();\n";
 		$actions .= "\t\t\tif (\$this->{$currentModelName}->save(\$this->data)) {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\t\$this->Session->setFlash('The ".$singularHumanName." has been saved');\n";
-			$actions .= "\t\t\t\t\$this->redirect(array('action'=>'index'), null, true);\n";
+			$actions .= "\t\t\t\t\$this->Session->setFlash(__('The ".$singularHumanName." has been saved', true));\n";
+			$actions .= "\t\t\t\t\$this->redirect(array('action'=>'index'));\n";
 		} else {
-			$actions .= "\t\t\t\t\$this->flash('{$currentModelName} saved.', array('action'=>'index'));\n";
-			$actions .= "\t\t\t\texit();\n";
+			$actions .= "\t\t\t\t\$this->flash(__('{$currentModelName} saved.', true), array('action'=>'index'));\n";
 		}
 		$actions .= "\t\t\t} else {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\t\$this->Session->setFlash('The {$singularHumanName} could not be saved. Please, try again.');\n";
+			$actions .= "\t\t\t\t\$this->Session->setFlash(__('The {$singularHumanName} could not be saved. Please, try again.', true));\n";
 		}
 		$actions .= "\t\t\t}\n";
 		$actions .= "\t\t}\n";
@@ -290,7 +297,7 @@ class ControllerTask extends Shell {
 				$habtmModelName = $this->_modelName($associationName);
 				$habtmSingularName = $this->_singularName($associationName);
 				$habtmPluralName = $this->_pluralName($associationName);
-				$actions .= "\t\t\${$habtmPluralName} = \$this->{$currentModelName}->{$habtmModelName}->generateList();\n";
+				$actions .= "\t\t\${$habtmPluralName} = \$this->{$currentModelName}->{$habtmModelName}->find('list');\n";
 				$compact[] = "'{$habtmPluralName}'";
 			}
 		}
@@ -298,7 +305,7 @@ class ControllerTask extends Shell {
 			if (!empty($associationName)) {
 				$belongsToModelName = $this->_modelName($associationName);
 				$belongsToPluralName = $this->_pluralName($associationName);
-				$actions .= "\t\t\${$belongsToPluralName} = \$this->{$currentModelName}->{$belongsToModelName}->generateList();\n";
+				$actions .= "\t\t\${$belongsToPluralName} = \$this->{$currentModelName}->{$belongsToModelName}->find('list');\n";
 				$compact[] = "'{$belongsToPluralName}'";
 			}
 		}
@@ -313,26 +320,23 @@ class ControllerTask extends Shell {
 		$actions .= "\tfunction {$admin}edit(\$id = null) {\n";
 		$actions .= "\t\tif (!\$id && empty(\$this->data)) {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\$this->Session->setFlash('Invalid {$singularHumanName}');\n";
-			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'), null, true);\n";
+			$actions .= "\t\t\t\$this->Session->setFlash(__('Invalid {$singularHumanName}', true));\n";
+			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'));\n";
 		} else {
-			$actions .= "\t\t\t\$this->flash('Invalid {$singularHumanName}', array('action'=>'index'));\n";
-			$actions .= "\t\t\texit();\n";
+			$actions .= "\t\t\t\$this->flash(__('Invalid {$singularHumanName}', true), array('action'=>'index'));\n";
 		}
 		$actions .= "\t\t}\n";
 		$actions .= "\t\tif (!empty(\$this->data)) {\n";
-		$actions .= "\t\t\t\$this->cleanUpFields();\n";
 		$actions .= "\t\t\tif (\$this->{$currentModelName}->save(\$this->data)) {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\t\$this->Session->setFlash('The ".$singularHumanName." has been saved');\n";
-			$actions .= "\t\t\t\t\$this->redirect(array('action'=>'index'), null, true);\n";
+			$actions .= "\t\t\t\t\$this->Session->setFlash(__('The ".$singularHumanName." has been saved', true));\n";
+			$actions .= "\t\t\t\t\$this->redirect(array('action'=>'index'));\n";
 		} else {
-			$actions .= "\t\t\t\t\$this->flash('The ".$singularHumanName." has been saved.', array('action'=>'index'));\n";
-			$actions .= "\t\t\t\texit();\n";
+			$actions .= "\t\t\t\t\$this->flash(__('The ".$singularHumanName." has been saved.', true), array('action'=>'index'));\n";
 		}
 		$actions .= "\t\t\t} else {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\t\$this->Session->setFlash('The {$singularHumanName} could not be saved. Please, try again.');\n";
+			$actions .= "\t\t\t\t\$this->Session->setFlash(__('The {$singularHumanName} could not be saved. Please, try again.', true));\n";
 		}
 		$actions .= "\t\t\t}\n";
 		$actions .= "\t\t}\n";
@@ -345,7 +349,7 @@ class ControllerTask extends Shell {
 				$habtmModelName = $this->_modelName($associationName);
 				$habtmSingularName = $this->_singularName($associationName);
 				$habtmPluralName = $this->_pluralName($associationName);
-				$actions .= "\t\t\${$habtmPluralName} = \$this->{$currentModelName}->{$habtmModelName}->generateList();\n";
+				$actions .= "\t\t\${$habtmPluralName} = \$this->{$currentModelName}->{$habtmModelName}->find('list');\n";
 				$compact[] = "'{$habtmPluralName}'";
 			}
 		}
@@ -353,7 +357,7 @@ class ControllerTask extends Shell {
 			if (!empty($associationName)) {
 				$belongsToModelName = $this->_modelName($associationName);
 				$belongsToPluralName = $this->_pluralName($associationName);
-				$actions .= "\t\t\${$belongsToPluralName} = \$this->{$currentModelName}->{$belongsToModelName}->generateList();\n";
+				$actions .= "\t\t\${$belongsToPluralName} = \$this->{$currentModelName}->{$belongsToModelName}->find('list');\n";
 				$compact[] = "'{$belongsToPluralName}'";
 			}
 		}
@@ -365,18 +369,18 @@ class ControllerTask extends Shell {
 		$actions .= "\tfunction {$admin}delete(\$id = null) {\n";
 		$actions .= "\t\tif (!\$id) {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\$this->Session->setFlash('Invalid id for {$singularHumanName}');\n";
-			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'), null, true);\n";
+			$actions .= "\t\t\t\$this->Session->setFlash(__('Invalid id for {$singularHumanName}', true));\n";
+			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'));\n";
 		} else {
-			$actions .= "\t\t\t\$this->flash('Invalid {$singularHumanName}', array('action'=>'index'));\n";
+			$actions .= "\t\t\t\$this->flash(__('Invalid {$singularHumanName}', true), array('action'=>'index'));\n";
 		}
 		$actions .= "\t\t}\n";
 		$actions .= "\t\tif (\$this->{$currentModelName}->del(\$id)) {\n";
 		if ($wannaUseSession) {
-			$actions .= "\t\t\t\$this->Session->setFlash('".$singularHumanName." #'.\$id.' deleted');\n";
-			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'), null, true);\n";
+			$actions .= "\t\t\t\$this->Session->setFlash(__('{$singularHumanName} deleted', true));\n";
+			$actions .= "\t\t\t\$this->redirect(array('action'=>'index'));\n";
 		} else {
-			$actions .= "\t\t\t\$this->flash('".$singularHumanName." #'.\$id.' deleted', array('action'=>'index'));\n";
+			$actions .= "\t\t\t\$this->flash(__('{$singularHumanName} deleted', true), array('action'=>'index'));\n";
 		}
 		$actions .= "\t\t}\n";
 		$actions .= "\t}\n";
@@ -396,9 +400,9 @@ class ControllerTask extends Shell {
  * @return string Baked controller
  * @access private
  */
-	function __bake($controllerName, $actions = '', $helpers = null, $components = null, $uses = null) {
+	function bake($controllerName, $actions = '', $helpers = null, $components = null, $uses = null) {
 		$out = "<?php\n";
-		$out .= "class $controllerName" . "Controller extends AppController {\n\n";
+		$out .= "class $controllerName" . "Controller extends {$this->plugin}AppController {\n\n";
 		$out .= "\tvar \$name = '$controllerName';\n";
 
 		if (low($actions) == 'scaffold') {
@@ -417,14 +421,10 @@ class ControllerTask extends Shell {
 				$out .= ");\n";
 			}
 
-			$out .= "\tvar \$helpers = array('Html', 'Form' ";
+			$out .= "\tvar \$helpers = array('Html', 'Form'";
 			if (count($helpers)) {
 				foreach ($helpers as $help) {
-					if ($help != $helpers[count($helpers) - 1]) {
-						$out .= ", '" . Inflector::camelize($help) . "', ";
-					} else {
-						$out .= ", '" . Inflector::camelize($help) . "'";
-					}
+					$out .= ", '" . Inflector::camelize($help) . "'";
 				}
 			}
 			$out .= ");\n";
@@ -445,7 +445,7 @@ class ControllerTask extends Shell {
 		}
 		$out .= "}\n";
 		$out .= "?>";
-		$filename = CONTROLLERS . $this->_controllerPath($controllerName) . '_controller.php';
+		$filename = $this->path . $this->_controllerPath($controllerName) . '_controller.php';
 		return $this->createFile($filename, $out);
 	}
 /**
@@ -455,29 +455,34 @@ class ControllerTask extends Shell {
  * @return string Baked test
  * @access private
  */
-	function __bakeTest($className) {
-		$out = '<?php '."\n\n";
-		$out .= "loadController('$className');\n\n";
-		$out .= "class {$className}ControllerTestCase extends CakeTestCase {\n";
-		$out .= "\tvar \$TestObject = null;\n\n";
-		$out .= "\tfunction setUp() {\n\t\t\$this->TestObject = new {$className}Controller();\n";
-		$out .= "\t}\n\n\tfunction tearDown() {\n\t\tunset(\$this->TestObject);\n\t}\n";
-		$out .= "\n\t/*\n\tfunction testMe() {\n";
-		$out .= "\t\t\$result = \$this->TestObject->index();\n";
-		$out .= "\t\t\$expected = 1;\n";
-		$out .= "\t\t\$this->assertEqual(\$result, \$expected);\n\t}\n\t*/\n}";
-		$out .= "\n?>";
+	function bakeTest($className) {
+		$import = $className;
+		if ($this->plugin) {
+			$import = $this->plugin . '.' . $className;
+		}
+		$out = "App::import('Controller', '$import');\n\n";
+		$out .= "class Test{$className} extends {$className}Controller {\n";
+		$out .= "\tvar \$autoRender = false;\n}\n\n";
+		$out .= "class {$className}ControllerTest extends CakeTestCase {\n";
+		$out .= "\tvar \${$className} = null;\n\n";
+		$out .= "\tfunction startTest() {\n\t\t\$this->{$className} = new Test{$className}();";
+		$out .= "\n\t\t\$this->{$className}->constructClasses();\n\t}\n\n";
+		$out .= "\tfunction test{$className}ControllerInstance() {\n";
+		$out .= "\t\t\$this->assertTrue(is_a(\$this->{$className}, '{$className}Controller'));\n\t}\n\n";
+		$out .= "\tfunction endTest() {\n\t\tunset(\$this->{$className});\n\t}\n}\n";
 
 		$path = CONTROLLER_TESTS;
-		$filename = $this->_pluralName($className).'_controller.test.php';
-
-		$this->out("Baking unit test for $className...");
-		$Folder =& new Folder($path, true);
-		if ($path = $Folder->cd($path)) {
-			$path = $Folder->slashTerm($path);
-			return $this->createFile($path . $filename, $out);
+		if (isset($this->plugin)) {
+			$pluginPath = 'plugins' . DS . Inflector::underscore($this->plugin) . DS;
+			$path = APP . $pluginPath . 'tests' . DS . 'cases' . DS . 'controllers' . DS;
 		}
-		return false;
+
+		$filename = Inflector::underscore($className).'_controller.test.php';
+		$this->out("\nBaking unit test for $className...");
+
+		$header = '$Id';
+		$content = "<?php \n/* SVN FILE: $header$ */\n/* ". $className ."Controller Test cases generated on: " . date('Y-m-d H:m:s') . " : ". time() . "*/\n{$out}?>";
+		return $this->createFile($path . $filename, $content);
 	}
 /**
  * Outputs and gets the list of possible models or controllers from database
@@ -499,8 +504,14 @@ class ControllerTask extends Shell {
 		} else {
 			$tables = $db->listSources();
 		}
+
+		if (empty($tables)) {
+			$this->err(__('Your database does not have any tables.', true));
+			$this->_stop();
+		}
+
 		$this->__tables = $tables;
-		$this->out('Possible Models based on your current database:');
+		$this->out('Possible Controllers based on your current database:');
 		$this->_controllerNames = array();
 		$count = count($tables);
 		for ($i = 0; $i < $count; $i++) {
@@ -522,11 +533,16 @@ class ControllerTask extends Shell {
 		$enteredController = '';
 
 		while ($enteredController == '') {
-			$enteredController = $this->in('Enter a number from the list above, or type in the name of another controller.');
+			$enteredController = $this->in(__("Enter a number from the list above, type in the name of another controller, or 'q' to exit", true), null, 'q');
+
+			if ($enteredController === 'q') {
+				$this->out(__("Exit", true));
+				$this->_stop();
+			}
 
 			if ($enteredController == '' || intval($enteredController) > count($controllers)) {
-				$this->out('Error:');
-				$this->out("The Controller name you supplied was empty, or the number \nyou selected was not an option. Please try again.");
+				$this->out(__('Error:', true));
+				$this->out(__("The Controller name you supplied was empty, or the number \nyou selected was not an option. Please try again.", true));
 				$enteredController = '';
 			}
 		}
@@ -554,7 +570,7 @@ class ControllerTask extends Shell {
 		$this->out("\n\tcontroller <name> scaffold admin\n\t\tbakes a controller with scaffold actions for both public and Configure::read('Routing.admin')");
 		$this->out("\n\tcontroller <name> admin\n\t\tbakes a controller with scaffold actions only for Configure::read('Routing.admin')");
 		$this->out("");
-		exit();
+		$this->_stop();
 	}
 }
 ?>

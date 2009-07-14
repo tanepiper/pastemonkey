@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.php 5858 2007-10-22 16:11:12Z phpnut $ */
+/* SVN FILE: $Id: acl.php 8120 2009-03-19 20:25:10Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -7,37 +7,36 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.console.libs
- * @since			CakePHP(tm) v 1.2.0.5012
- * @version			$Revision: 5858 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-10-22 17:11:12 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.console.libs
+ * @since         CakePHP(tm) v 1.2.0.5012
+ * @version       $Revision: 8120 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-uses ('controller'.DS.'components'.DS.'acl', 'model'.DS.'db_acl');
+App::import('Component', 'Acl');
+App::import('Model', 'DbAcl');
 /**
  * Shell for ACL management.
  *
- * @package		cake
- * @subpackage	cake.cake.console.libs
+ * @package       cake
+ * @subpackage    cake.cake.console.libs
  */
 class AclShell extends Shell {
 /**
  * Contains instance of AclComponent
  *
- * @var object
+ * @var AclComponent
  * @access public
  */
 	var $Acl;
@@ -74,17 +73,17 @@ class AclShell extends Shell {
 			$this->dataSource = $this->params['datasource'];
 		}
 
-		if (Configure::read('Acl.classname') != 'DB_ACL') {
+		if (!in_array(Configure::read('Acl.classname'), array('DbAcl', 'DB_ACL'))) {
 			$out = "--------------------------------------------------\n";
 			$out .= __("Error: Your current Cake configuration is set to", true) . "\n";
 			$out .= __("an ACL implementation other than DB. Please change", true) . "\n";
 			$out .= __("your core config to reflect your decision to use", true) . "\n";
-			$out .= __("DB_ACL before attempting to use this script", true) . ".\n";
+			$out .= __("DbAcl before attempting to use this script", true) . ".\n";
 			$out .= "--------------------------------------------------\n";
 			$out .= sprintf(__("Current ACL Classname: %s", true), Configure::read('Acl.classname')) . "\n";
 			$out .= "--------------------------------------------------\n";
 			$this->err($out);
-			exit();
+			$this->_stop();
 		}
 
 		if ($this->command && !in_array($this->command, array('help'))) {
@@ -113,6 +112,7 @@ class AclShell extends Shell {
 		$out .= "\t - delete\n";
 		$out .= "\t - setParent\n";
 		$out .= "\t - getPath\n";
+		$out .= "\t - check\n";
 		$out .= "\t - grant\n";
 		$out .= "\t - deny\n";
 		$out .= "\t - inherit\n";
@@ -203,7 +203,14 @@ class AclShell extends Shell {
 		$this->_checkArgs(3, 'setParent');
 		$this->checkNodeType();
 		extract($this->__dataVars());
-		if (!$this->Acl->{$class}->setParent($this->args[2], $this->args[1])) {
+		$data = array(
+			$class => array(
+				'id' 		=> $this->args[1],
+				'parent_id' => $this->args[2]
+			)
+		);
+		$this->Acl->{$class}->create();
+		if (!$this->Acl->{$class}->save($data)) {
 			$this->out(__("Error in setting new parent. Please make sure the parent node exists, and is not a descendant of the node specified.", true), true);
 		} else {
 			$this->out(sprintf(__("Node parent set to %s", true), $this->args[2]) . "\n", true);
@@ -228,18 +235,33 @@ class AclShell extends Shell {
 		}
 	}
 /**
+ * Check permission for a given ARO to a given ACO.
+ *
+ * @access public
+ */
+	function check() {
+		$this->_checkArgs(3, 'check');
+		extract($this->__getParams());
+
+		if ($this->Acl->check($aro, $aco, $action)) {
+			$this->out(sprintf(__("%s is allowed.", true), $aro), true);
+		} else {
+			$this->out(sprintf(__("%s is not allowed.", true), $aro), true);
+		}
+	}
+/**
  * Grant permission for a given ARO to a given ACO.
  *
  * @access public
  */
 	function grant() {
 		$this->_checkArgs(3, 'grant');
-		//add existence checks for nodes involved
-		$aro = ife(is_numeric($this->args[0]), intval($this->args[0]), $this->args[0]);
-		$aco = ife(is_numeric($this->args[1]), intval($this->args[1]), $this->args[1]);
+		extract($this->__getParams());
 
-		if ($this->Acl->allow($aro, $aco, $this->args[2])) {
+		if ($this->Acl->allow($aro, $aco, $action)) {
 			$this->out(__("Permission granted.", true), true);
+		} else {
+			$this->out(__("Permission was not granted.", true), true);
 		}
 	}
 /**
@@ -249,11 +271,13 @@ class AclShell extends Shell {
  */
 	function deny() {
 		$this->_checkArgs(3, 'deny');
-		//add existence checks for nodes involved
-		$aro = ife(is_numeric($this->args[0]), intval($this->args[0]), $this->args[0]);
-		$aco = ife(is_numeric($this->args[1]), intval($this->args[1]), $this->args[1]);
-		$this->Acl->deny($aro, $aco, $this->args[2]);
-		$this->out(__("Requested permission successfully denied.", true), true);
+		extract($this->__getParams());
+
+		if ($this->Acl->deny($aro, $aco, $action)) {
+			$this->out(__("Permission denied.", true), true);
+		} else {
+			$this->out(__("Permission was not denied.", true), true);
+		}
 	}
 /**
  * Set an ARO to inhermit permission to an ACO.
@@ -262,10 +286,13 @@ class AclShell extends Shell {
  */
 	function inherit() {
 		$this->_checkArgs(3, 'inherit');
-		$aro = ife(is_numeric($this->args[0]), intval($this->args[0]), $this->args[0]);
-		$aco = ife(is_numeric($this->args[1]), intval($this->args[1]), $this->args[1]);
-		$this->Acl->inherit($aro, $aco, $this->args[2]);
-		$this->out(__("Requested permission successfully inherited.", true), true);
+		extract($this->__getParams());
+
+		if ($this->Acl->inherit($aro, $aco, $action)) {
+			$this->out(__("Permission inherited.", true), true);
+		} else {
+			$this->out(__("Permission was not inherited.", true), true);
+		}
 	}
 /**
  * Show a specific ARO/ACO node.
@@ -282,9 +309,9 @@ class AclShell extends Shell {
 		} else {
 			$conditions = null;
 		}
-		$nodes = $this->Acl->{$class}->findAll($conditions, null, 'lft ASC');
+		$nodes = $this->Acl->{$class}->find('all', array('conditions' => $conditions, 'order' => 'lft ASC'));
 		if (empty($nodes)) {
-			if(isset($this->args[1])) {
+			if (isset($this->args[1])) {
 				$this->error(sprintf(__("%s not found", true), $this->args[1]), __("No tree returned.", true));
 			} elseif (isset($this->args[0])) {
 				$this->error(sprintf(__("%s not found", true), $this->args[0]), __("No tree returned.", true));
@@ -301,10 +328,10 @@ class AclShell extends Shell {
 				if ($end[$class]['rght'] > $last) {
 					foreach ($stack as $k => $v) {
 						$end = end($stack);
-                        if ($v[$class]['rght'] < $end[$class]['rght']) {
-                            unset($stack[$k]);
-                        }
-                    }
+						if ($v[$class]['rght'] < $end[$class]['rght']) {
+							unset($stack[$k]);
+						}
+					}
 				}
 			}
 			$last   = $n[$class]['rght'];
@@ -319,54 +346,8 @@ class AclShell extends Shell {
  * @access public
  */
 	function initdb() {
-		$db =& ConnectionManager::getDataSource($this->dataSource);
-		$this->out(__("Initializing Database...", true), true);
-		$this->out(__("Creating access control objects table (acos)...", true), true);
-		$sql = " CREATE TABLE ".$db->fullTableName('acos')." (
-				".$db->name('id')." ".$db->column($db->columns['primary_key']).",
-				".$db->name('parent_id')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('model')." ".$db->column($db->columns['string'])." default '',
-				".$db->name('foreign_key')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('alias')." ".$db->column($db->columns['string'])." default '',
-				".$db->name('lft')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('rght')." ".$db->column($db->columns['integer'])." default NULL,
-				PRIMARY KEY  (".$db->name('id').")
-				)";
-		if ($db->query($sql) === false) {
-			die("Error: " . $db->lastError() . "\n\n");
-		}
-
-		$this->out(__("Creating access request objects table (aros)...", true), true);
-		$sql2 = "CREATE TABLE ".$db->fullTableName('aros')." (
-				".$db->name('id')." ".$db->column($db->columns['primary_key']).",
-				".$db->name('parent_id')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('model')." ".$db->column($db->columns['string'])." default '',
-				".$db->name('foreign_key')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('alias')." ".$db->column($db->columns['string'])." default '',
-				".$db->name('lft')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('rght')." ".$db->column($db->columns['integer'])." default NULL,
-				PRIMARY KEY  (".$db->name('id').")
-				)";
-		if ($db->query($sql2) === false) {
-			die("Error: " . $db->lastError() . "\n\n");
-		}
-
-		$this->out(__("Creating relationships table (aros_acos)...", true), true);
-		$sql3 = "CREATE TABLE ".$db->fullTableName('aros_acos')." (
-				".$db->name('id')." ".$db->column($db->columns['primary_key']).",
-				".$db->name('aro_id')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('aco_id')." ".$db->column($db->columns['integer'])." default NULL,
-				".$db->name('_create')." ".$db->column($db->columns['integer'])." default '0' NOT NULL,
-				".$db->name('_read')." ".$db->column($db->columns['integer'])." default '0' NOT NULL,
-				".$db->name('_update')." ".$db->column($db->columns['integer'])." default '0' NOT NULL,
-				".$db->name('_delete')." ".$db->column($db->columns['integer'])." default '0' NOT NULL,
-				PRIMARY KEY  (".$db->name('id').")
-				)";
-		if ($db->query($sql3) === false) {
-			die("Error: " . $db->lastError() . "\n\n");
-		}
-
-		$this->out("\n" . __("Done.", true), true);
+		$this->Dispatch->args = array('schema', 'run', 'create', 'DbAcl');
+		$this->Dispatch->dispatch();
 	}
 /**
  * Show help screen.
@@ -392,33 +373,43 @@ class AclShell extends Shell {
 						"\t\t" . __("Deletes the ACL object with the given <node> reference (see 'create' for info on node references).", true) . "\n",
 
 			'setparent' => "\tsetParent aro|aco <node> <parent>\n" .
-							"\t\t" . __("Moves the ACL object specified by <node> beneath the parent ACL object specified by <parent>.", true) . "\n",
+							"\t\t" . __("Moves the ACL object specified by <node> beneath the parent ACL object specified by <parent>.", true) . "\n" .
+							"\t\t" . __("To identify the node and parent, use the row id.", true) . "\n",
 
 			'getpath' => "\tgetPath aro|aco <node>\n" .
 						"\t\t" . __("Returns the path to the ACL object specified by <node>. This command", true) . "\n" .
 						"\t\t" . __("is useful in determining the inhertiance of permissions for a certain", true) . "\n" .
-						"\t\t" . __("object in the tree.", true) . "\n",
+						"\t\t" . __("object in the tree.", true) . "\n" .
+						"\t\t" . __("For more detailed parameter usage info, see help for the 'create' command.", true) . "\n",
 
-			'grant' =>	"\tgrant <aro_id> <aco_id> [<aco_action>] " . __("or", true) . " '*' " . __("(quotes required)", true) . "\n" .
+			'check' =>	"\tcheck <aro_id> <aco_id> [<aco_action>] " . __("or", true) . " all\n" .
+						"\t\t" . __("Use this command to check ACL permissions.", true) . "\n" .
+						"\t\t" . __("For more detailed parameter usage info, see help for the 'create' command.", true) . "\n",
+
+			'grant' =>	"\tgrant <aro_id> <aco_id> [<aco_action>] " . __("or", true) . " all\n" .
 						"\t\t" . __("Use this command to grant ACL permissions. Once executed, the ARO", true) . "\n" .
 						"\t\t" . __("specified (and its children, if any) will have ALLOW access to the", true) . "\n" .
-						"\t\t" . __("specified ACO action (and the ACO's children, if any).", true) . "\n",
+						"\t\t" . __("specified ACO action (and the ACO's children, if any).", true) . "\n" .
+						"\t\t" . __("For more detailed parameter usage info, see help for the 'create' command.", true) . "\n",
 
-			'deny' =>	"\tdeny <aro_id> <aco_id> [<aco_action>]\n" .
+			'deny' =>	"\tdeny <aro_id> <aco_id> [<aco_action>]" . __("or", true) . " all\n" .
 						"\t\t" . __("Use this command to deny ACL permissions. Once executed, the ARO", true) . "\n" .
 						"\t\t" . __("specified (and its children, if any) will have DENY access to the", true) . "\n" .
-						"\t\t" . __("specified ACO action (and the ACO's children, if any).", true) . "\n",
+						"\t\t" . __("specified ACO action (and the ACO's children, if any).", true) . "\n" .
+						"\t\t" . __("For more detailed parameter usage info, see help for the 'create' command.", true) . "\n",
 
-			'inherit' =>	"\tinherit <aro_id> <aco_id> [<aco_action>]\n" .
+			'inherit' =>	"\tinherit <aro_id> <aco_id> [<aco_action>]" . __("or", true) . " all\n" .
 							"\t\t" . __("Use this command to force a child ARO object to inherit its", true) . "\n" .
-							"\t\t" . __("permissions settings from its parent.", true) . "\n",
+							"\t\t" . __("permissions settings from its parent.", true) . "\n" .
+							"\t\t" . __("For more detailed parameter usage info, see help for the 'create' command.", true) . "\n",
 
 			'view' =>	"\tview aro|aco [<node>]\n" .
 						"\t\t" . __("The view command will return the ARO or ACO tree. The optional", true) . "\n" .
-						"\t\t" . __("id/alias parameter allows you to return only a portion of the requested tree.", true) . "\n",
+						"\t\t" . __("id/alias parameter allows you to return only a portion of the requested tree.", true) . "\n" .
+						"\t\t" . __("For more detailed parameter usage info, see help for the 'create' command.", true) . "\n",
 
 			'initdb' =>	"\tinitdb\n".
-						"\t\t" . __("Use this command to create the database tables needed to use DB ACL.", true) . "\n",
+						"\t\t" . __("Uses this command : cake schema run create DbAcl", true) . "\n",
 
 			'help' => 	"\thelp [<command>]\n" .
 						"\t\t" . __("Displays this help message, or a message on a specific command.", true) . "\n"
@@ -463,11 +454,44 @@ class AclShell extends Shell {
 		extract($this->__dataVars($this->args[0]));
 		$key = (ife(is_numeric($this->args[1]), $secondary_id, 'alias'));
 		$conditions = array($class . '.' . $key => $this->args[1]);
-		$possibility = $this->Acl->{$class}->findAll($conditions);
+		$possibility = $this->Acl->{$class}->find('all', compact('conditions'));
 		if (empty($possibility)) {
 			$this->error(sprintf(__("%s not found", true), $this->args[1]), __("No tree returned.", true));
 		}
 		return $possibility;
+	}
+/**
+ * get params for standard Acl methods
+ *
+ * @return array aro, aco, action
+ * @access private
+ */
+	function __getParams() {
+		$aro = ife(is_numeric($this->args[0]), intval($this->args[0]), $this->args[0]);
+		$aco = ife(is_numeric($this->args[1]), intval($this->args[1]), $this->args[1]);
+
+		if (is_string($aro) && preg_match('/^([\w]+)\.(.*)$/', $aro, $matches)) {
+			$aro = array(
+				'model' => $matches[1],
+				'foreign_key' => $matches[2],
+			);
+		}
+
+		if (is_string($aco) && preg_match('/^([\w]+)\.(.*)$/', $aco, $matches)) {
+			$aco = array(
+				'model' => $matches[1],
+				'foreign_key' => $matches[2],
+			);
+		}
+
+		$action = null;
+		if (isset($this->args[2])) {
+			$action = $this->args[2];
+			if ($action == '' || $action == 'all') {
+				$action = '*';
+			}
+		}
+		return compact('aro', 'aco', 'action');
 	}
 
 /**

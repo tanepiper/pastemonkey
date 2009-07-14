@@ -1,6 +1,6 @@
-# $Id: sessions.sql 5031 2007-05-06 03:12:23Z phpnut $
+# $Id: sessions.sql 7118 2008-06-04 20:49:29Z gwoo $
 #
-# Copyright 2005-2007,	Cake Software Foundation, Inc.
+# Copyright 2005-2008,	Cake Software Foundation, Inc.
 #								1785 E. Sahara Avenue, Suite 490-204
 #								Las Vegas, Nevada 89104
 #

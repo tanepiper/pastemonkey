@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: 0530_058f.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: 0530_058f.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Case Folding Properties.
  *
@@ -11,24 +11,22 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.config.unicode.casefolding
- * @since			CakePHP(tm) v 1.2.0.5691
- * @version			$Revision: 5691 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.config.unicode.casefolding
+ * @since         CakePHP(tm) v 1.2.0.5691
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * The upper field is the decimal value of the upper case character
@@ -83,5 +81,4 @@ $config['0530_058f'][] = array('upper' => 1363, 'status' => 'C', 'lower' => arra
 $config['0530_058f'][] = array('upper' => 1364, 'status' => 'C', 'lower' => array(1412)); /* ARMENIAN CAPITAL LETTER KEH */
 $config['0530_058f'][] = array('upper' => 1365, 'status' => 'C', 'lower' => array(1413)); /* ARMENIAN CAPITAL LETTER OH */
 $config['0530_058f'][] = array('upper' => 1366, 'status' => 'C', 'lower' => array(1414)); /* ARMENIAN CAPITAL LETTER FEH */
-$config['0530_058f'][] = array('upper' => 1415, 'status' => 'F', 'lower' => array(1381, 1410)); /* ARMENIAN SMALL LIGATURE ECH YIWN */
 ?>

@@ -1,6 +1,5 @@
 <?php
-/* SVN FILE: $Id: helper.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
-
+/* SVN FILE: $Id: helper.php 8166 2009-05-04 21:17:19Z gwoo $ */
 /**
  * Backend for helpers.
  *
@@ -8,41 +7,37 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.view
- * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.view
+ * @since         CakePHP(tm) v 0.2.9
+ * @version       $Revision: 8166 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-05-04 14:17:19 -0700 (Mon, 04 May 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-
 /**
  * Included libs
  */
-uses('overloadable');
+App::import('Core', 'Overloadable');
 
 /**
  * Backend for helpers.
  *
  * Long description for class
  *
- * @package		cake
- * @subpackage	cake.cake.libs.view
+ * @package       cake
+ * @subpackage    cake.cake.libs.view
  */
 class Helper extends Overloadable {
-
 /**
  * List of helpers used by this helper
  *
@@ -155,10 +150,10 @@ class Helper extends Overloadable {
  * @return array merged tags from config/$name.php
  */
 	function loadConfig($name = 'tags') {
-		if (file_exists(APP . 'config' . DS . $name .'.php')) {
-			require(APP . 'config' . DS . $name .'.php');
+		if (file_exists(CONFIGS . $name .'.php')) {
+			require(CONFIGS . $name .'.php');
 			if (isset($tags)) {
-				$this->tags = am($this->tags, $tags);
+				$this->tags = array_merge($this->tags, $tags);
 			}
 		}
 		return $this->tags;
@@ -180,7 +175,7 @@ class Helper extends Overloadable {
  * @return string  Full translated URL with base path.
  */
 	function url($url = null, $full = false) {
-		return Router::url($url, $full);
+		return h(Router::url($url, $full));
 	}
 /**
  * Checks if a file exists when theme is used, if no file is found default location is returned
@@ -193,13 +188,18 @@ class Helper extends Overloadable {
 		if (!empty($this->themeWeb)) {
 			$os = env('OS');
 			if (!empty($os) && strpos($os, 'Windows') !== false) {
-				$path = str_replace('/', '\\', WWW_ROOT . $this->themeWeb  . $file);
+				if (strpos(WWW_ROOT . $this->themeWeb  . $file, '\\') !== false) {
+					$path = str_replace('/', '\\', WWW_ROOT . $this->themeWeb  . $file);
+				}
 			} else {
 				$path = WWW_ROOT . $this->themeWeb  . $file;
 			}
 			if (file_exists($path)) {
 				$webPath = "{$this->webroot}" . $this->themeWeb . $file;
 			}
+		}
+		if (strpos($webPath, '//') !== false) {
+			return str_replace('//', '/', $webPath);
 		}
 		return $webPath;
 	}
@@ -213,6 +213,9 @@ class Helper extends Overloadable {
  */
 	function clean($output) {
 		$this->__reset();
+		if (empty($output)) {
+			return null;
+		}
 		if (is_array($output)) {
 			foreach ($output as $key => $value) {
 				$return[$key] = $this->clean($value);
@@ -256,18 +259,16 @@ class Helper extends Overloadable {
  */
 	function _parseAttributes($options, $exclude = null, $insertBefore = ' ', $insertAfter = null) {
 		if (is_array($options)) {
-			$default = array (
-				'escape' => true
-			);
-			$options = am($default, $options);
+			$options = array_merge(array('escape' => true), $options);
+
 			if (!is_array($exclude)) {
 				$exclude = array();
 			}
-			$exclude = am($exclude, array('escape'));
-			$keys = array_diff(array_keys($options), $exclude);
+			$keys = array_diff(array_keys($options), array_merge((array)$exclude, array('escape')));
 			$values = array_intersect_key(array_values($options), $keys);
 			$escape = $options['escape'];
 			$attributes = array();
+
 			foreach ($keys as $index => $key) {
 				$attributes[] = $this->__formatAttribute($key, $values[$index], $escape);
 			}
@@ -287,54 +288,131 @@ class Helper extends Overloadable {
 		$attribute = '';
 		$attributeFormat = '%s="%s"';
 		$minimizedAttributes = array('compact', 'checked', 'declare', 'readonly', 'disabled', 'selected', 'defer', 'ismap', 'nohref', 'noshade', 'nowrap', 'multiple', 'noresize');
+		if (is_array($value)) {
+			$value = '';
+		}
 
 		if (in_array($key, $minimizedAttributes)) {
 			if ($value === 1 || $value === true || $value === 'true' || $value == $key) {
 				$attribute = sprintf($attributeFormat, $key, $key);
 			}
 		} else {
-			$attribute = sprintf($attributeFormat, $key, ife($escape, h($value), $value));
+			$attribute = sprintf($attributeFormat, $key, ($escape ? h($value) : $value));
 		}
 		return $attribute;
 	}
 /**
- * Sets this helper's model and field properties to the slash-separated value-pair in $tagValue.
+ * Sets this helper's model and field properties to the dot-separated value-pair in $entity.
  *
- * @param string $tagValue A field name, like "Modelname.fieldname", "Modelname/fieldname" is deprecated
+ * @param mixed $entity A field name, like "ModelName.fieldName" or "ModelName.ID.fieldName"
+ * @param boolean $setScope Sets the view scope to the model specified in $tagValue
+ * @return void
  */
-	function setFormTag($tagValue) {
+	function setEntity($entity, $setScope = false) {
 		$view =& ClassRegistry::getObject('view');
 
-		if ($tagValue === null) {
-			$view->model = null;
-			$view->association = null;
-			$view->modelId = null;
+		if ($setScope) {
+			$view->modelScope = false;
+		} elseif (join('.', $view->entity()) == $entity) {
 			return;
 		}
 
-		$parts = preg_split('/\/|\./', $tagValue);
-		$view->association = null;
-
-		if (count($parts) == 1) {
-			$view->field = $parts[0];
-		//} elseif (count($parts) == 2 && !ClassRegistry::isKeySet($parts[0]) && !ClassRegistry::isKeySet($parts[0])) {
-		} elseif (count($parts) == 2 && is_numeric($parts[0])) {
-			$view->modelId = $parts[0];
-			$view->field = $parts[1];
-		} elseif (count($parts) == 2 && empty($parts[1])) {
-			$view->model = $parts[0];
-			$view->field = $parts[1];
-		} elseif (count($parts) == 2) {
-			$view->association = $parts[0];
-			$view->field = $parts[1];
-		} elseif (count($parts) == 3) {
-			$view->association   = $parts[0];
-			$view->modelId = $parts[1];
-			$view->field   = $parts[2];
+		if ($entity === null) {
+			$view->model = null;
+			$view->association = null;
+			$view->modelId = null;
+			$view->modelScope = false;
+			return;
 		}
-		if (!isset($view->model)) {
+
+		$model = $view->model;
+		$sameScope = $hasField = false;
+		$parts = array_values(Set::filter(explode('.', $entity), true));
+
+		if (empty($parts)) {
+			return;
+		}
+
+		if (count($parts) === 1 || is_numeric($parts[0])) {
+			$sameScope = true;
+		} else {
+			if (ClassRegistry::isKeySet($parts[0])) {
+				$model = $parts[0];
+			}
+		}
+
+		if (ClassRegistry::isKeySet($model)) {
+			$ModelObj =& ClassRegistry::getObject($model);
+			for ($i = 0; $i < count($parts); $i++) {
+				if ($ModelObj->hasField($parts[$i]) || array_key_exists($parts[$i], $ModelObj->validate)) {
+					$hasField = $i;
+					if ($hasField === 0 || ($hasField === 1 && is_numeric($parts[0]))) {
+						$sameScope = true;
+					}
+					break;
+				}
+			}
+
+			if ($sameScope === true && in_array($parts[0], array_keys($ModelObj->hasAndBelongsToMany))) {
+				$sameScope = false;
+			}
+		}
+
+		if (!$view->association && $parts[0] == $view->field && $view->field != $view->model) {
+			array_unshift($parts, $model);
+			$hasField = true;
+		}
+		$view->field = $view->modelId = $view->fieldSuffix = $view->association = null;
+
+		switch (count($parts)) {
+			case 1:
+				if ($view->modelScope === false) {
+					$view->model = $parts[0];
+				} else {
+					$view->field = $parts[0];
+					if ($sameScope === false) {
+						$view->association = $parts[0];
+					}
+				}
+			break;
+			case 2:
+				if ($view->modelScope === false) {
+					list($view->model, $view->field) = $parts;
+				} elseif ($sameScope === true && $hasField === 0) {
+					list($view->field, $view->fieldSuffix) = $parts;
+				} elseif ($sameScope === true && $hasField === 1) {
+					list($view->modelId, $view->field) = $parts;
+				} else {
+					list($view->association, $view->field) = $parts;
+				}
+			break;
+			case 3:
+				if ($sameScope === true && $hasField === 1) {
+					list($view->modelId, $view->field, $view->fieldSuffix) = $parts;
+				} elseif ($hasField === 2) {
+					list($view->association, $view->modelId, $view->field) = $parts;
+				} else {
+					list($view->association, $view->field, $view->fieldSuffix) = $parts;
+				}
+			break;
+			case 4:
+				if ($parts[0] === $view->model) {
+					list($view->model, $view->modelId, $view->field, $view->fieldSuffix) = $parts;
+				} else {
+					list($view->association, $view->modelId, $view->field, $view->fieldSuffix) = $parts;
+				}
+			break;
+		}
+
+		if (!isset($view->model) || empty($view->model)) {
 			$view->model = $view->association;
 			$view->association = null;
+		} elseif ($view->model === $view->association) {
+			$view->association = null;
+		}
+
+		if ($setScope) {
+			$view->modelScope = true;
 		}
 	}
 /**
@@ -344,10 +422,10 @@ class Helper extends Overloadable {
  */
 	function model() {
 		$view =& ClassRegistry::getObject('view');
-		if ($view->association == null) {
-			return $view->model;
-		} else {
+		if (!empty($view->association)) {
 			return $view->association;
+		} else {
+			return $view->model;
 		}
 	}
 /**
@@ -371,18 +449,29 @@ class Helper extends Overloadable {
 /**
  * Returns false if given FORM field has no errors. Otherwise it returns the constant set in the array Model->validationErrors.
  *
- * @param string $model Model name as string
+ * @param string $model		Model name as string
  * @param string $field		Fieldname as string
+ * @param integer $modelID	Unique index identifying this record within the form
  * @return boolean True on errors.
  */
-	function tagIsInvalid($model = null, $field = null) {
-		if ($model == null) {
-			$model = $this->model();
+	function tagIsInvalid($model = null, $field = null, $modelID = null) {
+		foreach (array('model', 'field', 'modelID') as $key) {
+			if (empty(${$key})) {
+				${$key} = $this->{$key}();
+			}
 		}
-		if ($field == null) {
-			$field = $this->field();
+		$view =& ClassRegistry::getObject('view');
+		$errors = $this->validationErrors;
+
+		if ($view->model !== $model && isset($errors[$view->model][$model])) {
+			$errors = $errors[$view->model];
 		}
-		return empty($this->validationErrors[$model][$field]) ? 0 : $this->validationErrors[$model][$field];
+
+		if (!isset($modelID)) {
+			return empty($errors[$model][$field]) ? 0 : $errors[$model][$field];
+		} else {
+			return empty($errors[$model][$modelID][$field]) ? 0 : $errors[$model][$modelID][$field];
+		}
 	}
 /**
  * Generates a DOM ID for the selected element, if one is not set.
@@ -392,11 +481,22 @@ class Helper extends Overloadable {
  * @return mixed
  */
 	function domId($options = null, $id = 'id') {
-		if (is_array($options) && !isset($options[$id])) {
-			$options[$id] = $this->model() . Inflector::camelize($this->field());
-		} elseif (!is_array($options)) {
-			$this->setFormTag($options);
-			return $this->model() . Inflector::camelize($this->field());
+		$view =& ClassRegistry::getObject('view');
+
+		if (is_array($options) && array_key_exists($id, $options) && $options[$id] === null) {
+			unset($options[$id]);
+			return $options;
+		} elseif (!is_array($options) && $options !== null) {
+			$this->setEntity($options);
+			return $this->domId();
+		}
+
+		$dom = $this->model() . $this->modelID() . Inflector::camelize($view->field) . Inflector::camelize($view->fieldSuffix);
+
+		if (is_array($options) && !array_key_exists($id, $options)) {
+			$options[$id] = $dom;
+		} elseif ($options === null) {
+			return $dom;
 		}
 		return $options;
 	}
@@ -408,6 +508,8 @@ class Helper extends Overloadable {
  * @return array
  */
 	function __name($options = array(), $field = null, $key = 'name') {
+		$view =& ClassRegistry::getObject('view');
+
 		if ($options === null) {
 			$options = array();
 		} elseif (is_string($options)) {
@@ -416,24 +518,19 @@ class Helper extends Overloadable {
 		}
 
 		if (!empty($field)) {
-			$this->setFormTag($field);
+			$this->setEntity($field);
 		}
 
-		if (is_array($options) && isset($options[$key])) {
+		if (is_array($options) && array_key_exists($key, $options)) {
 			return $options;
 		}
 
-		switch($field) {
+		switch ($field) {
 			case '_method':
 				$name = $field;
 			break;
 			default:
-				//$name = array_filter(array($this->model(), $this->field(), $this->modelID()));
-				$name = array_filter(array($this->model(), $this->field()));
-				if ($this->modelID() === 0) {
-					$name[] = $this->modelID();
-				}
-				$name = 'data[' . join('][', $name) . ']';
+				$name = 'data[' . join('][', $view->entity()) . ']';
 			break;
 		}
 
@@ -461,7 +558,7 @@ class Helper extends Overloadable {
 		}
 
 		if (!empty($field)) {
-			$this->setFormTag($field);
+			$this->setEntity($field);
 		}
 
 		if (is_array($options) && isset($options[$key])) {
@@ -470,12 +567,32 @@ class Helper extends Overloadable {
 
 		$result = null;
 
-		if (isset($this->data[$this->model()][$this->field()])) {
-			$result = $this->data[$this->model()][$this->field()];
-		} elseif (isset($this->data[$this->field()]) && is_array($this->data[$this->field()])) {
-			if (ClassRegistry::isKeySet($this->field())) {
-				$model =& ClassRegistry::getObject($this->field());
-				$result = $this->__selectedArray($this->data[$this->field()], $model->primaryKey);
+		$modelName = $this->model();
+		$fieldName = $this->field();
+		$modelID = $this->modelID();
+
+		if (is_null($fieldName)) {
+			$fieldName = $modelName;
+			$modelName = null;
+		}
+
+		if (isset($this->data[$fieldName]) && $modelName === null) {
+			$result = $this->data[$fieldName];
+		} elseif (isset($this->data[$modelName][$fieldName])) {
+			$result = $this->data[$modelName][$fieldName];
+		} elseif (isset($this->data[$fieldName]) && is_array($this->data[$fieldName])) {
+			if (ClassRegistry::isKeySet($fieldName)) {
+				$model =& ClassRegistry::getObject($fieldName);
+				$result = $this->__selectedArray($this->data[$fieldName], $model->primaryKey);
+			}
+		} elseif (isset($this->data[$modelName][$modelID][$fieldName])) {
+			$result = $this->data[$modelName][$modelID][$fieldName];
+		}
+
+		if (is_array($result)) {
+			$view =& ClassRegistry::getObject('view');
+			if (array_key_exists($view->fieldSuffix, $result)) {
+				$result = $result[$view->fieldSuffix];
 			}
 		}
 
@@ -499,9 +616,12 @@ class Helper extends Overloadable {
  * @param array $options
  * @param string $key
  * @return array
+ * @access protected
  */
-	function __initInputField($field, $options = array()) {
-		$this->setFormTag($field);
+	function _initInputField($field, $options = array()) {
+		if ($field !== null) {
+			$this->setEntity($field);
+		}
 		$options = (array)$options;
 		$options = $this->__name($options);
 		$options = $this->value($options);
@@ -539,24 +659,6 @@ class Helper extends Overloadable {
 		return $str;
 	}
 /**
- * Assigns values to tag templates.
- *
- * Finds a tag template by $keyName, and replaces $values's keys with
- * $values's keys.
- *
- * @param  string $keyName Name of the key in the tag array.
- * @param  array  $values  Values to be inserted into tag.
- * @return string Tag with inserted values.
- */
-	function assign($keyName, $values) {
-		$out = $keyName;
-		if (isset($this->tags) && isset($this->tags[$keyName])) {
-			$out = $this->tags[$keyName];
-		}
-
-		//$out =
-	}
-/**
  * Before render callback.  Overridden in subclasses.
  *
  */
@@ -581,7 +683,8 @@ class Helper extends Overloadable {
 	function afterLayout() {
 	}
 /**
- * Enter description here...
+ * Transforms a recordset from a hasAndBelongsToMany association to a list of selected
+ * options for a multiple select element
  *
  * @param mixed $data
  * @param string $key
@@ -627,20 +730,24 @@ class Helper extends Overloadable {
 			$this->__cleaned = $this->__tainted;
 		}
 
-		$this->__cleaned = str_replace(array("&amp;","&lt;","&gt;"),array("&amp;amp;","&amp;lt;","&amp;gt;"), $this->__cleaned);
-		$this->__cleaned = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u',"$1;", $this->__cleaned);
-		$this->__cleaned = preg_replace('#(&\#x*)([0-9A-F]+);*#iu',"$1$2;", $this->__cleaned);
-		$this->__cleaned = preg_replace('#(<[^>]+[\x00-\x20\"\'])(on|xmlns)[^>]*>#iUu',"$1>", $this->__cleaned);
-		$this->__cleaned = preg_replace('#([a-z]*)[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*)[\\x00-\x20]*j[\x00-\x20]*a[\x00-\x20]*v[\x00-\x20]*a[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu','$1=$2nojavascript...', $this->__cleaned);
-		$this->__cleaned = preg_replace('#([a-z]*)[\x00-\x20]*=([\'\"]*)[\x00-\x20]*v[\x00-\x20]*b[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu','$1=$2novbscript...', $this->__cleaned);
-		$this->__cleaned = preg_replace('#(<[^>]+)style[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*).*expression[\x00-\x20]*\([^>]*>#iU',"$1>",$this->__cleaned);
-		$this->__cleaned = preg_replace('#(<[^>]+)style[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*).*behaviour[\x00-\x20]*\([^>]*>#iU',"$1>",$this->__cleaned);
-		$this->__cleaned = preg_replace('#(<[^>]+)style[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*).*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:*[^>]*>#iUu',"$1>",$this->__cleaned);
-		$this->__cleaned = preg_replace('#</*\w+:\w[^>]*>#i',"",$this->__cleaned);
+		$this->__cleaned = str_replace(array("&amp;", "&lt;", "&gt;"), array("&amp;amp;", "&amp;lt;", "&amp;gt;"), $this->__cleaned);
+		$this->__cleaned = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "$1;", $this->__cleaned);
+		$this->__cleaned = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "$1$2;", $this->__cleaned);
+		$this->__cleaned = html_entity_decode($this->__cleaned, ENT_COMPAT, "UTF-8");
+		$this->__cleaned = preg_replace('#(<[^>]+[\x00-\x20\"\'\/])(on|xmlns)[^>]*>#iUu', "$1>", $this->__cleaned);
+		$this->__cleaned = preg_replace('#([a-z]*)[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*)[\\x00-\x20]*j[\x00-\x20]*a[\x00-\x20]*v[\x00-\x20]*a[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2nojavascript...', $this->__cleaned);
+		$this->__cleaned = preg_replace('#([a-z]*)[\x00-\x20]*=([\'\"]*)[\x00-\x20]*v[\x00-\x20]*b[\x00-\x20]*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:#iUu', '$1=$2novbscript...', $this->__cleaned);
+		$this->__cleaned = preg_replace('#([a-z]*)[\x00-\x20]*=*([\'\"]*)[\x00-\x20]*-moz-binding[\x00-\x20]*:#iUu','$1=$2nomozbinding...', $this->__cleaned);
+		$this->__cleaned = preg_replace('#([a-z]*)[\x00-\x20]*=([\'\"]*)[\x00-\x20]*data[\x00-\x20]*:#Uu', '$1=$2nodata...', $this->__cleaned);
+		$this->__cleaned = preg_replace('#(<[^>]+)style[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*).*expression[\x00-\x20]*\([^>]*>#iU', "$1>", $this->__cleaned);
+		$this->__cleaned = preg_replace('#(<[^>]+)style[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*).*behaviour[\x00-\x20]*\([^>]*>#iU', "$1>", $this->__cleaned);
+		$this->__cleaned = preg_replace('#(<[^>]+)style[\x00-\x20]*=[\x00-\x20]*([\`\'\"]*).*s[\x00-\x20]*c[\x00-\x20]*r[\x00-\x20]*i[\x00-\x20]*p[\x00-\x20]*t[\x00-\x20]*:*[^>]*>#iUu', "$1>", $this->__cleaned);
+		$this->__cleaned = preg_replace('#</*\w+:\w[^>]*>#i', "", $this->__cleaned);
 		do {
 			$oldstring = $this->__cleaned;
-			$this->__cleaned = preg_replace('#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base)[^>]*>#i',"",$this->__cleaned);
+			$this->__cleaned = preg_replace('#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base)[^>]*>#i', "", $this->__cleaned);
 		} while ($oldstring != $this->__cleaned);
+		$this->__cleaned = str_replace(array("&amp;", "&lt;", "&gt;"), array("&amp;amp;", "&amp;lt;", "&amp;gt;"), $this->__cleaned);
 	}
 }
 ?>

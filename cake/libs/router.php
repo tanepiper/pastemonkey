@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: router.php 5887 2007-10-24 15:09:40Z gwoo $ */
+/* SVN FILE: $Id: router.php 8120 2009-03-19 20:25:10Z gwoo $ */
 /**
  * Parses the request URL into controller, action, and parameters.
  *
@@ -7,41 +7,37 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs
- * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5887 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-10-24 16:09:40 +0100 (Wed, 24 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs
+ * @since         CakePHP(tm) v 0.2.9
+ * @version       $Revision: 8120 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Included libraries.
  *
  */
 if (!class_exists('Object')) {
-	uses('object');
+	App::import('Core', 'Object');
 }
-
 /**
  * Parses the request URL into controller, action, and parameters.
  *
- * @package		cake
- * @subpackage	cake.cake.libs
+ * @package       cake
+ * @subpackage    cake.cake.libs
  */
 class Router extends Object {
-
 /**
  * Array of routes
  *
@@ -50,7 +46,7 @@ class Router extends Object {
  */
 	var $routes = array();
 /**
- * CAKE_ADMIN route
+ * Caches admin setting from Configure class
  *
  * @var array
  * @access private
@@ -84,11 +80,24 @@ class Router extends Object {
  * @access private
  */
 	var $__named = array(
-		'Action'	=> 'index|show|list|add|create|edit|update|remove|del|delete|new|view|item',
+		'Action'	=> 'index|show|add|create|edit|update|remove|del|delete|view|item',
 		'Year'		=> '[12][0-9]{3}',
 		'Month'		=> '0[1-9]|1[012]',
 		'Day'		=> '0[1-9]|[12][0-9]|3[01]',
-		'ID'		=> '[0-9]+'
+		'ID'		=> '[0-9]+',
+		'UUID'		=> '[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}'
+	);
+/**
+ * Stores all information necessary to decide what named arguments are parsed under what conditions.
+ *
+ * @var string
+ * @access public
+ */
+	var $named = array(
+		'default' => array('page', 'fields', 'order', 'limit', 'recursive', 'sort', 'direction', 'step'),
+		'greedy' => true,
+		'separator' => ':',
+		'rules' => false,
 	);
 /**
  * The route matching the URL of the current request
@@ -137,20 +146,6 @@ class Router extends Object {
  */
 	var $__params = array();
 /**
- * List of named arguments allowed in routes
- *
- * @var array
- * @access private
- */
-	var $__namedArgs = array();
-/**
- * Separator used to join/split/detect named arguments
- *
- * @var string
- * @access private
- */
-	var $__argSeparator = ':';
-/**
  * Maintains the path stack for the current request
  *
  * @var array
@@ -174,8 +169,9 @@ class Router extends Object {
 	function &getInstance() {
 		static $instance = array();
 
-		if (!isset($instance[0]) || !$instance[0]) {
+		if (!$instance) {
 			$instance[0] =& new Router();
+			$instance[0]->__admin = Configure::read('Routing.admin');
 		}
 		return $instance[0];
 	}
@@ -184,6 +180,7 @@ class Router extends Object {
  *
  * @return array Named route elements
  * @access public
+ * @see Router::$__named
  * @static
  */
 	function getNamedExpressions() {
@@ -203,29 +200,44 @@ class Router extends Object {
  */
 	function connect($route, $default = array(), $params = array()) {
 		$_this =& Router::getInstance();
-		$admin = Configure::read('Routing.admin');
 
-		if ($admin && $default == null && $route == $admin) {
-		}
-		$default = am(array('plugin' => null, 'controller' => null, 'action' => null), $default);
-
-		if (!empty($default) && empty($default['action'])) {
+		if (!isset($default['action'])) {
 			$default['action'] = 'index';
+		}
+		if (isset($default[$_this->__admin])) {
+			$default['prefix'] = $_this->__admin;
 		}
 		if (isset($default['prefix'])) {
 			$_this->__prefixes[] = $default['prefix'];
-			$_this->__prefixes = array_unique($_this->__prefixes);
+			$_this->__prefixes = array_keys(array_flip($_this->__prefixes));
 		}
-		if ($route = $_this->writeRoute($route, $default, $params)) {
-			$_this->routes[] = $route;
-		}
+		$_this->routes[] = array($route, $default, $params);
 		return $_this->routes;
 	}
 /**
- * Connects an array of named arguments (with optional scoping options)
+ * Specifies what named parameters CakePHP should be parsing. The most common setups are:
  *
- * @param array $named			List of named arguments
- * @param array $options		Named argument handling options
+ * Do not parse any named parameters:
+ * {{{ Router::connectNamed(false); }}}
+ *
+ * Parse only default parameters used for CakePHP's pagination:
+ * {{{ Router::connectNamed(false, array('default' => true)); }}}
+ *
+ * Parse only the page parameter if its value is a number:
+ * {{{ Router::connectNamed(array('page' => '[\d]+'), array('default' => false, 'greedy' => false)); }}}
+ *
+ * Parse only the page parameter no mater what.
+ * {{{ Router::connectNamed(array('page'), array('default' => false, 'greedy' => false)); }}}
+ *
+ * Parse only the page parameter if the current action is 'index'.
+ * {{{ Router::connectNamed(array('page' => array('action' => 'index')), array('default' => false, 'greedy' => false)); }}}
+ *
+ * Parse only the page parameter if the current action is 'index' and the controller is 'pages'.
+ * {{{ Router::connectNamed(array('page' => array('action' => 'index', 'controller' => 'pages')), array('default' => false, 'greedy' => false)); }}}
+ *
+ * @param array $named A list of named parameters. Key value pairs are accepted where values are either regex strings to match, or arrays as seen above.
+ * @param array $options Allows to control all settings: separator, greedy, reset, default
+ * @return array
  * @access public
  * @static
  */
@@ -233,45 +245,67 @@ class Router extends Object {
 		$_this =& Router::getInstance();
 
 		if (isset($options['argSeparator'])) {
-			$_this->__argSeparator = $options['argSeparator'];
+			$_this->named['separator'] = $options['argSeparator'];
+			unset($options['argSeparator']);
+		}
+
+		if ($named === true || $named === false) {
+			$options = array_merge(array('default' => $named, 'reset' => true, 'greedy' => $named), $options);
+			$named = array();
+		}
+		$options = array_merge(array('default' => false, 'reset' => false, 'greedy' => true), $options);
+
+		if ($options['reset'] == true || $_this->named['rules'] === false) {
+			$_this->named['rules'] = array();
+		}
+
+		if ($options['default']) {
+			$named = array_merge($named, $_this->named['default']);
 		}
 
 		foreach ($named as $key => $val) {
 			if (is_numeric($key)) {
-				$_this->__namedArgs[$val] = true;
+				$_this->named['rules'][$val] = true;
 			} else {
-				$_this->__namedArgs[$key] = $val;
+				$_this->named['rules'][$key] = $val;
 			}
 		}
+		$_this->named['greedy'] = $options['greedy'];
+		return $_this->named;
 	}
 /**
  * Creates REST resource routes for the given controller(s)
  *
- * @param mixed $controller		A controller name or array of controller names (i.e. "Posts" or "ListItems")
- * @param array $options
+ * Options:
+ *
+ * - 'id' - The regular expression fragment to use when matching IDs.  By default, matches
+ *    integer values and UUIDs.
+ * - 'prefix' - URL prefix to use for the generated routes.  Defaults to '/'.
+ *
+ * @param mixed $controller A controller name or array of controller names (i.e. "Posts" or "ListItems")
+ * @param array $options Options to use when generating REST routes
+ * @return void
  * @access public
  * @static
  */
 	function mapResources($controller, $options = array()) {
 		$_this =& Router::getInstance();
-		$options = am(
-			array('prefix' => '/'),
-			$options
-		);
+		$options = array_merge(array('prefix' => '/', 'id' => $_this->__named['ID'] . '|' . $_this->__named['UUID']), $options);
 		$prefix = $options['prefix'];
 
 		foreach ((array)$controller as $ctlName) {
 			$urlName = Inflector::underscore($ctlName);
+
 			foreach ($_this->__resourceMap as $params) {
 				extract($params);
-				$id = ife($id, '/:id', '');
+				$url = $prefix . $urlName . (($id) ? '/:id' : '');
 
-				Router::connect(
-					"{$prefix}{$urlName}{$id}",
-					array('controller' => $urlName, 'action' => $action, '[method]' => $params['method'])
+				Router::connect($url,
+					array('controller' => $urlName, 'action' => $action, '[method]' => $params['method']),
+					array('id' => $options['id'], 'pass' => array('id'))
 				);
 			}
-			$this->__resourceMapped[] = $urlName;
+			$_this->__resourceMapped[] = $urlName;
 		}
 	}
 /**
@@ -280,39 +314,71 @@ class Router extends Object {
  * @param string $route			An empty string, or a route string "/"
  * @param array $default		NULL or an array describing the default route
  * @param array $params			An array matching the named elements in the route to regular expressions which that element should match.
- * @return string
+ * @return array
  * @see routes
  * @access public
  * @static
  */
 	function writeRoute($route, $default, $params) {
-		if (empty($route) || ($route == '/')) {
-			return array($route, '/^[\/]*$/', array(), $default, array());
-		} else {
-			$names = array();
-			$elements = Set::filter(array_map('trim', explode('/', $route)));
+		if (empty($route) || ($route === '/')) {
+			return array('/^[\/]*$/', array());
+		}
+		$names = array();
+		$elements = explode('/', $route);
 
-			foreach ($elements as $element) {
-				$q = null;
+		foreach ($elements as $element) {
+			if (empty($element)) {
+				continue;
+			}
+			$q = null;
+			$element = trim($element);
+			$namedParam = strpos($element, ':') !== false;
 
-				if (preg_match('/^:(.+)$/', $element, $r)) {
-					if (isset($params[$r[1]])) {
-						if (array_key_exists($r[1], $default) && $r[1] != 'plugin') {
+			if ($namedParam && preg_match('/^:([^:]+)$/', $element, $r)) {
+				if (isset($params[$r[1]])) {
+					if ($r[1] != 'plugin' && array_key_exists($r[1], $default)) {
+						$q = '?';
+					}
+					$parsed[] = '(?:/(' . $params[$r[1]] . ')' . $q . ')' . $q;
+				} else {
+					$parsed[] = '(?:/([^\/]+))?';
+				}
+				$names[] = $r[1];
+			} elseif ($element === '*') {
+				$parsed[] = '(?:/(.*))?';
+			} else if ($namedParam && preg_match_all('/(?!\\\\):([a-z_0-9]+)/i', $element, $matches)) {
+				$matchCount = count($matches[1]);
+
+				foreach ($matches[1] as $i => $name) {
+					$pos = strpos($element, ':' . $name);
+					$before = substr($element, 0, $pos);
+					$element = substr($element, $pos + strlen($name) + 1);
+					$after = null;
+
+					if ($i + 1 === $matchCount && $element) {
+						$after = preg_quote($element);
+					}
+
+					if ($i === 0) {
+						$before = '/' . $before;
+					}
+					$before = preg_quote($before, '#');
+
+					if (isset($params[$name])) {
+						if (isset($default[$name]) && $name != 'plugin') {
 							$q = '?';
 						}
-						$parsed[] = '(?:\/(' . $params[$r[1]] . '))' . $q;
+						$parsed[] = '(?:' . $before . '(' . $params[$name] . ')' . $q . $after . ')' . $q;
 					} else {
-						$parsed[] = '(?:\/([^\/]+))?';
+						$parsed[] = '(?:' . $before . '([^\/]+)' . $after . ')?';
 					}
-					$names[] = $r[1];
-				} elseif (preg_match('/^\*$/', $element, $r)) {
-					$parsed[] = '(?:\/(.*))?';
-				} else {
-					$parsed[] = '/' . $element;
+					$names[] = $name;
 				}
+			} else {
+				$parsed[] = '/' . $element;
 			}
-			return array($route, '#^' . join('', $parsed) . '[\/]*$#', $names, $default, $params);
 		}
+		return array('#^' . join('', $parsed) . '[\/]*$#', $names);
 	}
 /**
  * Returns the list of prefixes used in connected routes
@@ -336,11 +402,13 @@ class Router extends Object {
  */
 	function parse($url) {
 		$_this =& Router::getInstance();
-		$_this->__connectDefaultRoutes();
-		$out = array('pass' => array());
+		if (!$_this->__defaultsMapped) {
+			$_this->__connectDefaultRoutes();
+		}
+		$out = array('pass' => array(), 'named' => array());
 		$r = $ext = null;
 
-		if (ini_get('magic_quotes_gpc') == 1) {
+		if (ini_get('magic_quotes_gpc') === '1') {
 			$url = stripslashes_deep($url);
 		}
 
@@ -352,18 +420,29 @@ class Router extends Object {
 		}
 		extract($_this->__parseExtension($url));
 
-		foreach ($_this->routes as $route) {
-			if (($r = $_this->matchRoute($route, $url)) !== false) {
-				$_this->__currentRoute[] = $route;
-				list($route, $regexp, $names, $defaults) = $route;
+		foreach ($_this->routes as $i => $route) {
+			if (count($route) === 3) {
+				$route = $_this->compile($i);
+			}
 
-				// remove the first element, which is the url
+			if (($r = $_this->__matchRoute($route, $url)) !== false) {
+				$_this->__currentRoute[] = $route;
+				list($route, $regexp, $names, $defaults, $params) = $route;
+				$argOptions = array();
+
+				if (array_key_exists('named', $params)) {
+					$argOptions['named'] = $params['named'];
+					unset($params['named']);
+				}
+				if (array_key_exists('greedy', $params)) {
+					$argOptions['greedy'] = $params['greedy'];
+					unset($params['greedy']);
+				}
 				array_shift($r);
-				// hack, pre-fill the default route names
+
 				foreach ($names as $name) {
 					$out[$name] = null;
 				}
-
 				if (is_array($defaults)) {
 					foreach ($defaults as $name => $value) {
 						if (preg_match('#[a-zA-Z_\-]#i', $name)) {
@@ -374,14 +453,28 @@ class Router extends Object {
 					}
 				}
 
-				foreach (Set::filter($r, true) as $key => $found) {
-					// if $found is a named url element (i.e. ':action')
+				foreach ($r as $key => $found) {
+					if (empty($found) && $found != 0) {
+						continue;
+					}
+
 					if (isset($names[$key])) {
 						$out[$names[$key]] = $_this->stripEscape($found);
 					} elseif (isset($names[$key]) && empty($names[$key]) && empty($out[$names[$key]])) {
-						break; //leave the default values;
+						break;
 					} else {
-						$out['pass'] = am($out['pass'], $_this->getArgs($found));
+						$argOptions['context'] = array('action' => $out['action'], 'controller' => $out['controller']);
+						extract($_this->getArgs($found, $argOptions));
+						$out['pass'] = array_merge($out['pass'], $pass);
+						$out['named'] = $named;
+					}
+				}
+
+				if (isset($params['pass'])) {
+					for ($j = count($params['pass']) - 1; $j > -1; $j--) {
+						if (isset($out[$params['pass'][$j]])) {
+							array_unshift($out['pass'], $out[$params['pass'][$j]]);
+						}
 					}
 				}
 				break;
@@ -399,29 +492,59 @@ class Router extends Object {
  * @param array $route
  * @param string $url
  * @return mixed Boolean false on failure, otherwise array
- * @access public
+ * @access private
  */
-	function matchRoute($route, $url) {
-		$_this =& Router::getInstance();
+	function __matchRoute($route, $url) {
 		list($route, $regexp, $names, $defaults) = $route;
 
 		if (!preg_match($regexp, $url, $r)) {
 			return false;
 		} else {
 			foreach ($defaults as $key => $val) {
-				if (preg_match('/^\[(\w+)\]$/', $key, $header)) {
-					if (isset($_this->__headerMap[$header[1]])) {
-						$header = $_this->__headerMap[$header[1]];
+				if ($key{0} === '[' && preg_match('/^\[(\w+)\]$/', $key, $header)) {
+					if (isset($this->__headerMap[$header[1]])) {
+						$header = $this->__headerMap[$header[1]];
 					} else {
 						$header = 'http_' . $header[1];
 					}
-					if (env(strtoupper($header)) != $val) {
+
+					$val = (array)$val;
+					$h = false;
+
+					foreach ($val as $v) {
+						if (env(strtoupper($header)) === $v) {
+							$h = true;
+						}
+					}
+					if (!$h) {
 						return false;
 					}
 				}
 			}
 		}
 		return $r;
+	}
+/**
+ * Compiles a route by numeric key and returns the compiled expression, replacing
+ * the existing uncompiled route.  Do not call statically.
+ *
+ * @param integer $i
+ * @return array Returns an array containing the compiled route
+ * @access public
+ */
+	function compile($i) {
+		$route = $this->routes[$i];
+
+		if (!list($pattern, $names) = $this->writeRoute($route[0], $route[1], $route[2])) {
+			unset($this->routes[$i]);
+			return array();
+		}
+		$this->routes[$i] = array(
+			$route[0], $pattern, $names,
+			array_merge(array('plugin' => null, 'controller' => null), (array)$route[1]),
+			$route[2]
+		);
+		return $this->routes[$i];
 	}
 /**
  * Parses a file extension out of a URL, if Router::parseExtensions() is enabled.
@@ -432,22 +555,24 @@ class Router extends Object {
  */
 	function __parseExtension($url) {
 		$ext = null;
-		$_this =& Router::getInstance();
 
-		if ($_this->__parseExtensions) {
-			if (preg_match('/\.[0-9a-zA-Z]*$/', $url, $match) == 1) {
+		if ($this->__parseExtensions) {
+			if (preg_match('/\.[0-9a-zA-Z]*$/', $url, $match) === 1) {
 				$match = substr($match[0], 1);
-				if (empty($_this->__validExtensions)) {
+				if (empty($this->__validExtensions)) {
 					$url = substr($url, 0, strpos($url, '.' . $match));
 					$ext = $match;
 				} else {
-					foreach ($_this->__validExtensions as $name) {
+					foreach ($this->__validExtensions as $name) {
 						if (strcasecmp($name, $match) === 0) {
 							$url = substr($url, 0, strpos($url, '.' . $name));
 							$ext = $match;
 						}
 					}
 				}
+			}
+			if (empty($ext)) {
+				$ext = 'html';
 			}
 		}
 		return compact('ext', 'url');
@@ -456,76 +581,63 @@ class Router extends Object {
  * Connects the default, built-in routes, including admin routes, and (deprecated) web services
  * routes.
  *
+ * @return void
  * @access private
  */
 	function __connectDefaultRoutes() {
-		$_this =& Router::getInstance();
-		if ($_this->__defaultsMapped) {
+		if ($this->__defaultsMapped) {
 			return;
 		}
 
-		if ($admin = Configure::read('Routing.admin')) {
-			$params = array('prefix' => $admin, $admin => true);
+		if ($this->__admin) {
+			$params = array('prefix' => $this->__admin, $this->__admin => true);
 		}
 
-		$Inflector =& Inflector::getInstance();
-		$plugins = array_map(array(&$Inflector, 'underscore'), Configure::listObjects('plugin'));
+		if ($plugins = Configure::listObjects('plugin')) {
+			foreach ($plugins as $key => $value) {
+				$plugins[$key] = Inflector::underscore($value);
+			}
 
-		if(!empty($plugins)) {
 			$match = array('plugin' => implode('|', $plugins));
-			$_this->connect('/:plugin/:controller/:action/*', array(), $match);
+			$this->connect('/:plugin/:controller/:action/*', array(), $match);
 
-			if ($admin) {
-				$_this->connect("/{$admin}/:plugin/:controller", $params, $match);
-				$_this->connect("/{$admin}/:plugin/:controller/:action/*", $params, $match);
+			if ($this->__admin) {
+				$this->connect("/{$this->__admin}/:plugin/:controller", $params, $match);
+				$this->connect("/{$this->__admin}/:plugin/:controller/:action/*", $params, $match);
 			}
 		}
 
-		if ($admin) {
-			$_this->connect("/{$admin}/:controller", $params);
-			$_this->connect("/{$admin}/:controller/:action/*", $params);
+		if ($this->__admin) {
+			$this->connect("/{$this->__admin}/:controller", $params);
+			$this->connect("/{$this->__admin}/:controller/:action/*", $params);
 		}
-		$_this->connect('/:controller', array('action' => 'index'));
+		$this->connect('/:controller', array('action' => 'index'));
+		$this->connect('/:controller/:action/*');
 
-		/**
-		 * Deprecated
-		 *
-		 */
-		$_this->connect('/bare/:controller/:action/*', array('bare' => '1'));
-		$_this->connect('/ajax/:controller/:action/*', array('bare' => '1'));
-
-		if (Configure::read('Routing.webservices') == 'on') {
-			trigger_error('Deprecated: webservices routes are deprecated and will not be supported in future versions.  Use Router::parseExtensions() instead.', E_USER_WARNING);
-			$_this->connect('/rest/:controller/:action/*', array('webservices' => 'Rest'));
-			$_this->connect('/rss/:controller/:action/*', array('webservices' => 'Rss'));
-			$_this->connect('/soap/:controller/:action/*', array('webservices' => 'Soap'));
-			$_this->connect('/xml/:controller/:action/*', array('webservices' => 'Xml'));
-			$_this->connect('/xmlrpc/:controller/:action/*', array('webservices' => 'XmlRpc'));
+		if ($this->named['rules'] === false) {
+			$this->connectNamed(true);
 		}
-		$_this->connect('/:controller/:action/*');
-		if (empty($_this->__namedArgs)) {
-			$_this->connectNamed(array('page', 'fields', 'order', 'limit', 'recursive', 'sort', 'direction', 'step'));
-		}
-		$_this->__defaultsMapped = true;
+		$this->__defaultsMapped = true;
 	}
 /**
  * Takes parameter and path information back from the Dispatcher
  *
  * @param array $params Parameters and path information
+ * @return void
  * @access public
  * @static
  */
 	function setRequestInfo($params) {
 		$_this =& Router::getInstance();
 		$defaults = array('plugin' => null, 'controller' => null, 'action' => null);
-		$params[0] = am($defaults, $params[0]);
-		$params[1] = am($defaults, $params[1]);
+		$params[0] = array_merge($defaults, (array)$params[0]);
+		$params[1] = array_merge($defaults, (array)$params[1]);
 		list($_this->__params[], $_this->__paths[]) = $params;
 
 		if (count($_this->__paths)) {
 			if (isset($_this->__paths[0]['namedArgs'])) {
 				foreach ($_this->__paths[0]['namedArgs'] as $arg => $value) {
-					$_this->__namedArgs[$arg] = true;
+					$_this->named['rules'][$arg] = true;
 				}
 			}
 		}
@@ -543,7 +655,10 @@ class Router extends Object {
 		if ($current) {
 			return $_this->__params[count($_this->__params) - 1];
 		}
-		return $_this->__params[0];
+		if (isset($_this->__params[0])) {
+			return $_this->__params[0];
+		}
+		return array();
 	}
 /**
  * Gets URL parameter by name
@@ -555,7 +670,6 @@ class Router extends Object {
  * @static
  */
 	function getParam($name = 'controller', $current = false) {
-		$_this =& Router::getInstance();
 		$params = Router::getParams($current);
 		if (isset($params[$name])) {
 			return $params[$name];
@@ -575,12 +689,16 @@ class Router extends Object {
 		if ($current) {
 			return $_this->__paths[count($_this->__paths) - 1];
 		}
+		if (!isset($_this->__paths[0])) {
+			return array('base' => null);
+		}
 		return $_this->__paths[0];
 	}
 /**
  * Reloads default Router settings
  *
  * @access public
+ * @return void
  * @static
  */
 	function reload() {
@@ -588,6 +706,7 @@ class Router extends Object {
 		foreach (get_class_vars('Router') as $key => $val) {
 			$_this->{$key} = $val;
 		}
+		$_this->__admin = Configure::read('Routing.admin');
 	}
 /**
  * Promote a route (by default, the last one added) to the beginning of the list
@@ -600,7 +719,7 @@ class Router extends Object {
  */
 	function promote($which = null) {
 		$_this =& Router::getInstance();
-		if ($which == null) {
+		if ($which === null) {
 			$which = count($_this->routes) - 1;
 		}
 		if (!isset($_this->routes[$which])) {
@@ -616,23 +735,32 @@ class Router extends Object {
  *
  * Returns an URL pointing to a combination of controller and action. Param
  * $url can be:
- *	+ Empty - the method will find adress to actuall controller/action.
- *	+ '/' - the method will find base URL of application.
- *	+ A combination of controller/action - the method will find url for it.
  *
- * @param  mixed  $url    Cake-relative URL, like "/products/edit/92" or "/presidents/elect/4"
- *                        or an array specifying any of the following: 'controller', 'action',
- *                        and/or 'plugin', in addition to named arguments (keyed array elements),
- *                        and standard URL arguments (indexed array elements)
- * @param boolean $full If true, the full base URL will be prepended to the result
- * @return string  Full translated URL with base path.
+ * - Empty - the method will find adress to actuall controller/action.
+ * - '/' - the method will find base URL of application.
+ * - A combination of controller/action - the method will find url for it.
+ *
+ * @param mixed $url Cake-relative URL, like "/products/edit/92" or "/presidents/elect/4"
+ *   or an array specifying any of the following: 'controller', 'action',
+ *   and/or 'plugin', in addition to named arguments (keyed array elements),
+ *   and standard URL arguments (indexed array elements)
+ * @param mixed $full If (bool) true, the full base URL will be prepended to the result.
+ *   If an array accepts the following keys
+ *    - escape - used when making urls embedded in html escapes query string '&'
+ *    - full - if true the full base URL will be prepended.
+ * @return string Full translated URL with base path.
  * @access public
  * @static
  */
 	function url($url = null, $full = false) {
 		$_this =& Router::getInstance();
 		$defaults = $params = array('plugin' => null, 'controller' => null, 'action' => 'index');
-		$admin = Configure::read('Routing.admin');
+
+		if (is_bool($full)) {
+			$escape = false;
+		} else {
+			extract(array_merge(array('escape' => false, 'full' => false), $full));
+		}
 
 		if (!empty($_this->__params)) {
 			if (isset($this) && !isset($this->params['requested'])) {
@@ -650,11 +778,15 @@ class Router extends Object {
 				$path = end($_this->__paths);
 			}
 		}
-		$base = $path['base']; // dont need this anymore $_this->stripPlugin($path['base'], $params['plugin']);
+		$base = $path['base'];
 		$extension = $output = $mapped = $q = $frag = null;
 
-		if (is_array($url) && !empty($url)) {
-			if (isset($url['full_base']) && $url['full_base'] == true) {
+		if (is_array($url)) {
+			if (isset($url['base']) && $url['base'] === false) {
+				$base = null;
+				unset($url['base']);
+			}
+			if (isset($url['full_base']) && $url['full_base'] === true) {
 				$full = true;
 				unset($url['full_base']);
 			}
@@ -667,26 +799,26 @@ class Router extends Object {
 				unset($url['#']);
 			}
 			if (empty($url['action'])) {
-				if (empty($url['controller']) || $params['controller'] == $url['controller']) {
+				if (empty($url['controller']) || $params['controller'] === $url['controller']) {
 					$url['action'] = $params['action'];
 				} else {
 					$url['action'] = 'index';
 				}
 			}
-			if ($admin) {
-				if (!isset($url[$admin]) && !empty($params[$admin])) {
-					$url[$admin] = true;
-				} elseif ($admin && array_key_exists($admin, $url) && !$url[$admin]) {
-					unset($url[$admin]);
+			if ($_this->__admin) {
+				if (!isset($url[$_this->__admin]) && !empty($params[$_this->__admin])) {
+					$url[$_this->__admin] = true;
+				} elseif ($_this->__admin && isset($url[$_this->__admin]) && !$url[$_this->__admin]) {
+					unset($url[$_this->__admin]);
 				}
 			}
-
 			$plugin = false;
+
 			if (array_key_exists('plugin', $url)) {
 				$plugin = $url['plugin'];
 			}
 
-			$url = am(array('controller' => $params['controller'], 'plugin' => $params['plugin']), Set::filter($url, true));
+			$url = array_merge(array('controller' => $params['controller'], 'plugin' => $params['plugin']), Set::filter($url, true));
 
 			if ($plugin !== false) {
 				$url['plugin'] = $plugin;
@@ -698,24 +830,36 @@ class Router extends Object {
 			}
 			$match = false;
 
-			foreach ($_this->routes as $route) {
+			foreach ($_this->routes as $i => $route) {
+				if (count($route) === 3) {
+					$route = $_this->compile($i);
+				}
+				$originalUrl = $url;
+
+				if (isset($route[4]['persist'], $_this->__params[0])) {
+					$url = array_merge(array_intersect_key($params, Set::combine($route[4]['persist'], '/')), $url);
+				}
 				if ($match = $_this->mapRouteElements($route, $url)) {
 					$output = trim($match, '/');
 					$url = array();
 					break;
 				}
+				$url = $originalUrl;
 			}
+
 			$named = $args = array();
-			$skip = array('bare', 'action', 'controller', 'plugin', 'ext', '?', '#', 'prefix', Configure::read('Routing.admin'));
+			$skip = array(
+				'bare', 'action', 'controller', 'plugin', 'ext', '?', '#', 'prefix', $_this->__admin
+			);
 
 			$keys = array_values(array_diff(array_keys($url), $skip));
 			$count = count($keys);
 
 			// Remove this once parsed URL parameters can be inserted into 'pass'
 			for ($i = 0; $i < $count; $i++) {
-				if ($i == 0 && is_numeric($keys[$i]) && in_array('id', $keys)) {
+				if ($i === 0 && is_numeric($keys[$i]) && in_array('id', $keys)) {
 					$args[0] = $url[$keys[$i]];
-				} elseif (is_numeric($keys[$i]) || $keys[$i] == 'id') {
+				} elseif (is_numeric($keys[$i]) || $keys[$i] === 'id') {
 					$args[] = $url[$keys[$i]];
 				} else {
 					$named[$keys[$i]] = $url[$keys[$i]];
@@ -723,9 +867,12 @@ class Router extends Object {
 			}
 
 			if ($match === false) {
-				list($args, $named)  = array(Set::filter($args, true), Set::filter($named, true));
+				list($args, $named)  = array(Set::filter($args, true), Set::filter($named));
+				if (!empty($url[$_this->__admin])) {
+					$url['action'] = str_replace($_this->__admin . '_', '', $url['action']);
+				}
 
-				if (empty($named) && empty($args) && (!isset($url['action']) || $url['action'] == 'index')) {
+				if (empty($named) && empty($args) && (!isset($url['action']) || $url['action'] === 'index')) {
 					$url['action'] = null;
 				}
 
@@ -735,8 +882,8 @@ class Router extends Object {
 					array_unshift($urlOut, $url['plugin']);
 				}
 
-				if($admin && isset($url['admin'])) {
-					array_unshift($urlOut, $admin);
+				if ($_this->__admin && isset($url[$_this->__admin])) {
+					array_unshift($urlOut, $_this->__admin);
 				}
 				$output = join('/', $urlOut) . '/';
 			}
@@ -751,39 +898,41 @@ class Router extends Object {
 
 			if (!empty($named)) {
 				foreach ($named as $name => $value) {
-					$output .= '/' . $name . $_this->__argSeparator . $value;
+					$output .= '/' . $name . $_this->named['separator'] . $value;
 				}
 			}
-
 			$output = str_replace('//', '/', $base . '/' . $output);
 		} else {
-			if (((strpos($url, '://')) || (strpos($url, 'javascript:') === 0) || (strpos($url, 'mailto:') === 0)) || (substr($url, 0, 1) == '#')) {
+			if (((strpos($url, '://')) || (strpos($url, 'javascript:') === 0) || (strpos($url, 'mailto:') === 0)) || (!strncmp($url, '#', 1))) {
 				return $url;
 			}
-
 			if (empty($url)) {
-				return $path['here'];
-			} elseif (substr($url, 0, 1) == '/') {
+				if (!isset($path['here'])) {
+					$path['here'] = '/';
+				}
+				$output = $path['here'];
+			} elseif (substr($url, 0, 1) === '/') {
 				$output = $base . $url;
 			} else {
 				$output = $base . '/';
-				if ($admin && isset($params[$admin])) {
-					$output .= $admin . '/';
+				if ($_this->__admin && isset($params[$_this->__admin])) {
+					$output .= $_this->__admin . '/';
 				}
-				if (!empty($params['plugin'])) {
+				if (!empty($params['plugin']) && $params['plugin'] !== $params['controller']) {
 					$output .= Inflector::underscore($params['plugin']) . '/';
 				}
 				$output .= Inflector::underscore($params['controller']) . '/' . $url;
 			}
 			$output = str_replace('//', '/', $output);
 		}
-		if ($full) {
+		if ($full && defined('FULL_BASE_URL')) {
 			$output = FULL_BASE_URL . $output;
 		}
-		if (!empty($extension) && substr($output, -1) == '/') {
+		if (!empty($extension) && substr($output, -1) === '/') {
 			$output = substr($output, 0, -1);
 		}
-		return $output . $extension . $_this->queryString($q) . $frag;
+
+		return $output . $extension . $_this->queryString($q, array(), $escape) . $frag;
 	}
 /**
  * Maps a URL array onto a route and returns the string result, or false if no match
@@ -795,7 +944,6 @@ class Router extends Object {
  * @static
  */
 	function mapRouteElements($route, $url) {
-		$_this =& Router::getInstance();
 		if (isset($route[3]['prefix'])) {
 			$prefix = $route[3]['prefix'];
 			unset($route[3]['prefix']);
@@ -805,6 +953,20 @@ class Router extends Object {
 		$defaults = $route[3];
 		$routeParams = $route[2];
 		$params = Set::diff($url, $defaults);
+		$urlInv = array_combine(array_values($url), array_keys($url));
+
+		$i = 0;
+		while (isset($defaults[$i])) {
+			if (isset($urlInv[$defaults[$i]])) {
+				if (!in_array($defaults[$i], $url) && is_int($urlInv[$defaults[$i]])) {
+					return false;
+				}
+				unset($urlInv[$defaults[$i]], $defaults[$i]);
+			} else {
+				return false;
+			}
+			$i++;
+		}
 
 		foreach ($params as $key => $value) {
 			if (is_int($key)) {
@@ -812,7 +974,7 @@ class Router extends Object {
 				unset($params[$key]);
 			}
 		}
-		list($named, $params) = $_this->getNamedElements($params);
+		list($named, $params) = Router::getNamedElements($params);
 
 		if (!strpos($route[0], '*') && (!empty($pass) || !empty($named))) {
 			return false;
@@ -826,44 +988,55 @@ class Router extends Object {
 			if (array_diff($paramsKeys, $routeParams) != array()) {
 				return false;
 			}
-			$required = array_diff($defaultsKeys, $urlKeys);
-		}
+			$required = array_values(array_diff($routeParams, $urlKeys));
+			$reqCount = count($required);
 
+			for ($i = 0; $i < $reqCount; $i++) {
+				if (array_key_exists($required[$i], $defaults) && $defaults[$required[$i]] === null) {
+					unset($required[$i]);
+				}
+			}
+		}
 		$isFilled = true;
+
 		if (!empty($routeParams)) {
 			$filled = array_intersect_key($url, array_combine($routeParams, array_keys($routeParams)));
-			$isFilled = (array_diff($routeParams, array_keys($filled)) == array());
+			$isFilled = (array_diff($routeParams, array_keys($filled)) === array());
 			if (!$isFilled && empty($params)) {
 				return false;
 			}
 		}
 
 		if (empty($params)) {
-			return Router::__mapRoute($route, am($url, compact('pass', 'named', 'prefix')));
+			return Router::__mapRoute($route, array_merge($url, compact('pass', 'named', 'prefix')));
 		} elseif (!empty($routeParams) && !empty($route[3])) {
+
 			if (!empty($required)) {
-			 	return false;
+				return false;
 			}
 			foreach ($params as $key => $val) {
 				if ((!isset($url[$key]) || $url[$key] != $val) || (!isset($defaults[$key]) || $defaults[$key] != $val) && !in_array($key, $routeParams)) {
+					if (!isset($defaults[$key])) {
+						continue;
+					}
 					return false;
 				}
 			}
 		} else {
-			if (empty($required) && $defaults['plugin'] == $url['plugin'] && $defaults['controller'] == $url['controller'] && $defaults['action'] == $url['action']) {
-				return Router::__mapRoute($route, am($url, compact('pass', 'named', 'prefix')));
+			if (empty($required) && $defaults['plugin'] === $url['plugin'] && $defaults['controller'] === $url['controller'] && $defaults['action'] === $url['action']) {
+				return Router::__mapRoute($route, array_merge($url, compact('pass', 'named', 'prefix')));
 			}
 			return false;
 		}
 
 		if (!empty($route[4])) {
 			foreach ($route[4] as $key => $reg) {
-				if (array_key_exists($key, $url) && !preg_match('/' . $reg . '/', $url[$key])) {
+				if (array_key_exists($key, $url) && !preg_match('#' . $reg . '#', $url[$key])) {
 					return false;
 				}
 			}
 		}
-		return Router::__mapRoute($route, am($filled, compact('pass', 'named', 'prefix')));
+		return Router::__mapRoute($route, array_merge($filled, compact('pass', 'named', 'prefix')));
 	}
 /**
  * Merges URL parameters into a route string
@@ -874,7 +1047,9 @@ class Router extends Object {
  * @access private
  */
 	function __mapRoute($route, $params = array()) {
-		$_this =& Router::getInstance();
+		if (isset($params['plugin']) && isset($params['controller']) && $params['plugin'] === $params['controller']) {
+			unset($params['controller']);
+		}
 
 		if (isset($params['prefix']) && isset($params['action'])) {
 			$params['action'] = str_replace($params['prefix'] . '_', '', $params['action']);
@@ -882,16 +1057,9 @@ class Router extends Object {
 		}
 
 		if (isset($params['pass']) && is_array($params['pass'])) {
- 			$params['pass'] = implode('/', Set::filter($params['pass'], true));
+			$params['pass'] = implode('/', Set::filter($params['pass'], true));
 		} elseif (!isset($params['pass'])) {
 			$params['pass'] = '';
-		}
-
-		if (isset($params['plugin'])) {
-			if(strpos($route[0], 'plugin') === false && !empty($route[2])) {
-				$route[2] = array_merge($route[2], array('plugin'));
-				$route[0] = '/:plugin' . $route[0];
-			}
 		}
 
 		if (isset($params['named'])) {
@@ -901,7 +1069,7 @@ class Router extends Object {
 				$named = array();
 
 				for ($i = 0; $i < $count; $i++) {
-					$named[] = $keys[$i] . $_this->__argSeparator . $params['named'][$keys[$i]];
+					$named[] = $keys[$i] . $this->named['separator'] . $params['named'][$keys[$i]];
 				}
 				$params['named'] = join('/', $named);
 			}
@@ -914,6 +1082,8 @@ class Router extends Object {
 			if (isset($params[$key])) {
 				$string = $params[$key];
 				unset($params[$key]);
+			} else {
+				$key = $key . '/';
 			}
 			$out = str_replace(':' . $key, $string, $out);
 		}
@@ -921,6 +1091,7 @@ class Router extends Object {
 		if (strpos($route[0], '*')) {
 			$out = str_replace('*', $params['pass'], $out);
 		}
+
 		return $out;
 	}
 /**
@@ -937,59 +1108,111 @@ class Router extends Object {
 		$_this =& Router::getInstance();
 		$named = array();
 
-		foreach ($params as $key => $val) {
-			if (isset($_this->__namedArgs[$key])) {
-				$match = true;
-
-				if (is_array($_this->__namedArgs[$key])) {
-					$opts = $_this->__namedArgs[$key];
-					if (isset($opts['controller']) && !in_array($controller, (array)$opts['controller'])) {
-						$match = false;
-					}
-					if (isset($opts['action']) && !in_array($action, (array)$opts['action'])) {
-						$match = false;
-					}
-					if (isset($opts['match']) && !preg_match('/' . $opts['match'] . '/', $val)) {
-						$match = false;
-					}
-				} elseif (!$_this->__namedArgs[$key]) {
-					$match = false;
-				}
-				if ($match) {
-					$named[$key] = $val;
-					unset($params[$key]);
+		foreach ($params as $param => $val) {
+			if (isset($_this->named['rules'][$param])) {
+				$rule = $_this->named['rules'][$param];
+				if (Router::matchNamed($param, $val, $rule, compact('controller', 'action'))) {
+					$named[$param] = $val;
+					unset($params[$param]);
 				}
 			}
 		}
 		return array($named, $params);
 	}
+/**
+ * Return true if a given named $param's $val matches a given $rule depending on $context. Currently implemented
+ * rule types are controller, action and match that can be combined with each other.
+ *
+ * @param string $param The name of the named parameter
+ * @param string $val The value of the named parameter
+ * @param array $rule The rule(s) to apply, can also be a match string
+ * @param string $context An array with additional context information (controller / action)
+ * @return boolean
+ * @access public
+ */
+	function matchNamed($param, $val, $rule, $context = array()) {
+		if ($rule === true || $rule === false) {
+			return $rule;
+		}
+		if (is_string($rule)) {
+			$rule = array('match' => $rule);
+		}
+		if (!is_array($rule)) {
+			return false;
+		}
 
+		$controllerMatches = !isset($rule['controller'], $context['controller']) || in_array($context['controller'], (array)$rule['controller']);
+		if (!$controllerMatches) {
+			return false;
+		}
+		$actionMatches = !isset($rule['action'], $context['action']) || in_array($context['action'], (array)$rule['action']);
+		if (!$actionMatches) {
+			return false;
+		}
+		$valueMatches = !isset($rule['match']) || preg_match(sprintf('/%s/', $rule['match']), $val);
+		return $valueMatches;
+	}
 /**
  * Generates a well-formed querystring from $q
  *
  * @param mixed $q Query string
- * @param array $extra Extra querystring parameters
+ * @param array $extra Extra querystring parameters.
+ * @param bool $escape Whether or not to use escaped &
  * @return array
  * @access public
  * @static
  */
-	function queryString($q, $extra = array()) {
+	function queryString($q, $extra = array(), $escape = false) {
 		if (empty($q) && empty($extra)) {
 			return null;
+		}
+		$join = '&';
+		if ($escape === true) {
+			$join = '&amp;';
 		}
 		$out = '';
 
 		if (is_array($q)) {
-			$q = am($extra, $q);
+			$q = array_merge($extra, $q);
 		} else {
 			$out = $q;
 			$q = $extra;
 		}
-		$out .= http_build_query($q);
-		if (strpos($out, '?') !== 0) {
+		$out .= http_build_query($q, null, $join);
+		if (isset($out[0]) && $out[0] != '?') {
 			$out = '?' . $out;
 		}
 		return $out;
+	}
+/**
+ * Normalizes a URL for purposes of comparison
+ *
+ * @param mixed $url URL to normalize
+ * @return string Normalized URL
+ * @access public
+ */
+	function normalize($url = '/') {
+		if (is_array($url)) {
+			$url = Router::url($url);
+		} elseif (preg_match('/^[a-z\-]+:\/\//', $url)) {
+			return $url;
+		}
+		$paths = Router::getPaths();
+
+		if (!empty($paths['base']) && stristr($url, $paths['base'])) {
+			$url = preg_replace('/' . preg_quote($paths['base'], '/') . '/', '', $url, 1);
+		}
+		$url = '/' . $url;
+
+		while (strpos($url, '//') !== false) {
+			$url = str_replace('//', '/', $url);
+		}
+		$url = preg_replace('/(?:(\/$))/', '', $url);
+
+		if (empty($url)) {
+			return '/';
+		}
+		return $url;
 	}
 /**
  * Returns the route matching the current request URL.
@@ -1024,12 +1247,12 @@ class Router extends Object {
  */
 	function stripPlugin($base, $plugin) {
 		if ($plugin != null) {
-			$base = preg_replace('/' . $plugin . '/', '', $base);
+			$base = preg_replace('/(?:' . $plugin . ')/', '', $base);
 			$base = str_replace('//', '', $base);
 			$pos1 = strrpos($base, '/');
 			$char = strlen($base) - 1;
 
-			if ($pos1 == $char) {
+			if ($pos1 === $char) {
 				$base = substr($base, 0, $char);
 			}
 		}
@@ -1051,12 +1274,12 @@ class Router extends Object {
 				return $param;
 			}
 
-			$return = preg_replace('/^[\\t ]*(?:-!)+/', '', $param);
+			$return = preg_replace('/^(?:[\\t ]*(?:-!)+)/', '', $param);
 			return $return;
 		}
 		foreach ($param as $key => $value) {
 			if (is_string($value)) {
-				$return[$key] = preg_replace('/^[\\t ]*(?:-!)+/', '', $value);
+				$return[$key] = preg_replace('/^(?:[\\t ]*(?:-!)+)/', '', $value);
 			} else {
 				foreach ($value as $array => $string) {
 					$return[$key][$array] = $_this->stripEscape($string);
@@ -1078,6 +1301,7 @@ class Router extends Object {
  * parsed, excluding querystring parameters (i.e. ?q=...).
  *
  * @access public
+ * @return void
  * @static
  */
 	function parseExtensions() {
@@ -1087,30 +1311,58 @@ class Router extends Object {
 			$_this->__validExtensions = func_get_args();
 		}
 	}
-
 /**
  * Takes an passed params and converts it to args
  *
- * @access public
  * @param array $params
+ * @return array Array containing passed and named parameters
+ * @access public
  * @static
  */
-	function getArgs($pass) {
+	function getArgs($args, $options = array()) {
 		$_this =& Router::getInstance();
-		$args = array();
-		$pass = array_map(
-					array(&$_this, 'stripEscape'),
-					Set::filter(explode('/', $pass), true)
-				);
-		foreach ($pass as $param) {
-			if (strpos($param, $_this->__argSeparator)) {
-				$param = explode($_this->__argSeparator, $param);
-				$args[$param[0]] = $param[1];
-			} else {
-				$args[] = $param;
+		$pass = $named = array();
+		$args = explode('/', $args);
+
+		$greedy = $_this->named['greedy'];
+		if (isset($options['greedy'])) {
+			$greedy = $options['greedy'];
+		}
+		$context = array();
+		if (isset($options['context'])) {
+			$context = $options['context'];
+		}
+		$rules = $_this->named['rules'];
+		if (isset($options['named'])) {
+			$greedy = isset($options['greedy']) && $options['greedy'] === true;
+			foreach ((array)$options['named'] as $key => $val) {
+				if (is_numeric($key)) {
+					$rules[$val] = true;
+					continue;
+				}
+				$rules[$key] = $val;
 			}
 		}
-		return $args;
+
+		foreach ($args as $param) {
+			if (empty($param) && $param !== '0' && $param !== 0) {
+				continue;
+			}
+			$param = $_this->stripEscape($param);
+			if ((!isset($options['named']) || !empty($options['named'])) && strpos($param, $_this->named['separator']) !== false) {
+				list($key, $val) = explode($_this->named['separator'], $param, 2);
+				$hasRule = isset($rules[$key]);
+				$passIt = (!$hasRule && !$greedy) || ($hasRule && !Router::matchNamed($key, $val, $rules[$key], $context));
+				if ($passIt) {
+					$pass[] = $param;
+				} else {
+					$named[$key] = $val;
+				}
+			} else {
+				$pass[] = $param;
+			}
+		}
+		return compact('pass', 'named');
 	}
 }
 ?>

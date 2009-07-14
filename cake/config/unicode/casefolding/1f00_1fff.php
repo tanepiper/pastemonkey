@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: 1f00_1fff.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: 1f00_1fff.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Case Folding Properties.
  *
@@ -11,24 +11,22 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.config.unicode.casefolding
- * @since			CakePHP(tm) v 1.2.0.5691
- * @version			$Revision: 5691 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.config.unicode.casefolding
+ * @since         CakePHP(tm) v 1.2.0.5691
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * The upper field is the decimal value of the upper case character
@@ -45,7 +43,7 @@
  *     Note that the Turkic mappings do not maintain canonical equivalence without additional processing.
  *     See the discussions of case mapping in the Unicode Standard for more information.
  */
-$config['1f00_1fff'][] = array('upper' => 7944, 'status' => 'C', 'lower' => array(7936)); /* GREEK CAPITAL LETTER ALPHA WITH PSILI */
+$config['1f00_1fff'][] = array('upper' => 7944, 'status' => 'C', 'lower' => array(7936, 953)); /* GREEK CAPITAL LETTER ALPHA WITH PSILI */
 $config['1f00_1fff'][] = array('upper' => 7945, 'status' => 'C', 'lower' => array(7937)); /* GREEK CAPITAL LETTER ALPHA WITH DASIA */
 $config['1f00_1fff'][] = array('upper' => 7946, 'status' => 'C', 'lower' => array(7938)); /* GREEK CAPITAL LETTER ALPHA WITH PSILI AND VARIA */
 $config['1f00_1fff'][] = array('upper' => 7947, 'status' => 'C', 'lower' => array(7939)); /* GREEK CAPITAL LETTER ALPHA WITH DASIA AND VARIA */

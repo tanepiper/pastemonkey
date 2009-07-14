@@ -1,47 +1,39 @@
 <?php
-/* SVN FILE: $Id: cache.php 5866 2007-10-22 20:39:36Z gwoo $ */
+/* SVN FILE: $Id: cache.php 8120 2009-03-19 20:25:10Z gwoo $ */
 /**
  * Caching for CakePHP.
  *
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs
- * @since			CakePHP(tm) v 1.2.0.4933
- * @version			$Revision: 5866 $
- * @modifiedby		$LastChangedBy: gwoo $
- * @lastmodified	$Date: 2007-10-22 21:39:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs
+ * @since         CakePHP(tm) v 1.2.0.4933
+ * @version       $Revision: 8120 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-03-19 13:25:10 -0700 (Thu, 19 Mar 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-/**
- * Included libraries.
- */
-if (!class_exists('object')) {
-	uses('object');
-}
 /**
  * Caching for CakePHP.
  *
- * @package		cake
- * @subpackage	cake.cake.libs
+ * @package       cake
+ * @subpackage    cake.cake.libs
  */
 class Cache extends Object {
 /**
  * Cache engine to use
  *
- * @var object
+ * @var CacheEngine
  * @access protected
  */
 	var $_Engine = null;
@@ -58,16 +50,24 @@ class Cache extends Object {
  * @var array
  * @access private
  */
-	var $__name = null;
+	var $__name = 'default';
+/**
+ * whether to reset the settings with the next call to self::set();
+ *
+ * @var array
+ * @access private
+ */
+	var $__reset = false;
 /**
  * Returns a singleton instance
  *
  * @return object
  * @access public
+ * @static
  */
 	function &getInstance() {
 		static $instance = array();
-		if (!isset($instance[0]) || !$instance[0]) {
+		if (!$instance) {
 			$instance[0] =& new Cache();
 		}
 		return $instance[0];
@@ -81,10 +81,7 @@ class Cache extends Object {
  */
 	function __loadEngine($name) {
 		if (!class_exists($name . 'Engine')) {
-			$fileName = LIBS . DS . 'cache' . DS . strtolower($name) . '.php';
-			if (!require($fileName)) {
-				return false;
-			}
+			require LIBS . DS . 'cache' . DS . strtolower($name) . '.php';
 		}
 		return true;
 	}
@@ -96,43 +93,43 @@ class Cache extends Object {
  * @param array $settings Optional associative array of settings passed to the engine
  * @return array(engine, settings) on success, false on failure
  * @access public
+ * @static
  */
-	function config($name = 'default', $settings = array()) {
+	function config($name = null, $settings = array()) {
 		$_this =& Cache::getInstance();
 		if (is_array($name)) {
-			extract($name);
+			$settings = $name;
 		}
 
-		if (isset($_this->__config[$name])) {
-			$settings = array_merge($_this->__config[$name], $settings);
-		} elseif (!empty($settings)) {
-			$_this->__config[$name] = $settings;
-		} elseif ($_this->__name !== null && isset($_this->__config[$_this->__name])) {
+		if ($name === null || !is_string($name)) {
 			$name = $_this->__name;
-			$settings = $_this->__config[$_this->__name];
-		} else {
-			$name = 'default';
-			if(!empty($_this->__config['default'])) {
-				$settings = $_this->__config['default'];
-			} else {
-				$settings = array('engine'=>'File');
-			}
 		}
 
-		$engine = 'File';
-		if (!empty($settings['engine'])) {
-			$engine = $settings['engine'];
+		$current = array();
+		if (isset($_this->__config[$name])) {
+			$current = $_this->__config[$name];
 		}
 
-		if ($name !== $_this->__name) {
-			if ($_this->engine($engine, $settings) === false) {
+		if (!empty($settings)) {
+			$_this->__name = null;
+			$_this->__config[$name] = array_merge($current, $settings);
+		}
+
+		if (empty($_this->__config[$name]['engine'])) {
+			return false;
+		}
+
+		$_this->__name = $name;
+		$engine = $_this->__config[$name]['engine'];
+
+		if (!$_this->isInitialized($engine)) {
+			if ($_this->engine($engine, $_this->__config[$name]) === false) {
 				return false;
 			}
-			$_this->__name = $name;
-			$_this->__config[$name] = $_this->settings($engine);
+			$settings = $_this->__config[$name] = $_this->settings($engine);
+		} else {
+			$settings = $_this->__config[$name] = $_this->set($_this->__config[$name]);
 		}
-
-		$settings = $_this->__config[$name];
 		return compact('engine', 'settings');
 	}
 /**
@@ -142,12 +139,9 @@ class Cache extends Object {
  * @param array $settings Optional associative array of settings passed to the engine
  * @return boolean True on success, false on failure
  * @access public
+ * @static
  */
 	function engine($name = 'File', $settings = array()) {
-		if (!$name || Configure::read('Cache.disable')) {
-			return false;
-		}
-
 		$cacheClass = $name . 'Engine';
 		$_this =& Cache::getInstance();
 		if (!isset($_this->_Engine[$name])) {
@@ -158,7 +152,7 @@ class Cache extends Object {
 		}
 
 		if ($_this->_Engine[$name]->init($settings)) {
-			if (time() % $_this->_Engine[$name]->settings['probability'] == 0) {
+			if (time() % $_this->_Engine[$name]->settings['probability'] === 0) {
 				$_this->_Engine[$name]->gc();
 			}
 			return true;
@@ -167,31 +161,91 @@ class Cache extends Object {
 		return false;
 	}
 /**
+ * Temporarily change settings to current config options. if no params are passed, resets settings if needed
+ * Cache::write() will reset the configuration changes made
+ *
+ * @param mixed $settings Optional string for simple name-value pair or array
+ * @param string $value Optional for a simple name-value pair
+ * @return array of settings
+ * @access public
+ * @static
+ */
+	function set($settings = array(), $value = null) {
+		$_this =& Cache::getInstance();
+		if (!isset($_this->__config[$_this->__name])) {
+			return false;
+		}
+
+		$engine = $_this->__config[$_this->__name]['engine'];
+
+		if (!empty($settings)) {
+			$_this->__reset = true;
+		}
+
+		if ($_this->__reset === true) {
+			if (empty($settings)) {
+				$_this->__reset = false;
+				$settings = $_this->__config[$_this->__name];
+			} else {
+				if (is_string($settings) && $value !== null) {
+					$settings = array($settings => $value);
+				}
+				$settings = array_merge($_this->__config[$_this->__name], $settings);
+			}
+			$_this->_Engine[$engine]->init($settings);
+		}
+
+		return $_this->settings($engine);
+	}
+/**
+ * Garbage collection
+ *
+ * Permanently remove all expired and deleted data
+ *
+ * @return void
+ * @access public
+ * @static
+ */
+	function gc() {
+		$_this =& Cache::getInstance();
+		$config = $_this->config();
+		$_this->_Engine[$config['engine']]->gc();
+	}
+/**
  * Write data for key into cache
  *
  * @param string $key Identifier for the data
  * @param mixed $value Data to be cached - anything except a resource
- * @param mixed $duration Optional - string configuration name OR how long to cache the data, either in seconds or a
- *			string that can be parsed by the strtotime() function OR array('config' => 'default', 'duration' => '3600')
+ * @param string $config Optional - string configuration name
  * @return boolean True if the data was successfully cached, false on failure
  * @access public
+ * @static
  */
-	function write($key, $value, $duration = null) {
+	function write($key, $value, $config = null) {
 		$_this =& Cache::getInstance();
-		if (is_array($duration)) {
-			extract($duration);
-		} else {
-			$config = $duration;
+
+		if (is_array($config)) {
+			extract($config);
+		} else if ($config && (is_numeric($config) || is_numeric($config[0]) || (isset($config[1]) && is_numeric($config[1])))) {
+			$config = null;
 		}
 
-		$config = $_this->config($config);
-		extract($config);
+		if ($config && isset($_this->__config[$config])) {
+			$settings = $_this->set($_this->__config[$config]);
+		} else {
+			$settings = $_this->settings();
+		}
+
+		if (empty($settings)) {
+			return null;
+		}
+		extract($settings);
 
 		if (!$_this->isInitialized($engine)) {
 			return false;
 		}
 
-		if (!$key = $_this->__key($key)) {
+		if (!$key = $_this->_Engine[$engine]->key($key)) {
 			return false;
 		}
 
@@ -199,16 +253,12 @@ class Cache extends Object {
 			return false;
 		}
 
-		if (!$duration) {
-			$duration = $settings['duration'];
-		}
-
-		$duration = ife(is_string($duration), strtotime($duration) - time(), intval($duration));
 		if ($duration < 1) {
 			return false;
 		}
-		$success = $_this->_Engine[$engine]->write($key, $value, $duration);
-		$_this->_Engine[$engine]->init($settings);
+
+		$success = $_this->_Engine[$engine]->write($settings['prefix'] . $key, $value, $duration);
+		$settings = $_this->set();
 		return $success;
 	}
 /**
@@ -218,21 +268,33 @@ class Cache extends Object {
  * @param string $config name of the configuration to use
  * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
  * @access public
+ * @static
  */
 	function read($key, $config = null) {
 		$_this =& Cache::getInstance();
 
-		$config = $_this->config($config);
-		extract($config);
+		if (isset($_this->__config[$config])) {
+			$settings = $_this->set($_this->__config[$config]);
+		} else {
+			$settings = $_this->settings();
+		}
+
+		if (empty($settings)) {
+			return null;
+		}
+		extract($settings);
 
 		if (!$_this->isInitialized($engine)) {
 			return false;
 		}
-		if (!$key = $_this->__key($key)) {
+		if (!$key = $_this->_Engine[$engine]->key($key)) {
 			return false;
 		}
-		$success = $_this->_Engine[$engine]->read($key);
-		$_this->_Engine[$engine]->init($settings);
+		$success = $_this->_Engine[$engine]->read($settings['prefix'] . $key);
+
+		if ($config !== null && $config !== $_this->__name) {
+			$settings = $_this->set();
+		}
 		return $success;
 	}
 /**
@@ -242,23 +304,31 @@ class Cache extends Object {
  * @param string $config name of the configuration to use
  * @return boolean True if the value was succesfully deleted, false if it didn't exist or couldn't be removed
  * @access public
+ * @static
  */
 	function delete($key, $config = null) {
 		$_this =& Cache::getInstance();
+		if (isset($_this->__config[$config])) {
+			$settings = $_this->set($_this->__config[$config]);
+		} else {
+			$settings = $_this->settings();
+		}
 
-		$config = $_this->config($config);
-		extract($config);
+		if (empty($settings)) {
+			return null;
+		}
+		extract($settings);
 
 		if (!$_this->isInitialized($engine)) {
 			return false;
 		}
 
-		if (!$key = $_this->__key($key)) {
+		if (!$key = $_this->_Engine[$engine]->key($key)) {
 			return false;
 		}
 
-		$success = $_this->_Engine[$engine]->delete($key);
-		$_this->_Engine[$engine]->init($settings);
+		$success = $_this->_Engine[$engine]->delete($settings['prefix'] . $key);
+		$settings = $_this->set();
 		return $success;
 	}
 /**
@@ -268,17 +338,26 @@ class Cache extends Object {
  * @param string $config name of the configuration to use
  * @return boolean True if the cache was succesfully cleared, false otherwise
  * @access public
+ * @static
  */
 	function clear($check = false, $config = null) {
 		$_this =& Cache::getInstance();
-		$config = $_this->config($config);
-		extract($config);
+		if (isset($_this->__config[$config])) {
+			$settings = $_this->set($_this->__config[$config]);
+		} else {
+			$settings = $_this->settings();
+		}
 
-		if (!$_this->isInitialized($engine)) {
+		if (empty($settings)) {
+			return null;
+		}
+		extract($settings);
+
+		if (isset($engine) && !$_this->isInitialized($engine)) {
 			return false;
 		}
 		$success = $_this->_Engine[$engine]->clear($check);
-		$_this->_Engine[$engine]->init($settings);
+		$settings = $_this->set();
 		return $success;
 	}
 /**
@@ -288,6 +367,7 @@ class Cache extends Object {
  * @param string $config Name of the configuration setting
  * @return bool
  * @access public
+ * @static
  */
 	function isInitialized($engine = null) {
 		if (Configure::read('Cache.disable')) {
@@ -306,47 +386,34 @@ class Cache extends Object {
  * @param string $engine Name of the engine
  * @return array list of settings for this engine
  * @access public
+ * @static
  */
 	function settings($engine = null) {
 		$_this =& Cache::getInstance();
 		if (!$engine && isset($_this->__config[$_this->__name]['engine'])) {
 			$engine = $_this->__config[$_this->__name]['engine'];
 		}
+
 		if (isset($_this->_Engine[$engine]) && !is_null($_this->_Engine[$engine])) {
 			return $_this->_Engine[$engine]->settings();
 		}
 		return array();
 	}
-/**
- * generates a safe key
- *
- * @param string $key the key passed over
- * @return mixed string $key or false
- * @access private
- */
-	function __key($key) {
-		if (empty($key)) {
-			return false;
-		}
-		$key = r(array(DS, '/', '.'), '_', strval($key));
-		return $key;
-	}
 }
 /**
  * Storage engine for CakePHP caching
  *
- * @package		cake
- * @subpackage	cake.cake.libs
+ * @package       cake
+ * @subpackage    cake.cake.libs
  */
 class CacheEngine extends Object {
-
 /**
  * settings of current engine instance
  *
  * @var int
  * @access public
  */
-	var $settings;
+	var $settings = array();
 /**
  * Iitialize the cache engine
  *
@@ -357,7 +424,10 @@ class CacheEngine extends Object {
  * @access public
  */
 	function init($settings = array()) {
-		$this->settings = am(array('duration'=> 3600, 'probability'=> 100), $settings);
+		$this->settings = array_merge(array('prefix' => 'cake_', 'duration'=> 3600, 'probability'=> 100), $this->settings, $settings);
+		if (!is_numeric($this->settings['duration'])) {
+			$this->settings['duration'] = strtotime($this->settings['duration']) - time();
+		}
 		return true;
 	}
 /**
@@ -417,6 +487,20 @@ class CacheEngine extends Object {
  */
 	function settings() {
 		return $this->settings;
+	}
+/**
+ * generates a safe key
+ *
+ * @param string $key the key passed over
+ * @return mixed string $key or false
+ * @access public
+ */
+	function key($key) {
+		if (empty($key)) {
+			return false;
+		}
+		$key = Inflector::underscore(str_replace(array(DS, '/', '.'), '_', strval($key)));
+		return $key;
 	}
 }
 ?>

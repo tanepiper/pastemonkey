@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cli_reporter.php 4433 2007-02-04 01:05:51Z phpnut $ */
+/* SVN FILE: $Id: cli_reporter.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -8,47 +8,40 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
- * @package			cake
- * @subpackage		cake.cake.tests.libs
- * @since			CakePHP(tm) v 1.2.0.4433
- * @version			$Revision: 4433 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-02-04 01:05:51 +0000 (Sun, 04 Feb 2007) $
- * @license			http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @package       cake
+ * @subpackage    cake.cake.tests.libs
+ * @since         CakePHP(tm) v 1.2.0.4433
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/opengroup.php The Open Group Test Suite License
  */
 	if (! defined('ST_FAILDETAIL_SEPARATOR')) {
-	    define('ST_FAILDETAIL_SEPARATOR', "->");
+		define('ST_FAILDETAIL_SEPARATOR', "->");
 	}
 
-	if (! defined('ST_FAILS_RETURN_CODE')) {
-	    define('ST_FAILS_RETURN_CODE', 1);
-	}
-
-	if (version_compare(phpversion(), '4.3.0', '<') ||
-	    php_sapi_name() == 'cgi') {
-	    define('STDOUT', fopen('php://stdout', 'w'));
-	    define('STDERR', fopen('php://stderr', 'w'));
-	    register_shutdown_function(
-	        create_function('', 'fclose(STDOUT); fclose(STDERR); return true;'));
+	if (version_compare(PHP_VERSION, '4.4.4', '<=') ||
+		PHP_SAPI == 'cgi') {
+		define('STDOUT', fopen('php://stdout', 'w'));
+		define('STDERR', fopen('php://stderr', 'w'));
+		register_shutdown_function(create_function('', 'fclose(STDOUT); fclose(STDERR); return true;'));
 	}
 /**
  * Minimal command line test displayer. Writes fail details to STDERR. Returns 0
  * to the shell if all tests pass, ST_FAILS_RETURN_CODE if any test fails.
  *
- * @package    cake
- * @subpackage cake.cake.tests.libs
+ * @package       cake
+ * @subpackage    cake.cake.tests.libs
  */
-class CLIReporter extends SimpleReporter {
+class CLIReporter extends TextReporter {
 	var $faildetail_separator = ST_FAILDETAIL_SEPARATOR;
 
 	function CLIReporter($faildetail_separator = NULL) {
@@ -102,7 +95,6 @@ class CLIReporter extends SimpleReporter {
 			}
 			$buffer .= ".\n";
 			fwrite(STDOUT, $buffer);
-			exit(ST_FAILS_RETURN_CODE);
 		} else {
 			fwrite(STDOUT, $buffer . $this->getPassCount() . " passes.\n");
 		}

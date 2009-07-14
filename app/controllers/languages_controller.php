@@ -2,7 +2,10 @@
 class LanguagesController extends AppController {
 
 	var $name = 'Languages';
-	var $helpers = array('Html', 'Form' );
+	
+	function beforeFilter() {
+	  parent::beforeFilter();
+	}
 
 	function index() {
 		$this->Language->recursive = 0;
@@ -62,7 +65,7 @@ class LanguagesController extends AppController {
 	
 	function find(){
 		$search = $this->params['url']['q'];
-		$this->set('languages', $this->Language->findAll(array('Language.language'=>'LIKE ' . $search . '%')));
+		$this->set('languages', $this->Language->find('all', array('conditions'=>array('Language.language LIKE'=>$search . '%'))));
 	}
 
 }

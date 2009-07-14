@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: 0500_052f.php 5691 2007-09-24 23:49:54Z phpnut $ */
+/* SVN FILE: $Id: 0500_052f.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Case Folding Properties.
  *
@@ -11,24 +11,22 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.config.unicode.casefolding
- * @since			CakePHP(tm) v 1.2.0.5691
- * @version			$Revision: 5691 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-09-25 00:49:54 +0100 (Tue, 25 Sep 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.config.unicode.casefolding
+ * @since         CakePHP(tm) v 1.2.0.5691
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * The upper field is the decimal value of the upper case character
@@ -53,6 +51,4 @@ $config['0500_052f'][] = array('upper' => 1288, 'status' => 'C', 'lower' => arra
 $config['0500_052f'][] = array('upper' => 1290, 'status' => 'C', 'lower' => array(1291)); /* CYRILLIC CAPITAL LETTER KOMI NJE */
 $config['0500_052f'][] = array('upper' => 1292, 'status' => 'C', 'lower' => array(1293)); /* CYRILLIC CAPITAL LETTER KOMI SJE */
 $config['0500_052f'][] = array('upper' => 1294, 'status' => 'C', 'lower' => array(1295)); /* CYRILLIC CAPITAL LETTER KOMI TJE */
-$config['0500_052f'][] = array('upper' => 1296, 'status' => 'C', 'lower' => array(1297)); /* CYRILLIC CAPITAL LETTER REVERSED ZE */
-$config['0500_052f'][] = array('upper' => 1298, 'status' => 'C', 'lower' => array(1299)); /* CYRILLIC CAPITAL LETTER EL WITH HOOK */
 ?>

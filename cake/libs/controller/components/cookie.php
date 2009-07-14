@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: cookie.php 5867 2007-10-22 20:44:51Z mariano.iglesias $ */
+/* SVN FILE: $Id: cookie.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -7,38 +7,34 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.controller.components
- * @since			CakePHP(tm) v 1.2.0.4213
- * @version			$Revision: 5867 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 21:44:51 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.controller.components
+ * @since         CakePHP(tm) v 1.2.0.4213
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Load Security class
  */
-if (!class_exists('Security')) {
-	uses('Security');
-}
+App::import('Core', 'Security');
 /**
  * Cookie Component.
  *
  * Cookie handling for the controller.
  *
- * @package		cake
- * @subpackage	cake.cake.libs.controller.components
+ * @package       cake
+ * @subpackage    cake.cake.libs.controller.components
  *
  */
 class CookieComponent extends Object {
@@ -159,30 +155,10 @@ class CookieComponent extends Object {
  *
  * @param object $controller A reference to the instantiating controller object
  * @access public
- * @deprecated use Controller::beforeFilter() to set the properties of the CookieComponent
  */
-	function initialize(&$controller) {
+	function initialize(&$controller, $settings) {
 		$this->key = Configure::read('Security.salt');
-		if (is_object($controller)) {
-			if (isset($controller->cookieName)) {
-				$this->name = $controller->cookieName;
-			}
-			if (isset($controller->cookieTime)) {
-				$this->time = $controller->cookieTime;
-			}
-			if (isset($controller->cookieKey)) {
-				$this->key = $controller->cookieKey;
-			}
-			if (isset($controller->cookiePath)) {
-				$this->path = $controller->cookiePath;
-			}
-			if (isset($controller->cookieDomain)) {
-				$this->domain = $controller->cookieDomain;
-			}
-			if (isset($controller->cookieSecure)) {
-				$this->secure = $controller->cookieSecure;
-			}
-		}
+		$this->_set($settings);
 	}
 /**
  * Start CookieComponent for use in the controller
@@ -245,6 +221,7 @@ class CookieComponent extends Object {
 				}
 			}
 		}
+		$this->__encrypted = true;
 	}
 /**
  * Read the value of the $_COOKIE[$key];
@@ -268,7 +245,7 @@ class CookieComponent extends Object {
 
 		if (count($name) > 1) {
 			if (isset($this->__values[$name[0]])) {
-				if(isset($this->__values[$name[0]][$name[1]])) {
+				if (isset($this->__values[$name[0]][$name[1]])) {
 					return $this->__values[$name[0]][$name[1]];
 				}
 			}
@@ -291,15 +268,18 @@ class CookieComponent extends Object {
  * Failure to do so will result in header already sent errors.
  *
  * @param string $key Key of the value to be deleted
+ * @return void
  * @access public
  */
 	function del($key) {
+		if (empty($this->__values)) {
+			$this->read();
+		}
 		$name = $this->__cookieVarNames($key);
-
 		if (count($name) > 1) {
 			if (isset($this->__values[$name[0]])) {
-				unset($this->__values[$name[0]][$name[1]]);
 				$this->__delete("[".$name[0]."][".$name[1]."]");
+				unset($this->__values[$name[0]][$name[1]]);
 			}
 		} else {
 			if (isset($this->__values[$name[0]])) {
@@ -319,6 +299,7 @@ class CookieComponent extends Object {
  * You must use this method before any output is sent to the browser.
  * Failure to do so will result in header already sent errors.
  *
+ * @return void
  * @access public
  */
 	function destroy() {
@@ -369,9 +350,8 @@ class CookieComponent extends Object {
 		$this->__reset = $this->__expires;
 		if (is_integer($expires) || is_numeric($expires)) {
 			return $this->__expires = $now + intval($expires);
-		} else {
-			return $this->__expires = strtotime($expires, $now);
 		}
+		return $this->__expires = strtotime($expires, $now);
 	}
 /**
  * Set cookie
@@ -387,7 +367,6 @@ class CookieComponent extends Object {
 			$this->__expires = $this->__reset;
 			$this->__reset = null;
 		}
-		$this->__encrypted = true;
 	}
 /**
  * Sets a cookie expire time to remove cookie value
@@ -399,22 +378,22 @@ class CookieComponent extends Object {
 		setcookie($this->name . $name, '', time() - 42000, $this->path, $this->domain, $this->secure);
 	}
 /**
-  * Encrypts $value using var $type method in Security class
-  *
-  * @param string $value Value to encrypt
-  * @return string encrypted string
-  * @access private
-  */
-	 function __encrypt($value) {
-	 	if (is_array($value)) {
-	 		$value = $this->__implode($value);
-	 	}
+ * Encrypts $value using var $type method in Security class
+ *
+ * @param string $value Value to encrypt
+ * @return string encrypted string
+ * @access private
+ */
+	function __encrypt($value) {
+		if (is_array($value)) {
+			$value = $this->__implode($value);
+		}
 
-	 	if ($this->__encrypted === true) {
-	 		$type = $this->__type;
-	 		$value = "Q2FrZQ==." .base64_encode(Security::$type($value, $this->key));
-	 	}
-	 	return($value);
+		if ($this->__encrypted === true) {
+			$type = $this->__type;
+			$value = "Q2FrZQ==." .base64_encode(Security::$type($value, $this->key));
+		}
+		return($value);
 	}
 /**
  * Decrypts $value using var $type method in Security class
@@ -439,13 +418,13 @@ class CookieComponent extends Object {
 					}
 				}
 			} else {
-					$pos = strpos($value, 'Q2FrZQ==.');
-					$decrypted[$name] = $this->__explode($value);
+				$pos = strpos($value, 'Q2FrZQ==.');
+				$decrypted[$name] = $this->__explode($value);
 
-					if ($pos !== false) {
-						$value = substr($value, 8);
-						$decrypted[$name] = $this->__explode(Security::$type(base64_decode($value), $this->key));
-					}
+				if ($pos !== false) {
+					$value = substr($value, 8);
+					$decrypted[$name] = $this->__explode(Security::$type(base64_decode($value), $this->key));
+				}
 			}
 		}
 

@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: session.php 5851 2007-10-22 05:52:20Z mariano.iglesias $ */
+/* SVN FILE: $Id: session.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Short description for file.
  *
@@ -7,37 +7,36 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.view.helpers
- * @since			CakePHP(tm) v 1.1.7.3328
- * @version			$Revision: 5851 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 06:52:20 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.view.helpers
+ * @since         CakePHP(tm) v 1.1.7.3328
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+if (!class_exists('cakesession')) {
+	uses('session');
+}
+
 /**
  * Session Helper.
  *
  * Session reading from the view.
  *
- * @package		cake
- * @subpackage	cake.cake.libs.view.helpers
+ * @package       cake
+ * @subpackage    cake.cake.libs.view.helpers
  *
  */
-if(!class_exists('cakesession')) {
-	uses('session');
-}
 class SessionHelper extends CakeSession {
 /**
  * List of helpers used by this helper
@@ -83,7 +82,7 @@ class SessionHelper extends CakeSession {
  * @access public
  */
 	function read($name = null) {
-		if ($this->__active === true) {
+		if ($this->__active === true && $this->__start()) {
 			return parent::read($name);
 		}
 		return false;
@@ -94,11 +93,11 @@ class SessionHelper extends CakeSession {
  * In your view: $session->check('Controller.sessKey');
  *
  * @param string $name
- * @return bool
+ * @return boolean
  * @access public
  */
 	function check($name) {
-		if ($this->__active === true) {
+		if ($this->__active === true && $this->__start()) {
 			return parent::check($name);
 		}
 		return false;
@@ -112,7 +111,7 @@ class SessionHelper extends CakeSession {
  * @access public
  */
 	function error() {
-		if ($this->__active === true) {
+		if ($this->__active === true && $this->__start()) {
 			return parent::error();
 		}
 		return false;
@@ -128,12 +127,17 @@ class SessionHelper extends CakeSession {
  * @access public
  */
 	function flash($key = 'flash') {
-		if ($this->__active === true) {
+		if ($this->__active === true && $this->__start()) {
 			if (parent::check('Message.' . $key)) {
 				$flash = parent::read('Message.' . $key);
 
 				if ($flash['layout'] == 'default') {
-					$out = '<div id="' . $key . 'Message" class="message">' . $flash['message'] . '</div>';
+					if (!empty($flash['params']['class'])) {
+						$class = $flash['params']['class'];
+					} else {
+						$class = 'message';
+					}
+					$out = '<div id="' . $key . 'Message" class="' . $class . '">' . $flash['message'] . '</div>';
 				} elseif ($flash['layout'] == '' || $flash['layout'] == null) {
 					$out = $flash['message'];
 				} else {
@@ -143,7 +147,7 @@ class SessionHelper extends CakeSession {
 					$out = $view->renderLayout($flash['message']);
 					list($view->layout, $view->viewVars, $view->pageTitle) = array($tmpLayout, $tmpVars, $tmpTitle);
 				}
-				e($out);
+				echo($out);
 				parent::del('Message.' . $key);
 				return true;
 			}
@@ -153,11 +157,11 @@ class SessionHelper extends CakeSession {
 /**
  * Used to check is a session is valid in a view
  *
- * @return bool
+ * @return boolean
  * @access public
  */
 	function valid() {
-		if ($this->__active === true) {
+		if ($this->__active === true && $this->__start()) {
 			return parent::valid();
 		}
 	}
@@ -165,11 +169,34 @@ class SessionHelper extends CakeSession {
  * Override CakeSession::write().
  * This method should not be used in a view
  *
- * @return bool
+ * @return boolean
  * @access public
  */
 	function write() {
 		trigger_error(__('You can not write to a Session from the view', true), E_USER_WARNING);
+	}
+/**
+ * Session id
+ *
+ * @return string Session id
+ * @access public
+ */
+	function id() {
+		return parent::id();
+	}
+/**
+ * Determine if Session has been started
+ * and attempt to start it if not
+ *
+ * @return boolean true if Session is already started, false if
+ * Session could not be started
+ * @access public
+ */
+	function __start() {
+		if (!parent::started()) {
+			parent::start();
+		}
+		return true;
 	}
 }
 ?>

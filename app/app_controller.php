@@ -2,7 +2,7 @@
 
 class AppController extends Controller {
 	var $helpers = array('Html', 'Form', 'Javascript', 'Time', 'Text', 'Diff', 'Geshi', 'Pastemonkey');
-	var $components = array('Session','RequestHandler');
+	var $components = array('Session','RequestHandler', 'DebugKit.Toolbar');
 	
 	function beforeFilter()
 	{

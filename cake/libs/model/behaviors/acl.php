@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: acl.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: acl.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * ACL behavior class.
  *
@@ -7,35 +7,32 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright (c)	2006, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2006-2008, Cake Software Foundation, Inc.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright (c) 2006, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP Project
- * @package			cake
- * @subpackage		cake.cake.libs.model.behaviors
- * @since			CakePHP v 1.2.0.4487
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2006-2008, Cake Software Foundation, Inc.
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.behaviors
+ * @since         CakePHP v 1.2.0.4487
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Short description for file
  *
  * Long description for file
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model.behaviors
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.behaviors
  */
 class AclBehavior extends ModelBehavior {
-
 /**
  * Maps ACL type options to ACL models
  *
@@ -47,23 +44,22 @@ class AclBehavior extends ModelBehavior {
  * Sets up the configuation for the model, and loads ACL models if they haven't been already
  *
  * @param mixed $config
+ * @return void
+ * @access public
  */
 	function setup(&$model, $config = array()) {
 		if (is_string($config)) {
 			$config = array('type' => $config);
 		}
-		$this->settings[$model->name] = am(array('type' => 'requester'), $config);
-		$type = $this->__typeMaps[$this->settings[$model->name]['type']];
+		$this->settings[$model->name] = array_merge(array('type' => 'requester'), (array)$config);
 
-		if (!ClassRegistry::isKeySet($type)) {
+		$type = $this->__typeMaps[$this->settings[$model->name]['type']];
+		if (!class_exists('AclNode')) {
 			uses('model' . DS . 'db_acl');
-			$object =& new $type();
-		} else {
-			$object =& ClassRegistry::getObject($type);
 		}
-		$model->{$type} =& $object;
+		$model->{$type} =& ClassRegistry::init($type);
 		if (!method_exists($model, 'parentNode')) {
-			trigger_error("Callback parentNode() not defined in {$model->name}", E_USER_WARNING);
+			trigger_error("Callback parentNode() not defined in {$model->alias}", E_USER_WARNING);
 		}
 	}
 /**
@@ -71,9 +67,10 @@ class AclBehavior extends ModelBehavior {
  *
  * @param mixed $ref
  * @return array
+ * @access public
  */
 	function node(&$model, $ref = null) {
-		$type = $this->__typeMaps[low($this->settings[$model->name]['type'])];
+		$type = $this->__typeMaps[strtolower($this->settings[$model->name]['type'])];
 		if (empty($ref)) {
 			$ref = array('model' => $model->name, 'foreign_key' => $model->id);
 		}
@@ -83,10 +80,12 @@ class AclBehavior extends ModelBehavior {
  * Creates a new ARO/ACO node bound to this record
  *
  * @param boolean $created True if this is a new record
+ * @return void
+ * @access public
  */
 	function afterSave(&$model, $created) {
 		if ($created) {
-			$type = $this->__typeMaps[low($this->settings[$model->name]['type'])];
+			$type = $this->__typeMaps[strtolower($this->settings[$model->name]['type'])];
 			$parent = $model->parentNode();
 			if (!empty($parent)) {
 				$parent = $this->node($model, $parent);
@@ -105,9 +104,11 @@ class AclBehavior extends ModelBehavior {
 /**
  * Destroys the ARO/ACO node bound to the deleted record
  *
+ * @return void
+ * @access public
  */
 	function afterDelete(&$model) {
-		$type = $this->__typeMaps[low($this->settings[$model->name]['type'])];
+		$type = $this->__typeMaps[strtolower($this->settings[$model->name]['type'])];
 		$node = Set::extract($this->node($model), "0.{$type}.id");
 		if (!empty($node)) {
 			$model->{$type}->delete($node);

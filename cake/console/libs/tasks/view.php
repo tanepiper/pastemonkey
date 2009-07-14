@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: view.php 5857 2007-10-22 16:09:35Z phpnut $ */
+/* SVN FILE: $Id: view.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * The View Tasks handles creating and updating view files.
  *
@@ -7,33 +7,38 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.console.libs.tasks
- * @since			CakePHP(tm) v 1.2
- * @version			$Revision: 5857 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-10-22 17:09:35 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.console.libs.tasks
+ * @since         CakePHP(tm) v 1.2
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-uses('controller'.DS.'controller');
+App::import('Core', 'Controller');
 /**
  * Task class for creating and updating view files.
  *
- * @package		cake
- * @subpackage	cake.cake.console.libs.tasks
+ * @package       cake
+ * @subpackage    cake.cake.console.libs.tasks
  */
 class ViewTask extends Shell {
+/**
+ * Name of plugin
+ *
+ * @var string
+ * @access public
+ */
+	var $plugin = null;
 /**
  * Tasks to be loaded by this Task
  *
@@ -41,6 +46,13 @@ class ViewTask extends Shell {
  * @access public
  */
 	var $tasks = array('Project', 'Controller');
+/**
+ * path to VIEWS directory
+ *
+ * @var array
+ * @access public
+ */
+	var $path = VIEWS;
 /**
  * Name of the controller being used
  *
@@ -110,12 +122,13 @@ class ViewTask extends Shell {
 			} else {
 				$vars = $this->__loadController();
 				if ($vars) {
-					$protected = array_map('strtolower', get_class_methods('appcontroller'));
-					$classVars = get_class_vars($this->controllerName . 'Controller');
-					if (array_key_exists('scaffold', $classVars)) {
+
+					$methods =  array_diff(
+						array_map('strtolower', get_class_methods($this->controllerName . 'Controller')),
+						array_map('strtolower', get_class_methods('appcontroller'))
+					);
+					if (empty($methods)) {
 						$methods = $this->scaffoldActions;
-					} else {
-						$methods = get_class_methods($this->controllerName . 'Controller');
 					}
 					$adminDelete = null;
 
@@ -124,7 +137,7 @@ class ViewTask extends Shell {
 						$adminDelete = $adminRoute.'_delete';
 					}
 					foreach ($methods as $method) {
-						if ($method{0} != '_' && !in_array(low($method), am($protected, array('delete', $adminDelete)))) {
+						if ($method{0} != '_' && !in_array($method, array('delete', $adminDelete))) {
 							$content = $this->getContent($method, $vars);
 							$this->bake($method, $content);
 						}
@@ -140,7 +153,7 @@ class ViewTask extends Shell {
  */
 	function __interactive() {
 		$this->hr();
-		$this->out('View Bake:');
+		$this->out(sprintf("Bake View\nPath: %s", $this->path));
 		$this->hr();
 		$wannaDoAdmin = 'n';
 		$wannaDoScaffold = 'y';
@@ -202,10 +215,9 @@ class ViewTask extends Shell {
 			$looksGood = $this->in('Look okay?', array('y','n'), 'y');
 			if (low($looksGood) == 'y' || low($looksGood) == 'yes') {
 				$this->bake($action);
-				exit();
+				$this->_stop();
 			} else {
 				$this->out('Bake Aborted.');
-				exit();
 			}
 		}
 	}
@@ -221,38 +233,49 @@ class ViewTask extends Shell {
  */
 	function __loadController() {
 		if (!$this->controllerName) {
-			$this->err('could not find the controller');
+			$this->err(__('Controller not found', true));
 		}
 
+		$import = $this->controllerName;
+		if ($this->plugin) {
+			$import = $this->plugin . '.' . $this->controllerName;
+		}
+
+		if (!App::import('Controller', $import)) {
+			$file = $this->controllerPath . '_controller.php';
+			$this->err(sprintf(__("The file '%s' could not be found.\nIn order to bake a view, you'll need to first create the controller.", true), $file));
+			$this->_stop();
+		}
 		$controllerClassName = $this->controllerName . 'Controller';
-		if (!class_exists($this->controllerName . 'Controller') && !loadController($this->controllerName)) {
-			$file = CONTROLLERS . $this->controllerPath . '_controller.php';
-			$shortPath = $this->shortPath($file);
-			$this->err("The file '{$shortPath}' could not be found.\nIn order to bake a view, you'll need to first create the controller.");
-			exit();
-		}
-
 		$controllerObj = & new $controllerClassName();
 		$controllerObj->constructClasses();
 		$modelClass = $controllerObj->modelClass;
-		$modelKey = $controllerObj->modelKey;
-		$modelObj =& ClassRegistry::getObject($modelKey);
-		$primaryKey = $modelObj->primaryKey;
-		$displayField = $modelObj->displayField;
-		$singularVar = Inflector::variable($modelClass);
-		$pluralVar = Inflector::variable($this->controllerName);
-		$singularHumanName = Inflector::humanize($modelClass);
-		$pluralHumanName = Inflector::humanize($this->controllerName);
-		$fields = $modelObj->_tableInfo->value;
-		$foreignKeys = $modelObj->keyToTable;
-		$belongsTo = $modelObj->belongsTo;
-		$hasOne = $modelObj->hasOne;
-		$hasMany = $modelObj->hasMany;
-		$hasAndBelongsToMany = $modelObj->hasAndBelongsToMany;
+		$modelObj =& ClassRegistry::getObject($controllerObj->modelKey);
 
-		return compact('modelClass', 'primaryKey', 'displayField', 'singularVar', 'pluralVar',
-						'singularHumanName', 'pluralHumanName', 'fields', 'foreignKeys',
-						'belongsTo', 'hasOne', 'hasMany', 'hasAndBelongsToMany');
+		if ($modelObj) {
+			$primaryKey = $modelObj->primaryKey;
+			$displayField = $modelObj->displayField;
+			$singularVar = Inflector::variable($modelClass);
+			$pluralVar = Inflector::variable($this->controllerName);
+			$singularHumanName = Inflector::humanize($modelClass);
+			$pluralHumanName = Inflector::humanize($this->controllerName);
+			$schema = $modelObj->schema();
+			$fields = array_keys($schema);
+			$associations = $this->__associations($modelObj);
+		} else {
+			$primaryKey = null;
+			$displayField = null;
+			$singularVar = Inflector::variable(Inflector::singularize($this->controllerName));
+			$pluralVar = Inflector::variable($this->controllerName);
+			$singularHumanName = Inflector::humanize(Inflector::singularize($this->controllerName));
+			$pluralHumanName = Inflector::humanize($this->controllerName);
+			$fields = array();
+			$schema = array();
+			$associations = array();
+		}
+
+		return compact('modelClass', 'schema', 'primaryKey', 'displayField', 'singularVar', 'pluralVar',
+				'singularHumanName', 'pluralHumanName', 'fields','associations');
 	}
 /**
  * Assembles and writes bakes the view file.
@@ -266,8 +289,8 @@ class ViewTask extends Shell {
 		if ($content === true) {
 			$content = $this->getContent();
 		}
-		$filename = VIEWS . $this->controllerPath . DS . Inflector::underscore($action) . '.ctp';
-		$Folder =& new Folder(VIEWS . $this->controllerPath, true);
+		$filename = $this->path . $this->controllerPath . DS . Inflector::underscore($action) . '.ctp';
+		$Folder =& new Folder($this->path . $this->controllerPath, true);
 		$errors = $Folder->errors();
 		if (empty($errors)) {
 			$path = $Folder->slashTerm($Folder->pwd());
@@ -320,7 +343,8 @@ class ViewTask extends Shell {
 			$content = ob_get_clean();
 			return $content;
 		}
-		$this->err('Template for '. $template .' could not be found');
+		$this->hr();
+		$this->err(sprintf(__('Template for %s could not be found', true), $template));
 		return false;
 	}
 /**
@@ -337,7 +361,29 @@ class ViewTask extends Shell {
 		$this->out("\n\tview <controller> <action>\n\t\twill bake a template. core templates: (index, add, edit, view)");
 		$this->out("\n\tview <controller> <template> <alias>\n\t\twill use the template specified but name the file based on the alias");
 		$this->out("");
-		exit();
+		$this->_stop();
+	}
+/**
+ * Returns associations for controllers models.
+ *
+ * @return  array $associations
+ * @access private
+ */
+	function __associations($model) {
+		$keys = array('belongsTo', 'hasOne', 'hasMany', 'hasAndBelongsToMany');
+		$associations = array();
+
+		foreach ($keys as $key => $type) {
+			foreach ($model->{$type} as $assocKey => $assocData) {
+				$associations[$type][$assocKey]['primaryKey'] = $model->{$assocKey}->primaryKey;
+				$associations[$type][$assocKey]['displayField'] = $model->{$assocKey}->displayField;
+				$associations[$type][$assocKey]['foreignKey'] = $assocData['foreignKey'];
+				$associations[$type][$assocKey]['controller'] = Inflector::pluralize(Inflector::underscore($assocData['className']));
+				$associations[$type][$assocKey]['fields'] =  array_keys($model->{$assocKey}->schema());
+			}
+		}
+		return $associations;
 	}
 }
+
 ?>

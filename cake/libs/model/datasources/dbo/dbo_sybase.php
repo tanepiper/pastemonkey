@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_sybase.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: dbo_sybase.php 7945 2008-12-19 02:16:01Z gwoo $ */
 /**
  * Sybase layer for DBO
  *
@@ -7,32 +7,30 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.model.datasources.dbo
- * @since			CakePHP(tm) v 1.2.0.3097
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.datasources.dbo
+ * @since         CakePHP(tm) v 1.2.0.3097
+ * @version       $Revision: 7945 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2008-12-18 18:16:01 -0800 (Thu, 18 Dec 2008) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Short description for class.
  *
  * Long description for class
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model.datasources.dbo
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.datasources.dbo
  */
 class DboSybase extends DboSource {
 /**
@@ -171,7 +169,8 @@ class DboSybase extends DboSource {
 			}
 			if (isset($column[0])) {
 				$fields[$column[0]['Field']] = array('type' => $this->column($column[0]['Type']),
-														'null' => $column[0]['Null']
+													'null' => $column[0]['Null'],
+													'length' => $this->length($column[0]['Type']),
 													);
 			}
 		}
@@ -286,7 +285,7 @@ class DboSybase extends DboSource {
  * @return integer Number of rows in resultset
  */
 	function lastNumRows() {
-		if ($this->_result and is_resource($this->_result)) {
+		if ($this->hasResult()) {
 			return @sybase_num_rows($this->_result);
 		}
 		return null;
@@ -317,9 +316,11 @@ class DboSybase extends DboSource {
 			return $col;
 		}
 
-		$col = r(')', '', $real);
+		$col = str_replace(')', '', $real);
 		$limit = null;
-		@list($col, $limit) = explode('(', $col);
+		if (strpos($col, '(') !== false) {
+			list($col, $limit) = explode('(', $col);
+		}
 
 		if (in_array($col, array('datetime', 'smalldatetime'))) {
 			return 'datetime';
@@ -377,19 +378,6 @@ class DboSybase extends DboSource {
 			return $resultRow;
 		} else {
 			return false;
-		}
-	}
-/**
- * Inserts multiple values into a join table
- *
- * @param string $table
- * @param string $fields
- * @param array $values
- */
-	function insertMulti($table, $fields, $values) {
-		$count = count($values);
-		for ($x = 0; $x < $count; $x++) {
-			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
 		}
 	}
 }

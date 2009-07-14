@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: db_acl.php 5776 2007-10-17 12:51:17Z phpnut $ */
+/* SVN FILE: $Id: db_acl.php 8004 2009-01-16 20:15:21Z gwoo $ */
 /**
  * This is core configuration file.
  *
@@ -7,52 +7,49 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.model
- * @since			CakePHP(tm) v 0.2.9
- * @version			$Revision: 5776 $
- * @modifiedby		$LastChangedBy: phpnut $
- * @lastmodified	$Date: 2007-10-17 13:51:17 +0100 (Wed, 17 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
- */
-/**
- * Set database config if not defined.
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.model
+ * @since         CakePHP(tm) v 0.2.9
+ * @version       $Revision: 8004 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-01-16 12:15:21 -0800 (Fri, 16 Jan 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Load Model and AppModel
  */
-loadModel();
+App::import('Model', 'App');
 /**
  * Short description for file.
  *
  * Long description for file
  *
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model
+ * @package       cake
+ * @subpackage    cake.cake.libs.model
  */
 class AclNode extends AppModel {
 /**
  * Explicitly disable in-memory query caching for ACL models
  *
  * @var boolean
+ * @access public
  */
 	var $cacheQueries = false;
 /**
  * ACL models use the Tree behavior
  *
- * @var mixed
+ * @var array
+ * @access public
  */
 	var $actsAs = array('Tree' => 'nested');
 /**
@@ -61,7 +58,7 @@ class AclNode extends AppModel {
  */
 	function __construct() {
 		$config = Configure::read('Acl.database');
-		if(isset($config)) {
+		if (isset($config)) {
 			$this->useDbConfig = $config;
 		}
 		parent::__construct();
@@ -69,13 +66,13 @@ class AclNode extends AppModel {
 /**
  * Retrieves the Aro/Aco node for this model
  *
- * @param mixed $ref
- * @return array
+ * @param mixed $ref Array with 'model' and 'foreign_key', model object, or string value
+ * @return array Node found in database
+ * @access public
  */
 	function node($ref = null) {
 		$db =& ConnectionManager::getDataSource($this->useDbConfig);
-		$type = $this->name;
-		$prefix = $this->tablePrefix;
+		$type = $this->alias;
 		$result = null;
 
 		if (!empty($this->useTable)) {
@@ -91,47 +88,65 @@ class AclNode extends AppModel {
 			$start = $path[0];
 			unset($path[0]);
 
-			$queryData = array('conditions' => array(
-											$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
-											$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")),
-									'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
-									'joins' => array(array('table' => $db->name($prefix . $table),
-											'alias' => "{$type}0",
-											'type' => 'LEFT',
-											'conditions' => array("{$type}0.alias" => $start))),
-									'order' => $db->name("{$type}.lft") . ' DESC');
+			$queryData = array(
+				'conditions' => array(
+					$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
+					$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")),
+				'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
+				'joins' => array(array(
+					'table' => $db->fullTableName($this),
+					'alias' => "{$type}0",
+					'type' => 'LEFT',
+					'conditions' => array("{$type}0.alias" => $start)
+				)),
+				'order' => $db->name("{$type}.lft") . ' DESC'
+			);
+
 			foreach ($path as $i => $alias) {
 				$j = $i - 1;
 
-				array_push($queryData['joins'], array(
-								'table' => $db->name($prefix . $table),
-								'alias' => "{$type}{$i}",
-								'type'  => 'LEFT',
-								'conditions' => array(
-										$db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft"),
-										$db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght"),
-										$db->name("{$type}{$i}.alias") . ' = ' . $db->value($alias))));
+				$queryData['joins'][] = array(
+					'table' => $db->fullTableName($this),
+					'alias' => "{$type}{$i}",
+					'type'  => 'LEFT',
+					'conditions' => array(
+						$db->name("{$type}{$i}.lft") . ' > ' . $db->name("{$type}{$j}.lft"),
+						$db->name("{$type}{$i}.rght") . ' < ' . $db->name("{$type}{$j}.rght"),
+						$db->name("{$type}{$i}.alias") . ' = ' . $db->value($alias, 'string')
+					)
+				);
 
 				$queryData['conditions'] = array('or' => array(
-				$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght"),
-				$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght")));
+					$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght"),
+					$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}{$i}.lft") . ' AND ' . $db->name("{$type}.rght") . ' >= ' . $db->name("{$type}{$i}.rght"))
+				);
 			}
 			$result = $db->read($this, $queryData, -1);
+			$path = array_values($path);
 
+			if (
+				!isset($result[0][$type]) ||
+				(!empty($path) && $result[0][$type]['alias'] != $path[count($path) - 1]) ||
+				(empty($path) && $result[0][$type]['alias'] != $start)
+			) {
+				return false;
+			}
 		} elseif (is_object($ref) && is_a($ref, 'Model')) {
-			$ref = array('model' => $ref->name, 'foreign_key' => $ref->id);
-
+			$ref = array('model' => $ref->alias, 'foreign_key' => $ref->id);
 		} elseif (is_array($ref) && !(isset($ref['model']) && isset($ref['foreign_key']))) {
 			$name = key($ref);
-			if (!ClassRegistry::isKeySet($name)) {
-				if (!loadModel($name)) {
-					trigger_error("Model class '$name' not found in AclNode::node() when trying to bind {$this->name} object", E_USER_WARNING);
-					return null;
-				}
-				$model =& new $name();
+
+			if (PHP5) {
+				$model = ClassRegistry::init(array('class' => $name, 'alias' => $name));
 			} else {
-				$model =& ClassRegistry::getObject($name);
+				$model =& ClassRegistry::init(array('class' => $name, 'alias' => $name));
 			}
+
+			if (empty($model)) {
+				trigger_error("Model class '$name' not found in AclNode::node() when trying to bind {$this->alias} object", E_USER_WARNING);
+				return null;
+			}
+
 			$tmpRef = null;
 			if (method_exists($model, 'bindNode')) {
 				$tmpRef = $model->bindNode($ref);
@@ -146,21 +161,30 @@ class AclNode extends AppModel {
 			}
 		}
 		if (is_array($ref)) {
+			if (is_array(current($ref)) && is_string(key($ref))) {
+				$name = key($ref);
+				$ref = current($ref);
+			}
 			foreach ($ref as $key => $val) {
-				if (strpos($key, $type) !== 0) {
+				if (strpos($key, $type) !== 0 && strpos($key, '.') === false) {
 					unset($ref[$key]);
 					$ref["{$type}0.{$key}"] = $val;
 				}
 			}
-			$queryData = array('conditions'	=> $ref,
-									'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
-									'joins' => array(array('table' => $db->name($prefix . $table),
-									'alias' => "{$type}0",
-									'type' => 'LEFT',
-									'conditions' => array(
-									$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
-									$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")))),
-									'order' => $db->name("{$type}.lft") . ' DESC');
+			$queryData = array(
+				'conditions' => $ref,
+				'fields' => array('id', 'parent_id', 'model', 'foreign_key', 'alias'),
+				'joins' => array(array(
+					'table' => $db->fullTableName($this),
+					'alias' => "{$type}0",
+					'type' => 'LEFT',
+					'conditions' => array(
+						$db->name("{$type}.lft") . ' <= ' . $db->name("{$type}0.lft"),
+						$db->name("{$type}.rght") . ' >= ' . $db->name("{$type}0.rght")
+					)
+				)),
+				'order' => $db->name("{$type}.lft") . ' DESC'
+			);
 			$result = $db->read($this, $queryData, -1);
 
 			if (!$result) {
@@ -171,115 +195,120 @@ class AclNode extends AppModel {
 	}
 }
 /**
- * Short description for file.
+ * Access Control Object
  *
- * Long description for file
- *
- *
- * @package		cake
- * @subpackage	cake.cake.libs.model
+ * @package       cake
+ * @subpackage    cake.cake.libs.model
  */
 class Aco extends AclNode {
 /**
  * Model name
  *
  * @var string
+ * @access public
  */
 	var $name = 'Aco';
 /**
  * Binds to ARO nodes through permissions settings
  *
  * @var array
+ * @access public
  */
 	var $hasAndBelongsToMany = array('Aro' => array('with' => 'Permission'));
 }
 /**
- * Short description for file.
+ * Action for Access Control Object
  *
- * Long description for file
- *
- *
- * @package		cake
- * @subpackage	cake.cake.libs.model
+ * @package       cake
+ * @subpackage    cake.cake.libs.model
  */
 class AcoAction extends AppModel {
 /**
- * Enter description here...
+ * Model name
  *
- * @var unknown_type
+ * @var string
+ * @access public
  */
-	 var $belongsTo = 'Aco';
+	var $name = 'AcoAction';
+/**
+ * ACO Actions belong to ACOs
+ *
+ * @var array
+ * @access public
+ */
+	var $belongsTo = array('Aco');
 }
 /**
- * Short description for file.
+ * Access Request Object
  *
- * Long description for file
- *
- *
- * @package		cake
- * @subpackage	cake.cake.libs.model
+ * @package       cake
+ * @subpackage    cake.cake.libs.model
  */
 class Aro extends AclNode {
 /**
- * Enter description here...
+ * Model name
  *
- * @var unknown_type
+ * @var string
+ * @access public
  */
 	var $name = 'Aro';
 /**
- * Enter description here...
+ * AROs are linked to ACOs by means of Permission
  *
- * @var unknown_type
+ * @var array
+ * @access public
  */
 	var $hasAndBelongsToMany = array('Aco' => array('with' => 'Permission'));
 }
 /**
- * Short description for file.
+ * Permissions linking AROs with ACOs
  *
- * Long description for file
- *
- *
- * @package		cake
- * @subpackage	cake.cake.libs.model
+ * @package       cake
+ * @subpackage    cake.cake.libs.model
  */
 class Permission extends AppModel {
 /**
- * Enter description here...
+ * Model name
  *
- * @var unknown_type
+ * @var string
+ * @access public
+ */
+	var $name = 'Permission';
+/**
+ * Explicitly disable in-memory query caching
+ *
+ * @var boolean
+ * @access public
  */
 	var $cacheQueries = false;
 /**
- * Enter description here...
+ * Override default table name
  *
- * @var unknown_type
+ * @var string
+ * @access public
  */
-	 var $name = 'Permission';
+	var $useTable = 'aros_acos';
 /**
- * Enter description here...
+ * Permissions link AROs with ACOs
  *
- * @var unknown_type
+ * @var array
+ * @access public
  */
-	 var $useTable = 'aros_acos';
+	var $belongsTo = array('Aro', 'Aco');
 /**
- * Enter description here...
+ * No behaviors for this model
  *
- * @var unknown_type
+ * @var array
+ * @access public
  */
-	 var $belongsTo = 'Aro,Aco';
+	var $actsAs = null;
 /**
- * Enter description here...
- *
- * @var unknown_type
- */
-	 var $actsAs = null;
-/**
- * Constructor
- *
+ * Constructor, used to tell this model to use the
+ * database configured for ACL
  */
 	function __construct() {
 		$config = Configure::read('Acl.database');
-		if(isset($config)) {
+		if (!empty($config)) {
 			$this->useDbConfig = $config;
 		}
 		parent::__construct();

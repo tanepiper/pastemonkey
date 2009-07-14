@@ -1,5 +1,5 @@
 <?php
-/* SVN FILE: $Id: dbo_oracle.php 5860 2007-10-22 16:54:36Z mariano.iglesias $ */
+/* SVN FILE: $Id: dbo_oracle.php 8166 2009-05-04 21:17:19Z gwoo $ */
 /**
  * Oracle layer for DBO.
  *
@@ -7,32 +7,30 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) :  Rapid Development Framework <http://www.cakephp.org/>
- * Copyright 2005-2007, Cake Software Foundation, Inc.
- *								1785 E. Sahara Avenue, Suite 490-204
- *								Las Vegas, Nevada 89104
+ * CakePHP(tm) :  Rapid Development Framework (http://www.cakephp.org)
+ * Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @filesource
- * @copyright		Copyright 2005-2007, Cake Software Foundation, Inc.
- * @link				http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
- * @package			cake
- * @subpackage		cake.cake.libs.model.datasources.dbo
- * @since			CakePHP v 1.2.0.4041
- * @version			$Revision: 5860 $
- * @modifiedby		$LastChangedBy: mariano.iglesias $
- * @lastmodified	$Date: 2007-10-22 17:54:36 +0100 (Mon, 22 Oct 2007) $
- * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @copyright     Copyright 2005-2008, Cake Software Foundation, Inc. (http://www.cakefoundation.org)
+ * @link          http://www.cakefoundation.org/projects/info/cakephp CakePHP(tm) Project
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.datasources.dbo
+ * @since         CakePHP v 1.2.0.4041
+ * @version       $Revision: 8166 $
+ * @modifiedby    $LastChangedBy: gwoo $
+ * @lastmodified  $Date: 2009-05-04 14:17:19 -0700 (Mon, 04 May 2009) $
+ * @license       http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 /**
  * Short description for class.
  *
  * Long description for class
  *
- * @package		cake
- * @subpackage	cake.cake.libs.model.datasources.dbo
+ * @package       cake
+ * @subpackage    cake.cake.libs.model.datasources.dbo
  */
 class DboOracle extends DboSource {
 /**
@@ -41,20 +39,17 @@ class DboOracle extends DboSource {
  * @var unknown_type
  * @access public
  */
-	var $config;
+	var $config = array();
 /**
  * Enter description here...
  *
  * @var unknown_type
- * @access public
  */
 	var $alias = '';
 /**
-  * The name of the model's sequence
-  *
-  * @var unknown_type
-  */
-	var $sequence = '';
+ * Sequence names as introspected from the database
+ */
+	var $_sequences = array();
 /**
  * Transaction in progress flag
  *
@@ -68,10 +63,10 @@ class DboOracle extends DboSource {
  * @access public
  */
 	var $columns = array(
-		'primary_key' => array('name' => 'number NOT NULL'),
+		'primary_key' => array('name' => ''),
 		'string' => array('name' => 'varchar2', 'limit' => '255'),
 		'text' => array('name' => 'varchar2'),
-		'integer' => array('name' => 'numeric'),
+		'integer' => array('name' => 'number'),
 		'float' => array('name' => 'float'),
 		'datetime' => array('name' => 'date', 'format' => 'Y-m-d H:i:s'),
 		'timestamp' => array('name' => 'date', 'format' => 'Y-m-d H:i:s'),
@@ -79,7 +74,7 @@ class DboOracle extends DboSource {
 		'date' => array('name' => 'date', 'format' => 'Y-m-d H:i:s'),
 		'binary' => array('name' => 'bytea'),
 		'boolean' => array('name' => 'boolean'),
-		'number' => array('name' => 'numeric'),
+		'number' => array('name' => 'number'),
 		'inet' => array('name' => 'inet'));
 /**
  * Enter description here...
@@ -131,6 +126,32 @@ class DboOracle extends DboSource {
  */
 	var $_results;
 /**
+ * Last error issued by oci extension
+ *
+ * @var unknown_type
+ */
+	var $_error;
+/**
+ * Base configuration settings for MySQL driver
+ *
+ * @var array
+ */
+	var $_baseConfig = array(
+		'persistent' => true,
+		'host' => 'localhost',
+		'login' => 'system',
+		'password' => '',
+		'database' => 'cake',
+		'nls_sort' => '',
+		'nls_sort' => ''
+	);
+/**
+ * Table-sequence map
+ *
+ * @var unknown_type
+ */
+	var $_sequenceMap = array();
+/**
  * Connects to the database using options in the given configuration array.
  *
  * @return boolean True if the database could be connected, else false
@@ -138,10 +159,15 @@ class DboOracle extends DboSource {
  */
 	function connect() {
 		$config = $this->config;
-		$connect = $config['connect'];
 		$this->connected = false;
 		$config['charset'] = !empty($config['charset']) ? $config['charset'] : null;
-		$this->connection = $connect($config['login'], $config['password'], $config['database'], $config['charset']);
+
+		if ($this->config['persistent']) {
+			$connect = 'ociplogon';
+		} else {
+			$connect = 'ocilogon';
+		}
+		$this->connection = @$connect($config['login'], $config['password'], $config['database'], $config['charset']);
 
 		if ($this->connection) {
 			$this->connected = true;
@@ -155,8 +181,25 @@ class DboOracle extends DboSource {
 			$this->execute("ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'");
 		} else {
 			$this->connected = false;
+			$this->_setError();
+			return false;
 		}
 		return $this->connected;
+	}
+	/**
+	 * Keeps track of the most recent Oracle error
+	 *
+	 */
+	function _setError($source = null, $clear = false) {
+		if ($source) {
+			$e = ocierror($source);
+		} else {
+			$e = ocierror();
+		}
+		$this->_error = $e['message'];
+		if ($clear) {
+			$this->_error = null;
+		}
 	}
 /**
  * Sets the encoding language of the session
@@ -277,9 +320,10 @@ class DboOracle extends DboSource {
  * @access protected
  */
 	function _execute($sql) {
-		$this->_statementId = ociparse($this->connection, $sql);
+		$this->_statementId = @ociparse($this->connection, $sql);
 		if (!$this->_statementId) {
-			return null;
+			$this->_setError($this->connection);
+			return false;
 		}
 
 		if ($this->__transactionStarted) {
@@ -288,9 +332,12 @@ class DboOracle extends DboSource {
 			$mode = OCI_COMMIT_ON_SUCCESS;
 		}
 
-		if (!ociexecute($this->_statementId, $mode)) {
+		if (!@ociexecute($this->_statementId, $mode)) {
+			$this->_setError($this->_statementId);
 			return false;
 		}
+
+		$this->_setError(null, true);
 
 		switch(ocistatementtype($this->_statementId)) {
 			case 'DESCRIBE':
@@ -342,6 +389,14 @@ class DboOracle extends DboSource {
 		return $resultRow;
 	}
 /**
+ * Fetches the next row from the current result set
+ *
+ * @return unknown
+ */
+	function fetchResult() {
+		return $this->fetchRow();
+	}
+/**
  * Checks to see if a named sequence exists
  *
  * @param string $sequence
@@ -389,7 +444,7 @@ class DboOracle extends DboSource {
 		if ($cache != null) {
 			return $cache;
 		}
-		$sql = 'SELECT view_name AS name FROM user_views UNION SELECT table_name AS name FROM user_tables';
+		$sql = 'SELECT view_name AS name FROM all_views UNION SELECT table_name AS name FROM all_tables';
 
 		if (!$this->execute($sql)) {
 			return false;
@@ -397,7 +452,7 @@ class DboOracle extends DboSource {
 		$sources = array();
 
 		while($r = $this->fetchRow()) {
-			$sources[] = $r[0]['name'];
+			$sources[] = strtolower($r[0]['name']);
 		}
 		parent::listSources($sources);
 		return $sources;
@@ -410,12 +465,19 @@ class DboOracle extends DboSource {
  * @access public
  */
 	function describe(&$model) {
+
+		if (!empty($model->sequence)) {
+			$this->_sequenceMap[$model->table] = $model->sequence;
+		} elseif (!empty($model->table)) {
+			$this->_sequenceMap[$model->table] = $model->table . '_seq';
+		}
+
 		$cache = parent::describe($model);
 
 		if ($cache != null) {
 			return $cache;
 		}
-		$sql = 'SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH FROM user_tab_columns WHERE table_name = \'';
+		$sql = 'SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH FROM all_tab_columns WHERE table_name = \'';
 		$sql .= strtoupper($this->fullTableName($model)) . '\'';
 
 		if (!$this->execute($sql)) {
@@ -423,12 +485,226 @@ class DboOracle extends DboSource {
 		}
 		$fields = array();
 
-		for($i=0; $row = $this->fetchRow(); $i++) {
-			$fields[strtolower($row[0]['COLUMN_NAME'])] = array('type'=> $this->column($row[0]['DATA_TYPE']),
-			 													'length'=> $row[0]['DATA_LENGTH']);
+		for ($i = 0; $row = $this->fetchRow(); $i++) {
+			$fields[strtolower($row[0]['COLUMN_NAME'])] = array(
+				'type'=> $this->column($row[0]['DATA_TYPE']),
+				'length'=> $row[0]['DATA_LENGTH']
+			);
 		}
 		$this->__cacheDescription($this->fullTableName($model, false), $fields);
+
 		return $fields;
+	}
+/**
+ * Deletes all the records in a table and drops all associated auto-increment sequences.
+ * Using DELETE instead of TRUNCATE because it causes locking problems.
+ *
+ * @param mixed $table A string or model class representing the table to be truncated
+ * @param integer $reset If -1, sequences are dropped, if 0 (default), sequences are reset,
+ *						and if 1, sequences are not modified
+ * @return boolean	SQL TRUNCATE TABLE statement, false if not applicable.
+ * @access public
+ *
+ */
+	function truncate($table, $reset = 0) {
+
+		if (empty($this->_sequences)) {
+			$sql = "SELECT sequence_name FROM all_sequences";
+			$this->execute($sql);
+			while ($row = $this->fetchRow()) {
+				$this->_sequences[] = strtolower($row[0]['sequence_name']);
+			}
+		}
+
+		$this->execute('DELETE FROM ' . $this->fullTableName($table));
+		if (!isset($this->_sequenceMap[$table]) || !in_array($this->_sequenceMap[$table], $this->_sequences)) {
+			return true;
+		}
+		if ($reset === 0) {
+			$this->execute("SELECT {$this->_sequenceMap[$table]}.nextval FROM dual");
+			$row = $this->fetchRow();
+			$currval = $row[$this->_sequenceMap[$table]]['nextval'];
+
+			$this->execute("SELECT min_value FROM all_sequences WHERE sequence_name = '{$this->_sequenceMap[$table]}'");
+			$row = $this->fetchRow();
+			$min_value = $row[0]['min_value'];
+
+			if ($min_value == 1) $min_value = 0;
+			$offset = -($currval - $min_value);
+
+			$this->execute("ALTER SEQUENCE {$this->_sequenceMap[$table]} INCREMENT BY $offset MINVALUE $min_value");
+			$this->execute("SELECT {$this->_sequenceMap[$table]}.nextval FROM dual");
+			$this->execute("ALTER SEQUENCE {$this->_sequenceMap[$table]} INCREMENT BY 1");
+		} else {
+			//$this->execute("DROP SEQUENCE {$this->_sequenceMap[$table]}");
+		}
+		return true;
+	}
+/**
+ * Enables, disables, and lists table constraints
+ *
+ * Note: This method could have been written using a subselect for each table,
+ * however the effort Oracle expends to run the constraint introspection is very high.
+ * Therefore, this method caches the result once and loops through the arrays to find
+ * what it needs. It reduced my query time by 50%. YMMV.
+ *
+ * @param string $action
+ * @param string $table
+ * @return mixed boolean true or array of constraints
+ */
+	function constraint($action, $table) {
+		if (empty($table)) {
+			trigger_error(__('Must specify table to operate on constraints'));
+		}
+
+		$table = strtoupper($table);
+
+		if (empty($this->_keyConstraints)) {
+			$sql = "SELECT
+					  table_name,
+					  c.constraint_name
+					FROM all_cons_columns cc
+					LEFT JOIN all_indexes i ON (cc.constraint_name = i.index_name)
+					LEFT JOIN all_constraints c ON(c.constraint_name = cc.constraint_name)";
+			$this->execute($sql);
+			while ($row = $this->fetchRow()) {
+				$this->_keyConstraints[] = array($row[0]['table_name'], $row['c']['constraint_name']);
+			}
+		}
+
+		$relatedKeys = array();
+		foreach ($this->_keyConstraints as $c) {
+			if ($c[0] == $table) {
+				$relatedKeys[] = $c[1];
+			}
+		}
+
+		if (empty($this->_constraints)) {
+			$sql = "SELECT
+					  table_name,
+					  constraint_name,
+					  r_constraint_name
+					FROM
+					  all_constraints";
+			$this->execute($sql);
+			while ($row = $this->fetchRow()) {
+				$this->_constraints[] = $row[0];
+			}
+		}
+
+		$constraints = array();
+		foreach ($this->_constraints as $c) {
+			if (in_array($c['r_constraint_name'], $relatedKeys)) {
+				$constraints[] = array($c['table_name'], $c['constraint_name']);
+			}
+		}
+
+		foreach ($constraints as $c) {
+			list($table, $constraint) = $c;
+			switch ($action) {
+				case 'enable':
+					$this->execute("ALTER TABLE $table ENABLE CONSTRAINT $constraint");
+					break;
+				case 'disable':
+					$this->execute("ALTER TABLE $table DISABLE CONSTRAINT $constraint");
+					break;
+				case 'list':
+					return $constraints;
+					break;
+				default:
+					trigger_error(__('DboOracle::constraint() accepts only enable, disable, or list'));
+			}
+		}
+		return true;
+	}
+/**
+ * Returns an array of the indexes in given table name.
+ *
+ * @param string $model Name of model to inspect
+ * @return array Fields in table. Keys are column and unique
+ */
+	function index($model) {
+		$index = array();
+		$table = $this->fullTableName($model, false);
+		if ($table) {
+			$indexes = $this->query('SELECT
+			  cc.table_name,
+			  cc.column_name,
+			  cc.constraint_name,
+			  c.constraint_type,
+			  i.index_name,
+			  i.uniqueness
+			FROM all_cons_columns cc
+			LEFT JOIN all_indexes i ON(cc.constraint_name = i.index_name)
+			LEFT JOIN all_constraints c ON(c.constraint_name = cc.constraint_name)
+			WHERE cc.table_name = \'' . strtoupper($table) .'\'');
+			foreach ($indexes as $i => $idx) {
+				if ($idx['c']['constraint_type'] == 'P') {
+					$key = 'PRIMARY';
+				} else {
+					continue;
+				}
+				if (!isset($index[$key])) {
+					$index[$key]['column'] = strtolower($idx['cc']['column_name']);
+					$index[$key]['unique'] = intval($idx['i']['uniqueness'] == 'UNIQUE');
+				} else {
+					if (!is_array($index[$key]['column'])) {
+						$col[] = $index[$key]['column'];
+					}
+					$col[] = strtolower($idx['cc']['column_name']);
+					$index[$key]['column'] = $col;
+				}
+			}
+		}
+		return $index;
+	}
+/**
+ * Generate a Oracle Alter Table syntax for the given Schema comparison
+ *
+ * @param unknown_type $schema
+ * @return unknown
+ */
+	function alterSchema($compare, $table = null) {
+		if (!is_array($compare)) {
+			return false;
+		}
+		$out = '';
+		$colList = array();
+		foreach($compare as $curTable => $types) {
+			if (!$table || $table == $curTable) {
+				$out .= 'ALTER TABLE ' . $this->fullTableName($curTable) . " \n";
+				foreach($types as $type => $column) {
+					switch($type) {
+						case 'add':
+							foreach($column as $field => $col) {
+								$col['name'] = $field;
+								$alter = 'ADD '.$this->buildColumn($col);
+								if (isset($col['after'])) {
+									$alter .= ' AFTER '. $this->name($col['after']);
+								}
+								$colList[] = $alter;
+							}
+						break;
+						case 'drop':
+							foreach($column as $field => $col) {
+								$col['name'] = $field;
+								$colList[] = 'DROP '.$this->name($field);
+							}
+						break;
+						case 'change':
+							foreach($column as $field => $col) {
+								if (!isset($col['name'])) {
+									$col['name'] = $field;
+								}
+								$colList[] = 'CHANGE '. $this->name($field).' '.$this->buildColumn($col);
+							}
+						break;
+					}
+				}
+				$out .= "\t" . join(",\n\t", $colList) . ";\n\n";
+			}
+		}
+		return $out;
 	}
 /**
  * This method should quote Oracle identifiers. Well it doesn't.
@@ -438,18 +714,18 @@ class DboOracle extends DboSource {
  * @return unknown
  * @access public
  */
-	function name($var) {
-		switch($var) {
-			case '_create':
-			case '_read':
-			case '_update':
-			case '_delete':
-				return "\"$var\"";
-			break;
-			default:
-				return $var;
-			break;
+	function name($name) {
+		if (strpos($name, '.') !== false && strpos($name, '"') === false) {
+			list($model, $field) = explode('.', $name);
+			if ($field[0] == "_") {
+				$name = "$model.\"$field\"";
+			}
+		} else {
+			if ($name[0] == "_") {
+				$name = "\"$name\"";
+			}
 		}
+		return $name;
 	}
 /**
  * Begin a transaction
@@ -503,10 +779,12 @@ class DboOracle extends DboSource {
 		} else {
 			$real = strtolower($real);
 		}
-		$col = r(')', '', $real);
+		$col = str_replace(')', '', $real);
 		$limit = null;
+		if (strpos($col, '(') !== false) {
+			list($col, $limit) = explode('(', $col);
+		}
 
-		@list($col, $limit) = explode('(', $col);
 		if (in_array($col, array('date', 'timestamp'))) {
 			return $col;
 		}
@@ -541,9 +819,9 @@ class DboOracle extends DboSource {
  * @access public
  */
 	function value($data, $column = null, $safe = false) {
-	    $parent = parent::value($data, $column, $safe);
+		$parent = parent::value($data, $column, $safe);
 
-	    if ($parent != null) {
+		if ($parent != null) {
 			return $parent;
 		}
 
@@ -559,7 +837,7 @@ class DboOracle extends DboSource {
 			case 'date':
 				$data = date('Y-m-d H:i:s', strtotime($data));
 				$data = "TO_DATE('$data', 'YYYY-MM-DD HH24:MI:SS')";
-			    break;
+			break;
 			case 'integer' :
 			case 'float' :
 			case null :
@@ -567,9 +845,9 @@ class DboOracle extends DboSource {
 					break;
 				}
 			default:
-			    $data = str_replace("'", "''", $data);
-			    $data = "'$data'";
-			    break;
+				$data = str_replace("'", "''", $data);
+				$data = "'$data'";
+			break;
 		}
 		return $data;
 	}
@@ -581,7 +859,7 @@ class DboOracle extends DboSource {
  * @access public
  */
 	function lastInsertId($source) {
-		$sequence = (!empty($this->sequence)) ? $this->sequence : $source . '_seq';
+		$sequence = $this->_sequenceMap[$source];
 		$sql = "SELECT $sequence.currval FROM dual";
 
 		if (!$this->execute($sql)) {
@@ -600,12 +878,7 @@ class DboOracle extends DboSource {
  * @access public
  */
 	function lastError() {
-		$errors = ocierror();
-
-		if (($errors != null) && (isset($errors["message"]))) {
-			return($errors["message"]);
-		}
-		return null;
+		return $this->_error;
 	}
 /**
  * Returns number of affected rows in previous database operation. If no previous operation exists, this returns false.
@@ -617,17 +890,229 @@ class DboOracle extends DboSource {
 		return $this->_statementId ? ocirowcount($this->_statementId): false;
 	}
 /**
- * Inserts multiple values into a join table
+ * Renders a final SQL statement by putting together the component parts in the correct order
  *
- * @param string $table
- * @param string $fields
- * @param array $values
+ * @param string $type
+ * @param array $data
+ * @return string
  */
-	function insertMulti($table, $fields, $values) {
-		$count = count($values);
-		for ($x = 0; $x < $count; $x++) {
-			$this->query("INSERT INTO {$table} ({$fields}) VALUES {$values[$x]}");
+	function renderStatement($type, $data) {
+		extract($data);
+		$aliases = null;
+
+		switch (strtolower($type)) {
+			case 'select':
+				return "SELECT {$fields} FROM {$table} {$alias} {$joins} {$conditions} {$order} {$limit}";
+			break;
+			case 'create':
+				return "INSERT INTO {$table} ({$fields}) VALUES ({$values})";
+			break;
+			case 'update':
+				if (!empty($alias)) {
+					$aliases = "{$this->alias}{$alias} ";
+				}
+				return "UPDATE {$table} {$aliases}SET {$fields} {$conditions}";
+			break;
+			case 'delete':
+				if (!empty($alias)) {
+					$aliases = "{$this->alias}{$alias} ";
+				}
+				return "DELETE FROM {$table} {$aliases}{$conditions}";
+			break;
+			case 'schema':
+				foreach (array('columns', 'indexes') as $var) {
+					if (is_array(${$var})) {
+						${$var} = "\t" . join(",\n\t", array_filter(${$var}));
+					}
+				}
+				if (trim($indexes) != '') {
+					$columns .= ',';
+				}
+				return "CREATE TABLE {$table} (\n{$columns}{$indexes})";
+			break;
+			case 'alter':
+				break;
 		}
 	}
+/**
+ * Enter description here...
+ *
+ * @param Model $model
+ * @param unknown_type $linkModel
+ * @param string $type Association type
+ * @param unknown_type $association
+ * @param unknown_type $assocData
+ * @param unknown_type $queryData
+ * @param unknown_type $external
+ * @param unknown_type $resultSet
+ * @param integer $recursive Number of levels of association
+ * @param array $stack
+ */
+	function queryAssociation(&$model, &$linkModel, $type, $association, $assocData, &$queryData, $external = false, &$resultSet, $recursive, $stack) {
+		if ($query = $this->generateAssociationQuery($model, $linkModel, $type, $association, $assocData, $queryData, $external, $resultSet)) {
+			if (!isset($resultSet) || !is_array($resultSet)) {
+				if (Configure::read() > 0) {
+					e('<div style = "font: Verdana bold 12px; color: #FF0000">' . sprintf(__('SQL Error in model %s:', true), $model->alias) . ' ');
+					if (isset($this->error) && $this->error != null) {
+						e($this->error);
+					}
+					e('</div>');
+				}
+				return null;
+			}
+			$count = count($resultSet);
+
+			if ($type === 'hasMany' && (!isset($assocData['limit']) || empty($assocData['limit']))) {
+				$ins = $fetch = array();
+				for ($i = 0; $i < $count; $i++) {
+					if ($in = $this->insertQueryData('{$__cakeID__$}', $resultSet[$i], $association, $assocData, $model, $linkModel, $stack)) {
+						$ins[] = $in;
+					}
+				}
+
+				if (!empty($ins)) {
+					$fetch = array();
+					$ins = array_chunk($ins, 1000);
+					foreach ($ins as $i) {
+						$q = str_replace('{$__cakeID__$}', join(', ', $i), $query);
+						$q = str_replace('= (', 'IN (', $q);
+						$res = $this->fetchAll($q, $model->cacheQueries, $model->alias);
+						$fetch = array_merge($fetch, $res);
+					}
+				}
+
+				if (!empty($fetch) && is_array($fetch)) {
+					if ($recursive > 0) {
+
+						foreach ($linkModel->__associations as $type1) {
+							foreach ($linkModel->{$type1} as $assoc1 => $assocData1) {
+								$deepModel =& $linkModel->{$assoc1};
+								$tmpStack = $stack;
+								$tmpStack[] = $assoc1;
+
+								if ($linkModel->useDbConfig === $deepModel->useDbConfig) {
+									$db =& $this;
+								} else {
+									$db =& ConnectionManager::getDataSource($deepModel->useDbConfig);
+								}
+								$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+							}
+						}
+					}
+				}
+				return $this->__mergeHasMany($resultSet, $fetch, $association, $model, $linkModel, $recursive);
+			} elseif ($type === 'hasAndBelongsToMany') {
+				$ins = $fetch = array();
+				for ($i = 0; $i < $count; $i++) {
+					if ($in = $this->insertQueryData('{$__cakeID__$}', $resultSet[$i], $association, $assocData, $model, $linkModel, $stack)) {
+						$ins[] = $in;
+					}
+				}
+
+				$foreignKey = $model->hasAndBelongsToMany[$association]['foreignKey'];
+				$joinKeys = array($foreignKey, $model->hasAndBelongsToMany[$association]['associationForeignKey']);
+				list($with, $habtmFields) = $model->joinModel($model->hasAndBelongsToMany[$association]['with'], $joinKeys);
+				$habtmFieldsCount = count($habtmFields);
+
+				if (!empty($ins)) {
+					$fetch = array();
+					$ins = array_chunk($ins, 1000);
+					foreach ($ins as $i) {
+						$q = str_replace('{$__cakeID__$}', '(' .join(', ', $i) .')', $query);
+						$q = str_replace('= (', 'IN (', $q);
+						$q = str_replace('  WHERE 1 = 1', '', $q);
+
+
+						$q = $this->insertQueryData($q, null, $association, $assocData, $model, $linkModel, $stack);
+						if ($q != false) {
+							$res = $this->fetchAll($q, $model->cacheQueries, $model->alias);
+							$fetch = array_merge($fetch, $res);
+						}
+					}
+				}
+			}
+
+			for ($i = 0; $i < $count; $i++) {
+				$row =& $resultSet[$i];
+
+				if ($type !== 'hasAndBelongsToMany') {
+					$q = $this->insertQueryData($query, $resultSet[$i], $association, $assocData, $model, $linkModel, $stack);
+					if ($q != false) {
+						$fetch = $this->fetchAll($q, $model->cacheQueries, $model->alias);
+					} else {
+						$fetch = null;
+					}
+				}
+
+				if (!empty($fetch) && is_array($fetch)) {
+					if ($recursive > 0) {
+
+						foreach ($linkModel->__associations as $type1) {
+							foreach ($linkModel->{$type1} as $assoc1 => $assocData1) {
+
+								$deepModel =& $linkModel->{$assoc1};
+								if (($type1 === 'belongsTo') || ($deepModel->alias === $model->alias && $type === 'belongsTo') || ($deepModel->alias != $model->alias)) {
+									$tmpStack = $stack;
+									$tmpStack[] = $assoc1;
+									if ($linkModel->useDbConfig == $deepModel->useDbConfig) {
+										$db =& $this;
+									} else {
+										$db =& ConnectionManager::getDataSource($deepModel->useDbConfig);
+									}
+									$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+								}
+							}
+						}
+					}
+					if ($type == 'hasAndBelongsToMany') {
+						$merge = array();
+						foreach($fetch as $j => $data) {
+							if (isset($data[$with]) && $data[$with][$foreignKey] === $row[$model->alias][$model->primaryKey]) {
+								if ($habtmFieldsCount > 2) {
+									$merge[] = $data;
+								} else {
+									$merge[] = Set::diff($data, array($with => $data[$with]));
+								}
+							}
+						}
+						if (empty($merge) && !isset($row[$association])) {
+							$row[$association] = $merge;
+						} else {
+							$this->__mergeAssociation($resultSet[$i], $merge, $association, $type);
+						}
+					} else {
+						$this->__mergeAssociation($resultSet[$i], $fetch, $association, $type);
+					}
+					$resultSet[$i][$association] = $linkModel->afterfind($resultSet[$i][$association]);
+
+				} else {
+					$tempArray[0][$association] = false;
+					$this->__mergeAssociation($resultSet[$i], $tempArray, $association, $type);
+				}
+			}
+		}
+	}
+	/**
+	 * Generate a "drop table" statement for the given Schema object
+	 *
+	 * @param object $schema An instance of a subclass of CakeSchema
+	 * @param string $table Optional.  If specified only the table name given will be generated.
+	 *						Otherwise, all tables defined in the schema are generated.
+	 * @return string
+	 */
+		function dropSchema($schema, $table = null) {
+			if (!is_a($schema, 'CakeSchema')) {
+				trigger_error(__('Invalid schema object', true), E_USER_WARNING);
+				return null;
+			}
+			$out = '';
+
+			foreach ($schema->tables as $curTable => $columns) {
+				if (!$table || $table == $curTable) {
+					$out .= 'DROP TABLE ' . $this->fullTableName($curTable) . "\n";
+				}
+			}
+			return $out;
+		}
 }
 ?>
