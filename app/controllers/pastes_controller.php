@@ -1,19 +1,48 @@
 <?php
 /**
   *	@package pastemonkey.controllers
-  * @author Tane Piper <digitalspaghetti@gmail.com>
+  * @author Tane Piper <pastemonkey@ifies.org>
   * @name paste_controller.php
   * @Version 0.6
   * 
   */
 class PastesController extends AppController {
 
-	// Load Security Component to stop forms being ammended at runtime.
+	/**
+	 * The PasteController
+	 * @var $PasteController
+	 */
+	var $PasteController;
+	
+	/**
+	 * Load Security Component to stop forms being ammended at runtime.
+	 * @var $components
+	 */
 	var $components = array('Security');
-	// Default Pagination Settings
-	var $paginate = array('fields'=>array('Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id', 'Paste.language_id' , 'Paste.private', 'Paste.created' ,'Paste.expiry' , 'Language.id' ,'Language.language', 'Language.class'), 'order'=>array('Paste.created'=>'DESC'));
+	
+	/**
+	 * Default Pagination Settings for PasteController
+	 * @var $paginate
+	 */ 
+	var $paginate = array(
+		'conditions' => array(
+			'Paste.private'=>'0'
+		),
+		'fields' => array(
+			'Paste.id', 'Paste.paste', 'Paste.note', 'Paste.author', 'Paste.parent_id',
+			'Paste.language_id' , 'Paste.private', 'Paste.created' ,'Paste.expiry' ,
+			'Language.id' ,'Language.language', 'Language.class'
+		),
+		'order' => array(
+			'Paste.created'=>'DESC'
+		),
+		'limit' => 5
+	);
 
-  /** Set the plain text id for default */	
+  /** 
+   * Set the plain text id for default
+   * @var $plain_text_id
+   */	
 	var $plain_text_id = 48;
 	
 	/**
@@ -25,35 +54,46 @@ class PastesController extends AppController {
 	
 	
 	/**
-	  *	Function index
-	  */
-	
+	 * Function index is used as the main paginated display for pastes
+	 * This view is cached for 1 hour.  It checks to see if there is a passed argument
+	 * for the display limit.  If not it will be a default of 5
+	 * It then sets the pagination showing pastes that are not private
+	 * The final action is to purge any old pastes that have passed their expiry date 
+	 */
 	function index() {
 		// Declare Class Variables
-		$this->cacheAction = '1 hour';
+		$this->cacheAction = Configure::read('Site.cache_time');
 		$this->Paste->recursive = 0;	// Were only pulling basic data.
 
 		// Allows the limit to be overidden
-		if (!isset($this->passedArgs['limit'])) {
-			$this->passedArgs['limit'] = 5;
+		if (isset($this->params['named']['limit'])) {
+			$this->passedArgs['limit'] = $this->params['named']['limit'];
 		}
 		
-		$this->set('pastes', $this->paginate('Paste', array('Paste.private'=>'0')));
+		$this->set('pastes', $this->paginate('Paste'));
 		$this->Paste->_purge();	// Purge Old Pastes
 	}
 
+	/**
+	 * The View function is used to display an individual paste on screen
+	 * First we set the cache action and how much to recurse in the database
+	 * Next we check to see if the ID is valid, and if not we tell the user
+	 */
 	function view($id = null) {
 		// Declare Class Variables
-		$this->cacheAction = '1 hour';
+		$this->cacheAction = Configure::read('Site.cache_time');
 		$this->recursive = 3;
 
 		// If paste is not found, we have to notify the user
-		if (!$id) {
-			$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('Paste ID Invalid', true) . ' ' . $id . ' ' . __('does not exist.'), 'default', array('sev'=>'warning'));
+		$paste = $this->Paste->read(null, $id);
+		
+		
+		if (!$paste) {
+			$this->Session->setFlash('<strong>' . __('Warning', true) . '</strong><br />' . __('Paste ID Invalid', true) . ' ' . $id . ' ' . __('does not exist.', true), 'default', array('sev'=>'warning'));
 			$this->redirect(array('action'=>'index'), null, true);
 		}
 		
-		$paste = $this->Paste->read(null, $id);
+		
 		
 		// Check to see if there are any lines to highlight by exploding the line and creating an array from it to pass to GeSHi
 		if ($paste['Paste']['highlight_lines']) {
@@ -221,7 +261,7 @@ class PastesController extends AppController {
 		$this->set('overide_lang', $ol);	
 		}
 		// Set Expiry types
-		$this->set('expiry_types',$this->expiry_types);
+		$this->set('expiry_types',$this->Paste->pasteExpiryTimes());
 		// Purge all old pastes
 		$this->Paste->_purge();
 	}
@@ -253,12 +293,20 @@ class PastesController extends AppController {
 	}
 */	
 	function latest($num = 10) {
-		$this->cacheAction = '1 hour';
+		$this->cacheAction = Configure::read('Site.cache_time');
 		$latest = $this->Paste->find('all', array(
-		  'conditions' => array('Paste.private'=>'0'),
-		  'fields' => array('Paste.id','Paste.author','Paste.created'),
-		  'order' => array('Paste.created'=>'DESC'),
-		  'limit'=> 10));
+		  'conditions' => array(
+		  	'Paste.private'=>'0'
+			),
+		  'fields' => array(
+		  	'Paste.id','Paste.author','Paste.created'
+			),
+		  'order' => array(
+		  	'Paste.created'=>'DESC'
+			),
+		  'limit'=> 10
+			)
+		);
 		$this->set('latest',$latest);
 		return $latest;
 	}

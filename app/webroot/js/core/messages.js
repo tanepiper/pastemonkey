@@ -4,14 +4,17 @@ $(document).ready(function(){
 	 * The core message area
 	 */
 
-	$('.pm-message').livequery(function(){
+	 $('.pm-message').livequery(function(){
+		 console.log(this);
 		var self = this;
 		$(self).fadeIn(1000);
 		setTimeout(function() {
-			$(self).animate({ top: -100, opacity: 0 }, 2000);
+			$(self).animate({ top: -100, opacity: 0 }, 2000, function() {
+				$(self).remove();
+			});
+		
 		}, 3000);
 	});
-	
 	/***
 	 * Message firing functions
 	 */

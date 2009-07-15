@@ -129,7 +129,7 @@ class SessionHelper extends CakeSession {
 			if (parent::check('Message.' . $key)) {
 				$flash = parent::read('Message.' . $key);
 				if ($flash['layout'] == 'default') {
-					$out = '<div class="pm-message" rel="' . $flash['params']['sev'] .'"><div class="pm-message-left pm-message-left-'. $flash['params']['sev'] .'"><div class="pm-message-icon pm-message-icon-'. $flash['params']['sev'] .'"></div></div><div class="pm-message-body">' . $flash['message'] . '</div></div>';
+					$out = '<div class="pm-message ' . $flash['params']['sev'] . '" rel="' . $flash['params']['sev'] .'"><div class="pm-message-left pm-message-left-'. $flash['params']['sev'] .'"><div class="pm-message-icon pm-message-icon-'. $flash['params']['sev'] .'"></div></div><div class="pm-message-body">' . $flash['message'] . '</div></div>';
 				} elseif ($flash['layout'] == '' || $flash['layout'] == null) {
 					$out = $flash['message'];
 				} else {

@@ -323,14 +323,21 @@ input:focus, select:focus * {
 
 
 .pm-message {
-  position:absolute;
   background:#fff;
-  z-index:50000;
-  top: -300px;
   width: 50%;
   margin: 0 auto;
   height:50px;
   padding: 10px;
+}
+
+.pm-message.notice {
+		border: 2px solid #0f0;
+		background-color: #e5ffcc
+}
+
+.pm-message.warning {
+	border: 2px solid #ff7f00;
+	background-color: #ffffcc;
 }
 
 .message-error {
