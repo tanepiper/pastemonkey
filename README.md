@@ -1,4 +1,4 @@
-### Pastemonkey
+# Pastemonkey
 
 Pastemonkey was my attempt at a much better pastebin app. At the time, most pastebin apps were rather simple affairs.
 
